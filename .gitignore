@@ -1,0 +1,36 @@
+# Python build artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Jupyter / Kaggle
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs and checkpoints
+logs/
+*.pth
+*.pth.tar
+*.npy
+
+# Dataset (never commit these)
+examples/data/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
