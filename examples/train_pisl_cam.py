@@ -6,7 +6,7 @@ import numpy as np
 import sys
 import time
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sklearn.cluster import DBSCAN
 
