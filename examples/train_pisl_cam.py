@@ -35,10 +35,34 @@ best_mAP = 0
 
 
 def get_data(name, data_dir):
+    """Get dataset
+
+        Args:
+            name: Dataset name
+            data_dir: Data directory
+
+        Returns:
+            dataset: Dataset object containing train, query and gallery sets
+        """
     return datasets.create(name, data_dir)
 
 
 def get_train_loader(dataset, height, width, batch_size, workers, num_instances, iters, trainset=None):
+    """Get training data loader with data augmentation
+
+        Args:
+            dataset: Dataset object
+            height: Image height
+            width: Image width
+            batch_size: Batch size
+            workers: Number of data loading workers
+            num_instances: Number of instances per identity
+            iters: Number of iterations
+            trainset: Training set, if None use dataset.train
+
+        Returns:
+            train_loader: Training data loader with data augmentation
+        """
     normalizer = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     train_transformer = T.Compose([
         T.Resize((height, width), interpolation=3),
@@ -69,6 +93,19 @@ def get_train_loader(dataset, height, width, batch_size, workers, num_instances,
 
 
 def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
+    """Get test data loader without data augmentation
+
+        Args:
+            dataset: Dataset object
+            height: Image height
+            width: Image width
+            batch_size: Batch size
+            workers: Number of data loading workers
+            testset: Test set, if None use dataset.query and dataset.gallery
+
+        Returns:
+            test_loader: Test data loader
+        """
     normalizer = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     test_transformer = T.Compose([
         T.Resize((height, width), interpolation=3),
@@ -87,6 +124,17 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
 
 
 def compute_pseudo_labels(features, cluster, k1):
+    """Compute pseudo labels using DBSCAN clustering
+
+        Args:
+            features: Feature vectors [N, D]
+            cluster: DBSCAN clustering model
+            k1: Number of neighbors for Jaccard distance computation
+
+        Returns:
+            labels: Pseudo labels for each sample
+            num_ids: Number of unique clusters
+        """
     mat_dist = compute_jaccard_distance(features, k1=k1, k2=6)
     ids = cluster.fit_predict(mat_dist)
     num_ids = len(set(ids)) - (1 if -1 in ids else 0)
@@ -104,6 +152,17 @@ def compute_pseudo_labels(features, cluster, k1):
 
 
 def compute_semantic_consistency(features_g, features_p, k, search_option=0):
+    """Compute semantic consistency score between global and local features
+
+        Args:
+            features_g: Global features [N, D]
+            features_p: Local features [N, D, P]
+            k: Number of neighbors for consistency computation
+            search_option: Search option for nearest neighbor computation
+
+        Returns:
+            consistency_scores: Semantic consistency score [N, P]
+        """
     print("Compute semantic consistency score...")
     N, D, P = features_p.size()
     score = torch.zeros(N, P, device=features_g.device)
@@ -150,6 +209,7 @@ def compute_semantic_consistency(features_g, features_p, k, search_option=0):
 
 
 def main():
+    """Main function for training and evaluation"""
     args = parser.parse_args()
 
     if args.seed is not None:
@@ -165,6 +225,11 @@ def main():
 
 
 def main_worker(args):
+    """Main worker function for training and evaluation
+
+        Args:
+            args: Command line arguments
+        """
     global best_mAP
 
     cudnn.benchmark = True
