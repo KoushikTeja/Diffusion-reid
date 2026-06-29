@@ -225,11 +225,6 @@ def main():
 
 
 def main_worker(args):
-    """Main worker function for training and evaluation
-
-        Args:
-            args: Command line arguments
-        """
     global best_mAP
 
     cudnn.benchmark = True
@@ -237,27 +232,44 @@ def main_worker(args):
     sys.stdout = Logger(osp.join(args.logs_dir, 'log.txt'))
     print("==========\nArgs:{}\n==========".format(args))
 
+    # ── Timer utility ────────────────────────────────────────────────────
+    def hms(seconds):
+        h = int(seconds // 3600)
+        m = int((seconds % 3600) // 60)
+        s = seconds % 60
+        return f"{h:02d}h {m:02d}m {s:05.2f}s"
+
+    def print_step(step_name, elapsed, extra=""):
+        print(f"  ⏱  [{step_name}] {hms(elapsed)}" + (f"  |  {extra}" if extra else ""))
+
+    # ── Load dataset ─────────────────────────────────────────────────────
+    t0 = time.time()
     dataset = get_data(args.dataset, args.data_dir)
     test_loader = get_test_loader(dataset, args.height, args.width, args.batch_size, args.workers)
     cluster_loader = get_test_loader(dataset, args.height, args.width, args.batch_size, args.workers,
                                      testset=sorted(dataset.train))
+    print_step("Dataset loading", time.time() - t0,
+               f"train={len(dataset.train)} query={len(dataset.query)} gallery={len(dataset.gallery)}")
 
+    # ── Initialize model ─────────────────────────────────────────────────
+    t0 = time.time()
     num_parts = args.part
     model = resnet50part(num_parts=args.part, num_classes=3000)
     model.cuda()
     model = nn.DataParallel(model)
+    print_step("Model init", time.time() - t0,
+               f"params={sum(p.numel() for p in model.parameters()):,}")
 
-    # ── Resume from checkpoint ──────────────────────────────────
+    # ── Resume ───────────────────────────────────────────────────────────
     if args.resume:
-        print(f"=> Resuming from checkpoint: {args.resume}")
+        t0 = time.time()
         checkpoint = torch.load(args.resume, map_location='cuda')
         model.load_state_dict(checkpoint)
-        print(f"✅ Loaded checkpoint successfully")
+        print_step("Resume checkpoint", time.time() - t0, f"from {args.resume}")
 
     if args.best_mAP > 0:
         best_mAP = args.best_mAP
-        print(f"=> Restored best mAP: {best_mAP:.1%}")
-    # ────────────────────────────────────────────────────────────
+        print(f"  => Restored best mAP: {best_mAP:.1%}")
 
     evaluator = Evaluator(model)
 
@@ -269,27 +281,53 @@ def main_worker(args):
     optimizer = torch.optim.Adam(params)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=0.1)
 
-    # ── Fast-forward lr_scheduler to start_epoch ────────────────
     for _ in range(args.start_epoch):
         lr_scheduler.step()
-    # ────────────────────────────────────────────────────────────
 
     consistency_score_log = torch.FloatTensor([])
 
-    # ── Start from start_epoch instead of 0 ─────────────────────
+    # ── Track cumulative time ─────────────────────────────────────────────
+    epoch_times = []
+    cumulative_start = time.time()
+
     for epoch in range(args.start_epoch, args.epochs):
-    # ────────────────────────────────────────────────────────────
+
+        epoch_start = time.time()
+        print(f"\n{'='*65}")
+        print(f"  EPOCH {epoch}/{args.epochs-1}   "
+              f"(elapsed so far: {hms(time.time() - cumulative_start)})")
+        print(f"{'='*65}")
+
+        # ── Feature extraction ───────────────────────────────────────────
+        t0 = time.time()
         global_features, part_features, _ = extract_all_features(model, cluster_loader)
         global_features = torch.cat([global_features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
         part_features = torch.cat([part_features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
+        t_feat = time.time() - t0
+        print_step("Feature extraction", t_feat,
+                   f"global={list(global_features.shape)}  parts={list(part_features.shape)}")
 
+        # ── DBSCAN init ──────────────────────────────────────────────────
         if epoch == args.start_epoch:
             cluster = DBSCAN(eps=args.eps, min_samples=4, metric='precomputed', n_jobs=8)
 
+        # ── Jaccard distance + clustering ────────────────────────────────
+        t0 = time.time()
         pseudo_labels, num_classes = compute_pseudo_labels(global_features, cluster, args.k1)
-        consistency_scores = compute_semantic_consistency(global_features, part_features, k=args.knn)
-        consistency_score_log = torch.cat([consistency_score_log, consistency_scores.unsqueeze(0)], dim=0)
+        t_cluster = time.time() - t0
+        print_step("Jaccard + DBSCAN clustering", t_cluster,
+                   f"clusters={num_classes}")
 
+        # ── Semantic consistency ─────────────────────────────────────────
+        t0 = time.time()
+        consistency_scores = compute_semantic_consistency(global_features, part_features, k=args.knn)
+        t_consist = time.time() - t0
+        consistency_score_log = torch.cat([consistency_score_log, consistency_scores.unsqueeze(0)], dim=0)
+        print_step("Semantic consistency", t_consist,
+                   f"scores shape={list(consistency_scores.shape)}")
+
+        # ── Build new dataset ────────────────────────────────────────────
+        t0 = time.time()
         num_outliers = 0
         new_dataset = []
         sample_indices, camera_ids, person_ids = [], [], []
@@ -304,10 +342,16 @@ def main_worker(args):
                 person_ids.append(pid)
 
         train_loader = get_train_loader(dataset, args.height, args.width, args.batch_size,
-                                        args.workers, args.num_instances, args.iters, trainset=new_dataset)
+                                        args.workers, args.num_instances, args.iters,
+                                        trainset=new_dataset)
+        t_build = time.time() - t0
+        print(f'\n  ==> Statistics for epoch {epoch}: '
+              f'{num_classes} clusters, {num_outliers} un-clustered instances')
+        print_step("Dataset rebuild", t_build,
+                   f"trainset size={len(new_dataset)}")
 
-        print('==> Statistics for epoch {}: {} clusters, {} un-clustered instances'.format(epoch, num_classes, num_outliers))
-
+        # ── Centroids + memory banks ─────────────────────────────────────
+        t0 = time.time()
         sample_indices = np.asarray(sample_indices)
         camera_ids = np.asarray(camera_ids)
         person_ids = np.asarray(person_ids)
@@ -321,7 +365,6 @@ def main_worker(args):
             pid_indices = np.where(person_ids == pid)[0]
             global_centroids.append(global_features[pid_indices].mean(0))
             part_centroids.append(part_features[pid_indices].mean(0))
-
             for cid in sorted(np.unique(camera_ids[pid_indices])):
                 cid_indices = np.where(camera_ids == cid)[0]
                 common_indices = np.intersect1d(pid_indices, cid_indices)
@@ -343,7 +386,6 @@ def main_worker(args):
             part_centroids_i = F.normalize(part_centroids_i, p=2, dim=1)
             part_classifier = getattr(model.module, 'classifier' + str(i))
             part_classifier.weight.data[:num_classes].copy_(part_centroids_i)
-
             part_memory = CameraContrast(global_centroids.size(1), len(proxy_pids)).cuda()
             camera_part_proxies_i = torch.stack(camera_part_proxies)[:, :, i]
             part_memory.proxy = F.normalize(camera_part_proxies_i, p=2, dim=1).cuda()
@@ -351,27 +393,73 @@ def main_worker(args):
             part_memory.cids = torch.Tensor(proxy_cids).long().cuda()
             part_memories.append(part_memory)
 
+        t_memory = time.time() - t0
+        print_step("Centroids + memory banks", t_memory,
+                   f"proxies={len(proxy_pids)}  centroids={len(global_centroids)}")
+
+        # ── Training iterations ──────────────────────────────────────────
+        t0 = time.time()
         trainer = PISLTrainerCAM(model, consistency_scores, camera_memory, part_memories,
                                num_class=num_classes, num_part=num_parts,
                                Wref=args.Wref, se=args.se, Wcam=args.Wcam, Wdiff=args.Wdiff)
+        trainer.train(epoch, train_loader, optimizer,
+                      print_freq=args.print_freq, train_iters=len(train_loader))
+        t_train = time.time() - t0
+        print_step("Training iterations", t_train,
+                   f"{args.iters} iters @ {t_train/args.iters:.2f}s/iter")
 
-        trainer.train(epoch, train_loader, optimizer, print_freq=args.print_freq, train_iters=len(train_loader))
         lr_scheduler.step()
 
+        # ── Evaluation ───────────────────────────────────────────────────
         if ((epoch+1) % args.eval_step == 0) or (epoch == args.epochs-1):
+            t0 = time.time()
             mAP = evaluator.evaluate(test_loader, dataset.query, dataset.gallery, cmc_flag=False)
+            t_eval = time.time() - t0
 
             if mAP > best_mAP:
                 best_mAP = mAP
                 torch.save(model.state_dict(), osp.join(args.logs_dir, 'best.pth'))
-            print('\n* Finished epoch {:3d}  model mAP: {:5.1%} best: {:5.1%}\n'.format(epoch, mAP, best_mAP))
+            print_step("Evaluation", t_eval, f"mAP={mAP:.1%}")
+            print(f'\n  * Finished epoch {epoch:3d}  '
+                  f'model mAP: {mAP:5.1%}  best: {best_mAP:5.1%}')
 
-    torch.save(model.state_dict(), osp.join(args.logs_dir, 'last.pth'))
+        # ── Epoch summary ────────────────────────────────────────────────
+        t_epoch = time.time() - epoch_start
+        epoch_times.append(t_epoch)
+        avg_epoch = np.mean(epoch_times)
+        remaining_epochs = args.epochs - epoch - 1
+        eta = avg_epoch * remaining_epochs
+
+        print(f"\n  📊 EPOCH {epoch} TIMING SUMMARY")
+        print(f"  {'─'*55}")
+        print(f"  Feature extraction:     {hms(t_feat)}")
+        print(f"  Jaccard + clustering:   {hms(t_cluster)}")
+        print(f"  Semantic consistency:   {hms(t_consist)}")
+        print(f"  Dataset rebuild:        {hms(t_build)}")
+        print(f"  Memory banks:           {hms(t_memory)}")
+        print(f"  Training iterations:    {hms(t_train)}")
+        print(f"  {'─'*55}")
+        print(f"  Total this epoch:       {hms(t_epoch)}")
+        print(f"  Avg epoch time:         {hms(avg_epoch)}")
+        print(f"  Epochs remaining:       {remaining_epochs}")
+        print(f"  ETA:                    {hms(eta)}")
+        print(f"  Total elapsed:          {hms(time.time() - cumulative_start)}")
+
+        # ── Save checkpoint every epoch ──────────────────────────────────
+        torch.save(model.state_dict(), osp.join(args.logs_dir, 'last.pth'))
+
+    # ── Final ─────────────────────────────────────────────────────────────
+    total_time = time.time() - cumulative_start
+    print(f"\n{'='*65}")
+    print(f"  TRAINING COMPLETE")
+    print(f"  Total time:    {hms(total_time)}")
+    print(f"  Best mAP:      {best_mAP:.1%}")
+    print(f"  Avg/epoch:     {hms(np.mean(epoch_times))}")
+    print(f"{'='*65}")
+
     np.save(osp.join(args.logs_dir, 'scores.npy'), consistency_score_log.numpy())
-
     model.load_state_dict(torch.load(osp.join(args.logs_dir, 'best.pth')))
     evaluator.evaluate(test_loader, dataset.query, dataset.gallery, cmc_flag=True)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Unsupervised Learning of Intrinsic Semantics With Diffusion Model for Person Re-Identification")
