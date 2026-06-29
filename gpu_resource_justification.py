@@ -584,5 +584,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-gpu_resource_justification.py
-Displaying gpu_resource_justification.py.
