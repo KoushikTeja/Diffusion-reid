@@ -121,7 +121,7 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     return jaccard_dist
 
 @torch.no_grad()
-def compute_ranked_list(features, k=20, search_option=0, fp16=False, verbose=True):
+def compute_ranked_list(features, k=20, search_option=2, fp16=False, verbose=True):
 
     end = time.time()
     if verbose:
