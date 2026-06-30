@@ -30,6 +30,10 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     if print_flag:
         print('Computing jaccard distance...')
 
+    # Force CPU path if faiss has no GPU support (prevents segfault)
+    if faiss.get_num_gpus() == 0:
+        search_option = 3
+
     ngpus = faiss.get_num_gpus()
     N = target_features.size(0)
     mat_type = np.float16 if use_float16 else np.float32
@@ -127,6 +131,10 @@ def compute_ranked_list(features, k=20, search_option=2, fp16=False, verbose=Tru
     if verbose:
         print("Computing ranked list...")
 
+    # Force CPU path if faiss has no GPU support (prevents segfault)
+    if faiss.get_num_gpus() == 0:
+        search_option = 3
+
     if search_option < 3:
         torch.cuda.empty_cache()
         features = features.cuda().detach()
@@ -159,8 +167,6 @@ def compute_ranked_list(features, k=20, search_option=2, fp16=False, verbose=Tru
 
     else:
         # Numpy Search (CPU)
-        torch.cuda.empty_cache()
-        features = features.cuda().detach()
         dist_m = compute_euclidean_distance(features, cuda=False)
         initial_rank = np.argsort(dist_m.cpu().numpy(), axis=1)
         features = features.cpu()
