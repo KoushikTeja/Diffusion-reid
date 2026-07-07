@@ -130,6 +130,7 @@ def compute_ranked_list(features, k=20, search_option=0, fp16=False, verbose=Tru
     if search_option == 0:
         # Faiss Search + PyTorch CUDA Tensors (1)
         res = faiss.StandardGpuResources()
+        res.setTempMemory(256 * 1024 * 1024)
         res.setDefaultNullStreamAllDevices()
         _, initial_rank = search_raw_array_pytorch(res, features, features, k + 1)
         initial_rank = initial_rank.cpu().numpy()
@@ -137,6 +138,7 @@ def compute_ranked_list(features, k=20, search_option=0, fp16=False, verbose=Tru
     elif search_option == 1:
         # Faiss Search + PyTorch CUDA Tensors (2)
         res = faiss.StandardGpuResources()
+        res.setTempMemory(256 * 1024 * 1024)
         index = faiss.GpuIndexFlatL2(res, features.size(-1))
         index.add(features.cpu().numpy())
         _, initial_rank = search_index_pytorch(index, features, k + 1)
