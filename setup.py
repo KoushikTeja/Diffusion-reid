@@ -8,8 +8,7 @@ setup(name='PISL',
       author_email='taoxuefeng@stu.jiangnan.edu.cn',
       url='https://github.com/taoxuefong/Diffusion-reid',
       install_requires=[
-          'numpy', 'torch', 'torchvision',
-          'six', 'h5py', 'Pillow', 'scipy',
-          'scikit-learn', 'metric-learn', 'faiss-gpu-cu12'],
+          'numpy', 'six', 'h5py', 'Pillow', 'scipy',
+          'scikit-learn', 'metric-learn', 'tqdm', 'pandas'],
       packages=find_packages()
       )
