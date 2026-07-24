@@ -9,6 +9,7 @@ setup(name='PISL',
       url='https://github.com/taoxuefong/Diffusion-reid',
       install_requires=[
           'numpy', 'six', 'h5py', 'Pillow', 'scipy',
-          'scikit-learn', 'metric-learn', 'tqdm', 'pandas'],
+          'scikit-learn', 'metric-learn', 'tqdm', 'pandas',
+          'matplotlib', 'opencv-python'],
       packages=find_packages()
       )
