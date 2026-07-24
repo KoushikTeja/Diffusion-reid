@@ -59,9 +59,6 @@ def get_gpu_resources():
 def search_raw_array_pytorch(res, xb, xq, k, D=None, I=None,
                              metric=faiss.METRIC_L2):
     """使用FAISS GPU进行k近邻搜索"""
-
-    res.setTempMemory(256 * 1024 * 1024)
-
     assert xb.device == xq.device
 
     # 获取维度信息
