@@ -452,7 +452,7 @@ class ResNetPart(nn.Module):
         logits_p = torch.stack(logits_p, dim=-1)
 
         if self.training:
-            return f_g, fs_p, logits_g, logits_p, noise_pred, noisy_theta, noise
+            return f_g, fs_p, logits_g, logits_p, noise_pred, noisy_theta, noise, initial_theta
         else:
             return f_g, fs_p, logits_g, logits_p
 

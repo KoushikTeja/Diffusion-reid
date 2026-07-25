@@ -243,7 +243,7 @@ class PISLTrainerCAM(object):
             inputs, targets, cams, ca = self._parse_data(data)
 
             # Forward pass through the model
-            emb_g, emb_p, logits_g, logits_p, noise_pred, noisy_theta, noise = self.model(inputs)
+            emb_g, emb_p, logits_g, logits_p, noise_pred, noisy_theta, noise, initial_theta = self.model(inputs)
             logits_g, logits_p = logits_g[:, :self.num_class], logits_p[:, :self.num_class, :]
 
             # Compute various losses
@@ -271,7 +271,7 @@ class PISLTrainerCAM(object):
             # Compute diffusion model loss
             loss_diffusion, loss_dict = self.criterion_diffusion(
                 noisy_theta,  # Predicted transformation parameters
-                self.model.module.patch_proposal(self.model.module.base(inputs)),  # Initial transformation parameters
+                initial_theta,  # Initial transformation parameters (already computed in forward pass)
                 noise_pred,  # Predicted noise
                 noise,  # Ground truth noise
                 emb_p,  # Part features for contrastive learning
