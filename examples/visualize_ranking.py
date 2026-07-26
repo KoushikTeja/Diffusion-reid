@@ -1,104 +1,142 @@
 import os
-import torch
+import os.path as osp
+import argparse
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-import torchvision.transforms as T
-from tqdm import tqdm
 
-from pisl.models import build_model
-from pisl.utils.data import get_test_loader
-from pisl.utils.metrics import extract_features, compute_rank_list
+import torch
+from torch import nn
 
+from pisl import datasets
+from pisl.models import resnet50part
+from pisl.evaluators import extract_all_features, pairwise_distance
+from pisl.utils.data import transforms as T
+from pisl.utils.data.preprocessor import Preprocessor
+from torch.utils.data import DataLoader
+from pisl.utils.serialization import load_checkpoint, copy_state_dict
 
-def visualize_ranking(query_img, gallery_imgs, query_label, gallery_labels, 
-                     save_path, top_k=10):
-    """Visualize ranking results
+def get_test_loader(dataset, height, width, batch_size, workers):
+    normalizer = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    test_transformer = T.Compose([
+        T.Resize((height, width), interpolation=3),
+        T.ToTensor(),
+        normalizer
+    ])
     
-    Args:
-        query_img: Query image tensor [C x H x W]
-        gallery_imgs: Gallery image tensors [N x C x H x W]
-        query_label: Query image label
-        gallery_labels: Gallery image labels [N]
-        save_path: Path to save visualization
-        top_k: Number of top results to show
-    """
-    # Convert tensors to numpy arrays
-    query_img = query_img.cpu().numpy().transpose(1, 2, 0)
-    gallery_imgs = gallery_imgs.cpu().numpy().transpose(0, 2, 3, 1)
+    test_set = list(set(dataset.query) | set(dataset.gallery))
+    test_loader = DataLoader(
+        Preprocessor(test_set, root=dataset.images_dir, transform=test_transformer),
+        batch_size=batch_size, num_workers=workers,
+        shuffle=False, pin_memory=True)
+    return test_loader
+
+def visualize_ranking(query_info, gallery_infos, save_path, top_k=10):
+    q_path, q_pid, q_camid = query_info
     
-    # Denormalize images
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    query_img = std * query_img + mean
-    gallery_imgs = std * gallery_imgs + mean
+    plt.figure(figsize=(16, 4))
     
-    # Clip values to [0, 1]
-    query_img = np.clip(query_img, 0, 1)
-    gallery_imgs = np.clip(gallery_imgs, 0, 1)
-    
-    # Create visualization
-    plt.figure(figsize=(15, 3))
-    
-    # Plot query image
+    # Plot query
     plt.subplot(1, top_k + 1, 1)
-    plt.imshow(query_img)
-    plt.title(f'Query\nID: {query_label}')
+    q_img = Image.open(q_path).convert('RGB')
+    plt.imshow(q_img)
+    plt.title(f'Query\nID: {q_pid}\nCam: {q_camid}', color='black', fontweight='bold')
     plt.axis('off')
     
-    # Plot gallery images
+    # Plot gallery results
     for i in range(top_k):
+        g_path, g_pid, g_camid = gallery_infos[i]
         plt.subplot(1, top_k + 1, i + 2)
-        plt.imshow(gallery_imgs[i])
-        plt.title(f'Rank {i+1}\nID: {gallery_labels[i]}')
-        plt.axis('off')
-    
+        g_img = Image.open(g_path).convert('RGB')
+        plt.imshow(g_img)
+        
+        # Color coding: Green for correct (same ID, diff Cam), Red for wrong, Gray for junk (same ID, same Cam)
+        if g_pid == q_pid and g_camid == q_camid:
+            color = 'gray'
+            title = 'Junk'
+        elif g_pid == q_pid:
+            color = 'green'
+            title = 'True'
+        else:
+            color = 'red'
+            title = 'False'
+            
+        plt.title(f'{title}\nID: {g_pid}\nCam: {g_camid}', color=color, fontweight='bold')
+        
+        # Add colored border
+        ax = plt.gca()
+        for spine in ax.spines.values():
+            spine.set_edgecolor(color)
+            spine.set_linewidth(4)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
 
-
 def main():
-    # Configuration
-    model_path = 'path/to/your/model.pth'  # 替换为您的模型路径
-    dataset_name = 'market1501'  # 替换为您的数据集名称
-    save_dir = 'visualization/ranking'
-    os.makedirs(save_dir, exist_ok=True)
-    
-    # Load model
-    model = build_model(name='resnet50', num_classes=751, pretrained=False)
-    model.load_state_dict(torch.load(model_path))
-    model = model.cuda()
-    model.eval()
-    
-    # Get test loader
-    test_loader = get_test_loader(dataset_name, batch_size=32, num_workers=4)
-    
-    # Extract features
-    features, labels = extract_features(model, test_loader)
-    
-    # Compute ranking list
-    rank_list = compute_rank_list(features, labels)
-    
-    # Visualize ranking results for a few queries
-    num_queries = 5
-    for i in range(num_queries):
-        query_idx = i
-        query_label = labels[query_idx]
-        
-        # Get top-k gallery images
-        top_k = 10
-        gallery_indices = rank_list[query_idx][:top_k]
-        gallery_labels = labels[gallery_indices]
-        
-        # Get images
-        query_img = test_loader.dataset[query_idx][0]
-        gallery_imgs = torch.stack([test_loader.dataset[idx][0] for idx in gallery_indices])
-        
-        # Visualize ranking
-        save_path = os.path.join(save_dir, f'ranking_query_{query_idx}.png')
-        visualize_ranking(query_img, gallery_imgs, query_label, gallery_labels, save_path)
+    parser = argparse.ArgumentParser(description="Visualize ranking")
+    parser.add_argument('-d', '--dataset', type=str, default='market1501')
+    parser.add_argument('-b', '--batch-size', type=int, default=64)
+    parser.add_argument('-j', '--workers', type=int, default=4)
+    parser.add_argument('--height', type=int, default=384, help="input height")
+    parser.add_argument('--width', type=int, default=128, help="input width")
+    working_dir = osp.dirname(osp.abspath(__file__))
+    parser.add_argument('--data-dir', type=str, metavar='PATH', default=osp.join(working_dir, 'data'))
+    parser.add_argument('--resume', type=str, required=True, metavar='PATH')
+    parser.add_argument('--part', type=int, default=3)
+    parser.add_argument('--num-queries', type=int, default=5, help="number of query images to visualize")
+    parser.add_argument('--seed', type=int, default=1)
+    args = parser.parse_args()
 
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
+
+    print("Loading dataset...")
+    dataset = datasets.create(args.dataset, args.data_dir)
+    test_loader = get_test_loader(dataset, args.height, args.width, args.batch_size, args.workers)
+
+    print("Loading model...")
+    model = resnet50part(num_parts=args.part, num_classes=3000)
+    model.cuda()
+    model = nn.DataParallel(model)
+    checkpoint = load_checkpoint(args.resume)
+    copy_state_dict(checkpoint, model)
+    model.eval()
+
+    print("Extracting features...")
+    features_g, _, _ = extract_all_features(model, test_loader)
+    
+    print("Computing pairwise distance...")
+    dist_m, _, _ = pairwise_distance(features_g, query=dataset.query, gallery=dataset.gallery)
+    distmat = dist_m.numpy()
+
+    save_dir = osp.join(working_dir, 'visualizations', 'ranking')
+    os.makedirs(save_dir, exist_ok=True)
+
+    print(f"Generating {args.num_queries} visualizations...")
+    # Select random queries
+    indices = np.random.choice(len(dataset.query), args.num_queries, replace=False)
+    
+    for idx in indices:
+        query_info = dataset.query[idx]
+        distances = distmat[idx]
+        
+        # Sort gallery by distance
+        ranked_indices = np.argsort(distances)
+        
+        # Get top-15 gallery items (to have enough after potential junks, though we plot top 10)
+        top_gallery_infos = [dataset.gallery[i] for i in ranked_indices[:10]]
+        
+        save_path = osp.join(save_dir, f'query_{idx}_pid_{query_info[1]}.png')
+        visualize_ranking(query_info, top_gallery_infos, save_path, top_k=10)
+        print(f"Saved {save_path}")
+        
+    print("Done! Check the examples/visualizations/ranking/ directory.")
 
 if __name__ == '__main__':
-    main() 
+    main()
