@@ -32,8 +32,12 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     if print_flag:
         print('Computing jaccard distance...')
 
+    # PyTorch aggressively caches memory during the training epoch.
+    # We MUST empty the cache so FAISS's C++ cudaMalloc can allocate its 512MB buffer.
+    torch.cuda.empty_cache()
+
     ngpus = faiss.get_num_gpus()
-    res = get_gpu_resources()  # 使用新的GPU资源配置
+    res = get_gpu_resources()  # This triggers cudaMalloc(512MB)
 
     # 将特征分批处理以减少内存使用
     N = target_features.size(0)
