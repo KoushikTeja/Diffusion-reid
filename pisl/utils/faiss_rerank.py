@@ -123,6 +123,11 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     if print_flag:
         print("Jaccard distance computing time cost: {}".format(time.time() - end))
 
+    del res
+    import gc
+    gc.collect()
+    torch.cuda.empty_cache()
+
     return jaccard_dist
 
 
@@ -144,6 +149,10 @@ def compute_ranked_list(features, k=20, search_option=0, fp16=False, verbose=Tru
         res.setDefaultNullStreamAllDevices()
         _, initial_rank = search_raw_array_pytorch(res, features, features, k + 1)
         initial_rank = initial_rank.cpu().numpy()
+        del res
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
 
     elif search_option == 1:
         # Faiss Search + PyTorch CUDA Tensors (2)
@@ -153,6 +162,10 @@ def compute_ranked_list(features, k=20, search_option=0, fp16=False, verbose=Tru
         _, initial_rank = search_index_pytorch(index, features, k + 1)
         res.syncDefaultStreamCurrentDevice()
         initial_rank = initial_rank.cpu().numpy()
+        del index, res
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
 
     elif search_option == 2:
         # PyTorch Search + PyTorch CUDA Tensors

@@ -47,6 +47,11 @@ def search_index_pytorch(index, x, k, D=None, I=None):
     I.copy_(torch.from_numpy(I_np))
 
     torch.cuda.synchronize()
+    
+    del D_np, I_np, x_np
+    import gc
+    gc.collect()
+    
     return D, I
 
 
@@ -86,6 +91,11 @@ def search_raw_array_pytorch(res, xb, xq, k, D=None, I=None,
     # 将结果复制回GPU
     D.copy_(torch.from_numpy(D_np))
     I.copy_(torch.from_numpy(I_np))
+
+    del index, D_np, I_np
+    import gc
+    gc.collect()
+    torch.cuda.empty_cache()
 
     return D, I
 
