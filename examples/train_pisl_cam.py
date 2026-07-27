@@ -9,6 +9,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,4,5"
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sklearn.cluster import DBSCAN
+import wandb
 
 import torch
 import torch.nn.functional as F
@@ -289,6 +290,11 @@ def main_worker(args):
     # ── Track cumulative time ─────────────────────────────────────────────
     epoch_times = []
     cumulative_start = time.time()
+    
+    try:
+        wandb.init(project="diffusion-reid", config=args)
+    except Exception as e:
+        print(f"Warning: Failed to init wandb: {e}")
 
     for epoch in range(args.start_epoch, args.epochs):
 
@@ -349,6 +355,16 @@ def main_worker(args):
               f'{num_classes} clusters, {num_outliers} un-clustered instances')
         print_step("Dataset rebuild", t_build,
                    f"trainset size={len(new_dataset)}")
+                   
+        try:
+            if wandb.run is not None:
+                wandb.log({
+                    "Epoch/Clusters": num_classes,
+                    "Epoch/Outliers": num_outliers,
+                    "Epoch/Trainset_Size": len(new_dataset)
+                })
+        except Exception:
+            pass
 
         # ── Centroids + memory banks ─────────────────────────────────────
         t0 = time.time()

@@ -329,6 +329,24 @@ class PISLTrainerCAM(object):
                               losses_consistency.val, losses_consistency.avg,
                               losses_contrastive.val, losses_contrastive.avg,
                               precisions.val, precisions.avg))
+                              
+                try:
+                    import wandb
+                    if wandb.run is not None:
+                        wandb.log({
+                            "Train/Loss_Global": losses_gce.val,
+                            "Train/Loss_Part": losses_pce.val,
+                            "Train/Loss_Triplet": losses_tri.val,
+                            "Train/Loss_Camera": losses_cam.val,
+                            "Train/Loss_Diffusion": losses_diffusion.val,
+                            "Train/Loss_Noise": losses_noise.val,
+                            "Train/Loss_Consistency": losses_consistency.val,
+                            "Train/Loss_Contrastive": losses_contrastive.val,
+                            "Train/Total_Loss": loss.item(),
+                            "Train/Accuracy": precisions.val
+                        })
+                except ImportError:
+                    pass
 
     def _parse_data(self, inputs):
         """Parse input data from data loader
