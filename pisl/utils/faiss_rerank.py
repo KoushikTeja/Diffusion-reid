@@ -40,15 +40,26 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     batch_size = 512  # 减小批处理大小以降低内存使用
     initial_rank = torch.zeros(N, k1, device=target_features.device, dtype=torch.long)  # 确保是 long 类型
 
+    # Build index ONCE to avoid OOM memory leaks and massive slowdowns
+    cfg = faiss.GpuIndexFlatConfig()
+    cfg.device = target_features.device.index if target_features.is_cuda else torch.cuda.current_device()
+    index = faiss.GpuIndexFlatL2(res, target_features.size(1), cfg)
+    index.add(target_features.cpu().numpy())
+
     for i in range(0, N, batch_size):
         end_idx = min(i + batch_size, N)
-        batch_features = target_features[i:end_idx]
-        # 对每个批次进行k近邻搜索
-        _, batch_initial_rank = search_raw_array_pytorch(res, target_features, batch_features, k1)
-        initial_rank[i:end_idx] = batch_initial_rank.long()  # 确保是 long 类型
+        batch_features = target_features[i:end_idx].cpu().numpy()
+        
+        # Search the pre-built index
+        _, batch_initial_rank = index.search(batch_features, k1)
+        initial_rank[i:end_idx] = torch.from_numpy(batch_initial_rank).to(initial_rank.device).long()
 
         if print_flag and i % (5 * batch_size) == 0:
             print(f'Processing {i}/{N} ...')
+            
+    # Free up GPU memory held by the index
+    del index
+    torch.cuda.empty_cache()
 
     nn_k1 = []
     nn_k1_half = []
