@@ -37,4 +37,5 @@ Thumbs.db
 
 # gpu justification
 gpu_resource_justification.py
-gpu_justification_report.txt
+gpu_justification_report.py
+
