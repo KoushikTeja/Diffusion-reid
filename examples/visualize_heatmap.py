@@ -105,7 +105,7 @@ def main():
     checkpoint = load_checkpoint(args.resume)
     copy_state_dict(checkpoint, model)
 
-    save_dir = osp.join(working_dir, 'visualizations', 'heatmaps')
+    save_dir = osp.join(working_dir, 'visualizations', args.dataset, 'heatmaps')
     os.makedirs(save_dir, exist_ok=True)
 
     print(f"Generating {args.num_images} heatmaps...")

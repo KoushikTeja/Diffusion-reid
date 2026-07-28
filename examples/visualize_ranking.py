@@ -115,7 +115,7 @@ def main():
     dist_m, _, _ = pairwise_distance(features_g, query=dataset.query, gallery=dataset.gallery)
     distmat = dist_m.numpy()
 
-    save_dir = osp.join(working_dir, 'visualizations', 'ranking')
+    save_dir = osp.join(working_dir, 'visualizations', args.dataset, 'ranking')
     os.makedirs(save_dir, exist_ok=True)
 
     print(f"Generating {args.num_queries} visualizations...")

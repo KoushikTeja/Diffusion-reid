@@ -110,7 +110,7 @@ def main():
     features_array = torch.stack([features_g[f] for f in fnames]).numpy()
     labels_array = np.array([labels_dict[f] for f in fnames])
     
-    save_dir = osp.join(working_dir, 'visualizations', 'tsne')
+    save_dir = osp.join(working_dir, 'visualizations', args.dataset, 'tsne')
     os.makedirs(save_dir, exist_ok=True)
     
     save_path = osp.join(save_dir, 'tsne_plot.png')
