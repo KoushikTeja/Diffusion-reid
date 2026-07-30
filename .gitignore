@@ -40,5 +40,5 @@ gpu_resource_justification.py
 gpu_justification_report.txt
 
 #wandb
-wandb
+wandb/
 
