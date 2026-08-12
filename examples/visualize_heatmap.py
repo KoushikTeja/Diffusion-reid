@@ -17,6 +17,7 @@ from pisl.utils.data.preprocessor import Preprocessor
 from torch.utils.data import DataLoader
 from pisl.utils.serialization import load_checkpoint, copy_state_dict
 
+
 def get_test_loader(dataset, height, width, batch_size, workers):
     normalizer = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     test_transformer = T.Compose([
@@ -24,7 +25,7 @@ def get_test_loader(dataset, height, width, batch_size, workers):
         T.ToTensor(),
         normalizer
     ])
-    
+
     # We can just use query set for some heatmaps
     test_loader = DataLoader(
         Preprocessor(dataset.query, root=dataset.images_dir, transform=test_transformer),
@@ -32,21 +33,22 @@ def get_test_loader(dataset, height, width, batch_size, workers):
         shuffle=False, pin_memory=False)
     return test_loader
 
+
 def visualize_heatmap(model, img_tensor, img_path, save_path):
     # 1. Forward pass to get spatial feature maps (before Global Average Pooling)
     model.eval()
     with torch.no_grad():
         # Get base network output directly [B, C, H, W]
         base_features = model.module.base(img_tensor.cuda())
-        
+
     # 2. Average across channel dimension to get spatial attention map
     # Shape becomes [H, W]
     heatmap = base_features.mean(dim=1).squeeze(0).cpu().numpy()
-    
+
     # Normalize between 0 and 1
     heatmap = np.maximum(heatmap, 0)
     heatmap = heatmap / np.max(heatmap)
-    
+
     # Resize heatmap to match image size using PIL or torch
     # Original image for plotting
     img = Image.open(img_path).convert('RGB')
@@ -55,29 +57,30 @@ def visualize_heatmap(model, img_tensor, img_path, save_path):
 
     # 3. Create visualization plot
     plt.figure(figsize=(12, 4))
-    
+
     # Plot original
     plt.subplot(1, 3, 1)
     plt.imshow(img)
     plt.title('Original Image')
     plt.axis('off')
-    
+
     # Plot raw heatmap
     plt.subplot(1, 3, 2)
     plt.imshow(heatmap_resized, cmap='jet')
     plt.title('Feature Map Attention')
     plt.axis('off')
-    
+
     # Plot overlay
     plt.subplot(1, 3, 3)
     plt.imshow(img)
     plt.imshow(heatmap_resized, cmap='jet', alpha=0.5)
     plt.title('Overlay')
     plt.axis('off')
-    
+
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Visualize Heatmaps")
@@ -105,22 +108,23 @@ def main():
     checkpoint = load_checkpoint(args.resume)
     copy_state_dict(checkpoint, model)
 
-    save_dir = osp.join(working_dir, 'visualizations', 'heatmaps')
+    save_dir = osp.join(working_dir, 'visualizations', args.dataset, 'heatmaps')
     os.makedirs(save_dir, exist_ok=True)
 
     print(f"Generating {args.num_images} heatmaps...")
     for i, (imgs, fnames, pids, _, _) in enumerate(test_loader):
         if i >= args.num_images:
             break
-            
+
         img_path = fnames[0]
         pid = pids[0].item()
-        
+
         save_path = osp.join(save_dir, f'heatmap_{i}_pid_{pid}.png')
         visualize_heatmap(model, imgs, img_path, save_path)
         print(f"Saved {save_path}")
 
     print("Done! Check the examples/visualizations/heatmaps/ directory.")
+
 
 if __name__ == '__main__':
     main()
