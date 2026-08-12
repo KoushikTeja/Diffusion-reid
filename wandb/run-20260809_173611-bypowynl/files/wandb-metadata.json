@@ -1,0 +1,77 @@
+{
+  "os":  "Linux-5.4.0-150-generic-x86_64-with-glibc2.17",
+  "python":  "CPython 3.8.20",
+  "startedAt":  "2026-08-09T12:06:11.520526Z",
+  "args":  [
+    "-d",
+    "veri",
+    "-n",
+    "8",
+    "--height",
+    "256",
+    "--width",
+    "256",
+    "--eps",
+    "0.7",
+    "--logs-dir",
+    "logs/veri"
+  ],
+  "program":  "examples/train_pisl_cam.py",
+  "codePath":  "examples/train_pisl_cam.py",
+  "codePathLocal":  "examples/train_pisl_cam.py",
+  "git":  {
+    "remote":  "https://github.com/KoushikTeja/Diffusion-reid.git",
+    "commit":  "666a9e3f92c3e2901e7900e199d22fdde7ae860c"
+  },
+  "email":  "koushik.viluvala@gmail.com",
+  "root":  "/home1/koushik_t/Diffusion-reid",
+  "host":  "SYS-4029GP-TRT",
+  "executable":  "/home1/koushik_t/miniconda3/envs/pisl/bin/python",
+  "cpu_count":  16,
+  "cpu_count_logical":  32,
+  "gpu":  "NVIDIA GeForce RTX 2080 Ti",
+  "gpu_count":  6,
+  "disk":  {
+    "/":  {
+      "total":  "491000610816",
+      "used":  "114680225792"
+    }
+  },
+  "memory":  {
+    "total":  "539641638912"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-64826b53-4d40-cb22-c50e-3f69f3ac72bc"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-032b5af7-ae84-a20d-37ef-e9bf0399efa5"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-3978a98c-1c04-e40e-3a3c-2da0dfeb3143"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-af30027d-253c-172c-17c8-d0027a753391"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-2fd5c919-dd9b-054c-1ea6-f0178ef76aaf"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 2080 Ti",
+      "architecture":  "Turing",
+      "uuid":  "GPU-01e604b9-7a0b-abbd-0bbe-33891626df18"
+    }
+  ],
+  "cudaVersion":  "11.4",
+  "writerId":  "5ngcnzyt54xhz4foprp1vob9a9vjsf5p"
+}
