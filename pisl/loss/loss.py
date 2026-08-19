@@ -91,9 +91,6 @@ class DiffusionThetaLoss(nn.Module):
         self.temperature = temperature
 
     def forward(self, theta_pred, theta_init, noise_pred, noise, features, targets):
-        # Ensure dimension matching
-        noise_pred = noise_pred.view(noise_pred.size(0), 3, 2, 3)  # [B, 3, 2, 3]
-        noise = noise.view(noise.size(0), 3, 2, 3)  # [B, 3, 2, 3]
         
         # Compute noise prediction loss
         noise_loss = F.mse_loss(noise_pred, noise)
@@ -159,9 +156,6 @@ class DiffusionThetaLoss2(nn.Module):
         self.temperature = temperature
         
     def forward(self, theta_pred, theta_init, noise_pred, noise, features, targets):
-        # Ensure dimension matching
-        noise_pred = noise_pred.view(noise_pred.size(0), 3, 2, 3)  # [B, 3, 2, 3]
-        noise = noise.view(noise.size(0), 3, 2, 3)  # [B, 3, 2, 3]
         
         # Compute noise prediction loss
         noise_loss = F.mse_loss(noise_pred, noise)
