@@ -147,8 +147,8 @@ class VitPart(nn.Module):
         self.num_parts = num_parts
         self.num_classes = num_classes
         
-        # Load pre-trained ViT
-        self.base = timm.create_model(model_name, pretrained=pretrained, num_classes=0)
+        # Load pre-trained ViT, telling it our custom image size to interpolate positional embeddings
+        self.base = timm.create_model(model_name, pretrained=pretrained, num_classes=0, img_size=img_size)
         self.embed_dim = self.base.embed_dim
         
         # Calculate number of patch tokens
