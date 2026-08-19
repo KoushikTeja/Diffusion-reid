@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from .resnet import *
 from .resnet_part import *
+from .vit_part import *
 
 
 __factory = {
@@ -15,7 +16,7 @@ __factory = {
     'resnet50part': resnet50part,
     'resnet101part': resnet101part,
     'resnet152part': resnet152part,
-
+    'vit_base_part': vit_base_part,
 }
 
 

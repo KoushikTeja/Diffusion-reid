@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader
 from pisl import datasets
 from pisl.loss import DiffusionThetaLoss
 import maximum_mean_discrepancy
-from pisl.models import resnet50part
+from pisl.models import resnet50part, vit_base_part
 from pisl.loss import CameraContrast
 from pisl.trainers import PISLTrainerCAM
 from pisl.evaluators import Evaluator, extract_all_features
@@ -255,7 +255,10 @@ def main_worker(args):
     # ── Initialize model ─────────────────────────────────────────────────
     t0 = time.time()
     num_parts = args.part
-    model = resnet50part(num_parts=args.part, num_classes=3000)
+    if args.arch == 'vit':
+        model = vit_base_part(num_parts=args.part, num_classes=3000, img_size=(args.height, args.width))
+    else:
+        model = resnet50part(num_parts=args.part, num_classes=3000)
     model.cuda()
     model = nn.DataParallel(model)
     print_step("Model init", time.time() - t0,
@@ -506,6 +509,7 @@ if __name__ == '__main__':
                         help="best mAP so far, used when resuming")
 
     # PISL
+    parser.add_argument('--arch', type=str, default='vit', choices=['resnet', 'vit'])
     parser.add_argument('--part', type=int, default=3)
     parser.add_argument('--knn', type=int, default=20)
     parser.add_argument('--Wref', type=float, default=0.5)
@@ -514,7 +518,7 @@ if __name__ == '__main__':
     parser.add_argument('--Wdiff', type=float, default=0.1)
 
     # optimizer
-    parser.add_argument('--lr', type=float, default=0.00035)
+    parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--iters', type=int, default=400)
