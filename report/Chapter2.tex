@@ -1,0 +1,81 @@
+% ══════════════════════════════════════════════════════════════════════════════
+% Chapter 2: Review of Literature
+% ══════════════════════════════════════════════════════════════════════════════
+
+\section{Unsupervised Person Re-Identification}
+
+Unsupervised person Re-ID methods can be broadly categorized into \textit{domain adaptation} methods and \textit{fully unsupervised} methods. Domain adaptation approaches~\cite{zheng2017unlabeled} leverage labelled source domain data to learn transferable representations for an unlabelled target domain. Fully unsupervised methods, which are the focus of this work, learn representations from unlabelled target domain data alone, without any identity annotations.
+
+The dominant paradigm in fully unsupervised Re-ID follows an iterative clustering-and-training framework. Several notable methods within this paradigm are discussed below.
+
+\subsection{Self-Paced Contrastive Learning (SpCL)}
+
+Ge~\textit{et~al.}~\cite{ge2020selfpaced} introduced SpCL, which proposes a hybrid memory bank combining instance-level and cluster-level features. The method employs a self-paced learning strategy with a reliability criterion to gradually incorporate training samples, starting with the most reliable clusters and progressively including harder examples. SpCL achieves 73.1\% mAP and 88.1\% Rank-1 on Market-1501.
+
+\subsection{Camera-Aware Proxies (CAP)}
+
+Wang~\textit{et~al.}~\cite{wang2021cap} proposed CAP, which addresses the intra-class variance induced by different camera views. The method constructs camera-aware non-parametric classifiers that create separate proxies for each (identity, camera) pair, enabling the model to learn camera-invariant representations. CAP achieves 79.2\% mAP on Market-1501.
+
+\subsection{Inter-Instance Contrastive Encoding (ICE)}
+
+Chen~\textit{et~al.}~\cite{chen2021ice} proposed ICE, which leverages inter-instance contrastive encoding with hard negative mining to improve feature discrimination. By focusing on the hardest negative pairs, ICE learns more robust feature representations. ICE achieves 82.9\% mAP and 93.8\% Rank-1 on Market-1501.
+
+\subsection{Refining Pseudo Labels with Clustering Consensus (RLCC)}
+
+Zhang~\textit{et~al.}~\cite{zhang2021rlcc} proposed RLCC, which refines pseudo labels by exploiting the consensus of clustering results across training generations. By identifying samples that are consistently clustered together across iterations, RLCC reduces pseudo label noise. RLCC achieves 77.7\% mAP on Market-1501.
+
+\subsection{Part-Based Pseudo Label Refinement (PPLR)}
+
+Cho~\textit{et~al.}~\cite{cho2022pplr} proposed PPLR, which introduces part-based pseudo label refinement for unsupervised Re-ID. The method uses local part features to complement global features in pseudo label generation, improving label quality through cross-agreement scoring between global and part feature spaces. PPLR achieves 84.4\% mAP and 94.3\% Rank-1 on Market-1501, representing a significant improvement over earlier methods.
+
+\subsection{Cluster Contrast}
+
+Dai~\textit{et~al.}~\cite{dai2022cluster} proposed Cluster Contrast, which stores and updates cluster-level feature representations in a memory bank. This approach enables efficient contrastive learning at the cluster level, avoiding the need for instance-level memory banks while achieving competitive performance.
+
+\section{Part-Based Representations for Re-ID}
+
+Part-based methods decompose person images into semantic body regions to learn fine-grained features that are more robust to occlusion and pose variations.
+
+\subsection{Part-Based Convolutional Baseline (PCB)}
+
+Sun~\textit{et~al.}~\cite{sun2018beyond} introduced PCB, which uniformly partitions the convolutional feature map into horizontal stripes, each representing a body part. While simple and effective, uniform partitioning does not account for pose variations and misalignment between body parts.
+
+\subsection{Spatial Transformer Networks (STN)}
+
+Jaderberg~\textit{et~al.}~\cite{jaderberg2015spatial} proposed Spatial Transformer Networks, which provide a differentiable mechanism for spatial transformations within neural networks. STNs learn to apply affine transformations (scaling, translation, rotation) to input feature maps, enabling attention to semantically meaningful regions. The PISL framework extends STNs by introducing a diffusion-based generative process over the spatial transformer parameters.
+
+\section{Diffusion Models in Computer Vision}
+
+Denoising Diffusion Probabilistic Models (DDPMs)~\cite{ho2020denoising} have emerged as a powerful class of generative models. DDPMs learn to reverse a gradual noising process through a parameterized denoising network, enabling high-quality sample generation.
+
+The standard diffusion process consists of:
+\begin{itemize}
+    \item \textbf{Forward process:} Gradually adds Gaussian noise to data over $T$ timesteps until it becomes pure noise.
+    \item \textbf{Reverse process:} A neural network is trained to denoise the data step-by-step, recovering the original signal from noise.
+\end{itemize}
+
+While initially developed for image generation, diffusion models have been adapted to various vision tasks including image segmentation, super-resolution, and object detection. The PISL framework~\cite{tao2024unsupervised} introduces a novel application --- generating \textit{spatial transformer parameters} through a denoising process rather than generating images directly. This represents a creative use of the diffusion paradigm for structured parameter generation.
+
+\section{Summary}
+
+Table~\ref{tab:lit_summary} summarizes the key unsupervised Re-ID methods discussed in this chapter.
+
+\begin{table}[H]
+    \centering
+    \caption{Summary of Key Unsupervised Re-ID Methods on Market-1501}
+    \label{tab:lit_summary}
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Method} & \textbf{Venue} & \textbf{mAP (\%)} & \textbf{Rank-1 (\%)} \\
+        \midrule
+        SpCL~\cite{ge2020selfpaced}        & NeurIPS 2020  & 73.1 & 88.1 \\
+        CAP~\cite{wang2021cap}             & AAAI 2021     & 79.2 & 91.4 \\
+        RLCC~\cite{zhang2021rlcc}          & CVPR 2021     & 77.7 & 90.4 \\
+        ICE~\cite{chen2021ice}             & ICCV 2021     & 82.9 & 93.8 \\
+        PPLR~\cite{cho2022pplr}            & CVPR 2022     & 84.4 & 94.3 \\
+        PISL~\cite{tao2024unsupervised}    & TIP 2024      & \textbf{84.6} & 93.5 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The literature shows a clear trend toward incorporating part-based features and pseudo label refinement for improving unsupervised Re-ID. PISL advances this line of work by introducing diffusion models for semantically structured patch generation, achieving state-of-the-art results at the time of publication.

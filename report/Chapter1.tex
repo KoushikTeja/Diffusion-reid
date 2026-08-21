@@ -1,0 +1,58 @@
+% ══════════════════════════════════════════════════════════════════════════════
+% Chapter 1: Introduction
+% ══════════════════════════════════════════════════════════════════════════════
+
+\section{Background}
+
+Person re-identification (Re-ID) is a fundamental computer vision task that involves recognizing and matching individuals across images captured by different, non-overlapping surveillance cameras. Given a query image of a person (or vehicle), the objective is to retrieve all images of the same identity from a large gallery set, regardless of variations in viewpoint, pose, lighting, and background. This task has critical applications in video surveillance, public safety, autonomous driving, and smart retail systems~\cite{zheng2015scalable}.
+
+While supervised Re-ID methods have achieved impressive performance by training on large-scale identity-labelled datasets, the manual annotation of such datasets is prohibitively expensive and time-consuming. This has motivated significant research into \textit{unsupervised} person Re-ID, which aims to learn discriminative feature representations without any identity labels.
+
+\section{Unsupervised Person Re-ID: The Challenge}
+
+Unsupervised Re-ID methods typically follow an iterative two-step framework:
+\begin{enumerate}
+    \item \textbf{Pseudo label generation:} Features are extracted from a pre-trained backbone, and clustering algorithms (commonly DBSCAN~\cite{ester1996dbscan}) are applied to assign pseudo identity labels to each training sample.
+    \item \textbf{Model training:} The model is trained using these noisy pseudo labels via classification and metric learning losses, and the process repeats.
+\end{enumerate}
+
+A key challenge in this pipeline is that pseudo labels generated from global features are inherently noisy --- samples from the same person may be assigned to different clusters (under-segmentation), or samples from different persons may be grouped together (over-segmentation). Recent approaches attempt to mitigate this noise by incorporating fine-grained \textit{part-based features} that capture local body region information. However, existing part-based methods often compromise the discriminative semantic structure of the generated patches and overlook the consistency between local and global representations.
+
+\section{The PISL Framework}
+
+To address these limitations, Tao~\textit{et~al.}~\cite{tao2024unsupervised} proposed the \textbf{Person Intrinsic Semantic Learning (PISL)} framework, published in IEEE Transactions on Image Processing (TIP 2024). PISL introduces a novel integration of \textit{diffusion models} into the unsupervised Re-ID pipeline. The core insight is that a diffusion model can generate spatial transformer parameters that extract patches with \textit{intrinsic semantic structure} --- for example, consistently localizing the head, torso, and legs of a person, or the front, side, and rear of a vehicle.
+
+The framework proposes three key innovations:
+\begin{itemize}
+    \item \textbf{Spatial Diffusion Model (SDM):} Performs a denoising diffusion process from noisy spatial transformer parameters to semantic parameters, enabling the sampling of semantically structured patches.
+    \item \textbf{Semantic Controlled Diffusion (SCD) Loss:} Guides the denoising direction of the diffusion model to ensure generated patches capture meaningful semantic regions.
+    \item \textbf{Patch Semantic Consistency (PSC) Loss:} Captures consistency between patch and global features, refining pseudo labels through a label refinement mechanism.
+\end{itemize}
+
+Additionally, the framework incorporates \textbf{camera-aware contrastive learning}~\cite{wang2021cap} to mitigate the domain gap caused by varying camera conditions across different surveillance viewpoints.
+
+\section{Objective of This Work}
+
+The objective of this thesis is to reproduce and analyse the camera-aware PISL framework on two benchmark datasets:
+\begin{itemize}
+    \item \textbf{Market-1501}~\cite{zheng2015scalable}: A large-scale person Re-ID benchmark with 1,501 identities across 6 cameras.
+    \item \textbf{VeRi-776}~\cite{liu2016deepveri}: A large-scale vehicle Re-ID benchmark with 776 vehicle identities across 20 cameras.
+\end{itemize}
+
+Our specific objectives include:
+\begin{enumerate}
+    \item Faithful reproduction of the PISL framework using the official codebase on available GPU infrastructure.
+    \item Quantitative evaluation using standard metrics (mAP and CMC) with comparison against the original paper's results.
+    \item Comprehensive qualitative analysis through attention heatmaps, retrieval ranking visualizations, and t-SNE feature embeddings.
+    \item Analysis of training dynamics, loss convergence, and factors affecting reproducibility.
+\end{enumerate}
+
+\section{Organization of the Report}
+
+The remainder of this report is organized as follows:
+\begin{itemize}
+    \item \textbf{Chapter 2} reviews the relevant literature on unsupervised person Re-ID, part-based representations, and diffusion models.
+    \item \textbf{Chapter 3} presents the detailed methodology of the PISL framework, including the mathematical formulations of all key components.
+    \item \textbf{Chapter 4} describes the experimental setup and presents both quantitative and qualitative results.
+    \item \textbf{Chapter 5} provides analysis, discussion of the results, conclusions, and directions for future work.
+\end{itemize}

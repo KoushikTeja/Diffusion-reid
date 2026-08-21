@@ -1,674 +1,118 @@
-% !TEX program = pdflatex
-\documentclass[journal]{IEEEtran}
-
-% ──────────────────────────────────────────────────────────────────────────────
-% Packages
-% ──────────────────────────────────────────────────────────────────────────────
-\usepackage[T1]{fontenc}
+\documentclass[a4paper,12pt,oneside]{book}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
 \usepackage[utf8]{inputenc}
+\usepackage{amssymb} 
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{multicol}
+\usepackage{cite}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=9pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
 \usepackage{graphicx}
-\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage[export]{adjustbox}
+\graphicspath{ {images/} {../figs/} {../examples/visualizations/} }
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{tocloft}
+\usepackage{tabu}
+\usepackage{fancyhdr}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{xcolor}
-\usepackage{subcaption}
-\usepackage{algorithm}
-\usepackage{algorithmic}
-\usepackage{cite}
-\usepackage{balance}
-\usepackage{tabularx}
-\usepackage{array}
-\usepackage{float}
+\geometry{a4paper, tmargin=1in, rmargin=1in, bmargin=1in, lmargin=1.5in}
+\usepackage{titlesec}
+\usepackage[toc,page]{appendix}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\centering}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+  
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand\contentsname{\centerline{TABLE OF CONTENTS}}
+\pagestyle{fancy}
+\cfoot{\thepage}
+\rhead{}
+\lhead{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    citecolor=blue,
-    urlcolor=blue
-}
-
-% ──────────────────────────────────────────────────────────────────────────────
-% Figure paths
-% ──────────────────────────────────────────────────────────────────────────────
-\graphicspath{
-  {../figs/}
-  {../examples/visualizations/}
-}
-
-% ──────────────────────────────────────────────────────────────────────────────
-% Title
-% ──────────────────────────────────────────────────────────────────────────────
-\title{Reproduction and Analysis of PISL: Unsupervised Learning of Intrinsic Semantics with Diffusion Model for Person Re-Identification}
-
-\author{
-  \IEEEauthorblockN{Koushik Teja Viluvala}
-  \IEEEauthorblockA{
-    M.Tech Project Report \\
-    % Department of Computer Science and Engineering \\
-    % University Name \\
-    Email: koushik.viluvala@gmail.com
-  }
-}
+\onehalfspacing
 
 \begin{document}
+\title{Unsupervised Learning of Intrinsic Semantics with Diffusion Model for Person Re-Identification: A Reproduction Study}
+\frontmatter
+\addtocontents{toc}{\textbf{Title}\hfill\textbf{Page No.}\par}
+\input{titlepage}
+\input{certificate}
 
-\maketitle
+\newpage
+\addcontentsline{toc}{chapter}{ACKNOWLEDGEMENT}
+\input{acknowledgement}
 
-% ══════════════════════════════════════════════════════════════════════════════
-% ABSTRACT
-% ══════════════════════════════════════════════════════════════════════════════
-\begin{abstract}
-This report presents a reproduction study of the Person Intrinsic Semantic Learning (PISL) framework proposed by Tao~\textit{et~al.}~\cite{tao2024unsupervised}, published in IEEE Transactions on Image Processing (TIP 2024). The PISL framework addresses unsupervised person re-identification (Re-ID) by integrating a Spatial Diffusion Model (SDM) that generates semantically meaningful body patches, a Semantic Controlled Diffusion (SCD) loss that guides the denoising direction, and a Patch Semantic Consistency (PSC) loss that refines pseudo labels by ensuring consistency between local and global features. We reproduce the camera-aware variant of PISL on two benchmark datasets: Market-1501 (person Re-ID) and VeRi-776 (vehicle Re-ID), using six NVIDIA RTX 2080~Ti GPUs. Our reproduction achieves competitive results: on VeRi-776, we obtain \textbf{41.7\%~mAP} and \textbf{87.1\%~Rank-1} without re-ranking (\textbf{42.9\%~mAP} with re-ranking), closely matching the reported 43.1\%~mAP. On Market-1501, we achieve \textbf{77.7\%~mAP} and \textbf{91.0\%~Rank-1} without re-ranking (\textbf{88.6\%~mAP} with re-ranking). We provide comprehensive qualitative analysis through attention heatmaps, retrieval ranking visualizations, and t-SNE feature embeddings, along with a detailed discussion of the reproduction process, training dynamics, and observed gaps relative to the original results.
-\end{abstract}
+\newpage
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\input{abstract}
 
-\begin{IEEEkeywords}
-Unsupervised person re-identification, diffusion model, spatial transformer network, pseudo label refinement, contrastive learning, semantic consistency.
-\end{IEEEkeywords}
+\addcontentsline{toc}{chapter}{TABLE OF CONTENTS}
+\tableofcontents
+\newpage
 
+\addcontentsline{toc}{chapter}{LIST OF FIGURES}
+\listoffigures
+\newpage
 
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Introduction}
-\label{sec:introduction}
-% ══════════════════════════════════════════════════════════════════════════════
+\addcontentsline{toc}{chapter}{LIST OF TABLES}
+\listoftables
+\newpage
 
-Person re-identification (Re-ID) is a fundamental task in computer vision that aims to retrieve images of a specific person across non-overlapping camera views. It has wide-ranging applications in surveillance, public safety, autonomous driving, and smart retail~\cite{zheng2015scalable}. While supervised Re-ID methods have achieved remarkable performance, they rely on large-scale identity-labeled datasets, which are expensive and time-consuming to annotate. This motivates the development of \textit{unsupervised} person Re-ID methods that learn discriminative representations without identity labels.
+\mainmatter
 
-Recent unsupervised Re-ID approaches~\cite{ge2020selfpaced, chen2021ice, cho2022pplr} typically follow a two-step iterative framework: (1)~generate pseudo labels via clustering, and (2)~train the model using these noisy labels. A prominent strategy within this paradigm is to generate fine-grained patch features to reduce noise in global feature clustering. However, these methods often compromise the discriminative semantic structure when generating patches and overlook the consistency between local patch features and global features.
+\chapter{Introduction}
+\input{Chapter1} 
+\newpage
 
-To address these limitations, Tao~\textit{et~al.}~\cite{tao2024unsupervised} proposed the \textbf{Person Intrinsic Semantic Learning (PISL)} framework, which introduces a novel integration of diffusion models into the unsupervised Re-ID pipeline. The key insight is that a diffusion model can be used to generate spatial transformer parameters that extract patches with intrinsic semantic structure --- for example, consistently localizing the head, torso, and legs of a person, or the front, side, and rear of a vehicle. The framework introduces three key innovations:
+\chapter{Review of Literature}
+\input{Chapter2}
+\newpage
 
-\begin{enumerate}
-    \item \textbf{Spatial Diffusion Model (SDM)}: Performs a denoising diffusion process from noisy spatial transformer parameters to semantic parameters, enabling the sampling of patches with intrinsic semantic structure.
-    \item \textbf{Semantic Controlled Diffusion (SCD) Loss}: Guides the denoising direction of the diffusion model, ensuring that generated patches capture meaningful semantic regions.
-    \item \textbf{Patch Semantic Consistency (PSC) Loss}: Captures semantic consistency between patch and global features, refining the pseudo labels of global features through a label refinement mechanism.
-\end{enumerate}
+\chapter{Methodology}
+\input{Chapter3}
+\newpage
 
-The original paper additionally employs camera-aware contrastive learning~\cite{wang2021cap} to mitigate the domain gap caused by varying camera conditions, forming a comprehensive framework that achieves state-of-the-art results on three challenging benchmarks: Market-1501~\cite{zheng2015scalable}, MSMT17~\cite{wei2018msmt17}, and VeRi-776~\cite{liu2016deepveri}.
+\chapter{Experimental Setup and Results}
+\input{Chapter4}
+\newpage
 
-\subsection{Contributions of This Reproduction Study}
+\chapter{Analysis, Conclusion and Future Work}
+\input{Chapter5}
+\newpage
 
-In this work, we reproduce the camera-aware PISL framework and systematically evaluate its performance on Market-1501 and VeRi-776. Our specific contributions include:
-
-\begin{itemize}
-    \item A faithful reproduction of the PISL framework using the official codebase, trained on six NVIDIA RTX~2080~Ti GPUs with CUDA~11.4 and PyTorch.
-    \item Quantitative evaluation using standard metrics (mAP and CMC) both with and without re-ranking, compared against the original paper's reported results.
-    \item Comprehensive qualitative analysis through attention heatmaps, retrieval ranking visualizations, and t-SNE feature space embeddings for both person and vehicle Re-ID.
-    \item Detailed analysis of training dynamics including loss convergence, cluster evolution, and the effect of camera-aware contrastive learning.
-    \item Discussion of practical challenges encountered during reproduction and potential factors contributing to observed performance gaps.
-\end{itemize}
-
-The remainder of this report is organized as follows. Section~\ref{sec:related_work} reviews related work. Section~\ref{sec:methodology} presents the PISL methodology. Section~\ref{sec:implementation} describes the reproduction setup. Section~\ref{sec:results} presents quantitative and qualitative results. Section~\ref{sec:discussion} provides analysis and discussion, and Section~\ref{sec:conclusion} concludes the report.
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Related Work}
-\label{sec:related_work}
-% ══════════════════════════════════════════════════════════════════════════════
-
-\subsection{Unsupervised Person Re-Identification}
-
-Unsupervised person Re-ID methods can be broadly categorized into two paradigms: domain adaptation methods and fully unsupervised methods. Domain adaptation methods~\cite{zheng2017unlabeled} leverage labeled source domain data to learn transferable representations. Fully unsupervised methods, which are the focus of this work, learn representations from unlabeled target domain data alone.
-
-The dominant approach in fully unsupervised Re-ID follows an iterative clustering-and-training framework. \textbf{SpCL}~\cite{ge2020selfpaced} introduces self-paced contrastive learning with a hybrid memory that combines instance-level and cluster-level features, employing a reliability criterion to gradually incorporate training samples. \textbf{CAP}~\cite{wang2021cap} proposes camera-aware proxies that account for the intra-class variance induced by different cameras, constructing camera-aware non-parametric classifiers. \textbf{ICE}~\cite{chen2021ice} leverages inter-instance contrastive encoding to improve feature learning with hard negative mining. \textbf{RLCC}~\cite{zhang2021rlcc} refines pseudo labels by exploiting the consensus of clustering results across training generations. \textbf{PPLR}~\cite{cho2022pplr} introduces part-based pseudo label refinement, using local part features to complement global features in pseudo label generation. \textbf{Cluster Contrast}~\cite{dai2022cluster} proposes cluster-level memory banks to store and update cluster centroids, achieving efficient contrastive learning. More recently, \textbf{ISE}~\cite{zhang2023ise} explores data-driven prototypicality for unsupervised feature learning.
-
-\subsection{Part-Based Representations for Re-ID}
-
-Part-based methods decompose person images into semantic body regions to learn fine-grained features. PCB~\cite{sun2018beyond} introduces a part-based convolutional baseline that uniformly partitions the feature map into horizontal stripes. However, uniform partitioning does not account for pose variations and misalignment. Spatial Transformer Networks (STN)~\cite{jaderberg2015spatial} provide a differentiable mechanism for spatial transformations, enabling learned attention to semantically meaningful regions. PISL extends this concept by introducing a diffusion-based generative process over the STN parameters, producing patches with intrinsic semantic structure rather than relying on predefined or learned static partitions.
-
-\subsection{Diffusion Models in Computer Vision}
-
-Denoising Diffusion Probabilistic Models (DDPMs)~\cite{ho2020denoising} have emerged as a powerful class of generative models that learn to reverse a gradual noising process. While initially developed for image generation, diffusion models have been adapted to various vision tasks. PISL~\cite{tao2024unsupervised} introduces a novel application of the diffusion paradigm --- instead of generating images, it generates spatial transformer parameters through a denoising process, enabling the sampling of semantically structured patches. This represents a creative use of the diffusion framework beyond traditional generative modeling.
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Methodology}
-\label{sec:methodology}
-% ══════════════════════════════════════════════════════════════════════════════
-
-This section describes the PISL framework as proposed by Tao~\textit{et~al.}~\cite{tao2024unsupervised}. The overall architecture is illustrated in Fig.~\ref{fig:overview}.
-
-\begin{figure*}[!t]
-    \centering
-    \includegraphics[width=\textwidth]{overview.png}
-    \caption{Overview of the PISL framework~\cite{tao2024unsupervised}. The framework consists of a ResNet-50 backbone for feature extraction, a Spatial Diffusion Model (SDM) that generates transformation parameters through a denoising process, and a sampler that extracts semantically meaningful patches. The training is guided by five loss functions: cross-entropy with label smoothing ($\mathcal{L}_{ces}$), soft triplet loss ($\mathcal{L}_{tri}$), camera-aware contrastive loss ($\mathcal{L}_{cam}$), semantic controlled diffusion loss ($\mathcal{L}_{scd}$), and patch semantic consistency loss ($\mathcal{L}_{psc}$).}
-    \label{fig:overview}
-\end{figure*}
-
-\subsection{Overall Framework}
-
-Given an unlabeled dataset $\mathcal{X} = \{x_i\}_{i=1}^{N}$ with camera annotations $\{c_i\}_{i=1}^{N}$ but without identity labels, the PISL framework iteratively performs:
-
-\begin{enumerate}
-    \item \textbf{Feature Extraction}: Extract global features $\mathbf{f}_g \in \mathbb{R}^{D}$ and part features $\mathbf{f}_p \in \mathbb{R}^{D \times P}$ using the backbone and Spatial Diffusion Model.
-    \item \textbf{Pseudo Label Generation}: Cluster global features using DBSCAN~\cite{ester1996dbscan} with Jaccard distance to generate pseudo labels.
-    \item \textbf{Semantic Consistency Scoring}: Compute consistency scores between global and part features using Maximum Mean Discrepancy (MMD)~\cite{gretton2012mmd}.
-    \item \textbf{Model Training}: Update the model using a combination of classification, metric learning, camera-aware contrastive, and diffusion-based losses.
-\end{enumerate}
-
-\subsection{Backbone and Feature Extraction}
-
-The backbone network is a ResNet-50~\cite{he2016deep} pretrained on ImageNet~\cite{deng2009imagenet}. Given an input image $x$, the backbone extracts a feature map $\mathbf{F} \in \mathbb{R}^{2048 \times H \times W}$ from the last convolutional layer. A global average pooling operation produces the global feature vector $\mathbf{f}_g \in \mathbb{R}^{2048}$, which is normalized via batch normalization and L2 normalization.
-
-\subsection{Spatial Diffusion Model (SDM)}
-\label{sec:sdm}
-
-The Spatial Diffusion Model is the central innovation of PISL. Instead of directly generating patches through a learned spatial transformer, PISL introduces a diffusion process over the spatial transformer parameters $\boldsymbol{\theta}$.
-
-\subsubsection{Localization Network}
-A localization network processes the backbone feature map $\mathbf{F}$ to produce initial transformation parameters $\boldsymbol{\theta}_0 \in \mathbb{R}^{P \times 2 \times 3}$, where $P$ is the number of parts. Each $\boldsymbol{\theta}_0^{(i)}$ defines an affine transformation for the $i$-th part, parameterizing scale and translation:
-\begin{equation}
-    \boldsymbol{\theta}_0 = f_{\text{loc}}(\mathbf{F}), \quad \boldsymbol{\theta}_0^{(i)} = \begin{pmatrix} s_x & 0 & t_x \\ 0 & s_y & t_y \end{pmatrix}
-\end{equation}
-where $s_x, s_y$ control the scale and $t_x, t_y$ control the translation of each patch.
-
-\subsubsection{Forward Diffusion Process}
-The forward process gradually adds Gaussian noise to the initial parameters $\boldsymbol{\theta}_0$ over $T$ timesteps according to a variance schedule $\{\beta_t\}_{t=1}^{T}$:
-\begin{equation}
-    q(\boldsymbol{\theta}_t | \boldsymbol{\theta}_{t-1}) = \mathcal{N}(\boldsymbol{\theta}_t; \sqrt{1-\beta_t}\boldsymbol{\theta}_{t-1}, \beta_t\mathbf{I})
-\end{equation}
-
-Using the reparameterization trick with $\alpha_t = 1 - \beta_t$ and $\bar{\alpha}_t = \prod_{s=1}^{t}\alpha_s$:
-\begin{equation}
-    \boldsymbol{\theta}_t = \sqrt{\bar{\alpha}_t}\boldsymbol{\theta}_0 + \sqrt{1 - \bar{\alpha}_t}\boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})
-\end{equation}
-
-A \textit{cosine} $\beta$-schedule~\cite{ho2020denoising} is employed with $T=1000$ timesteps and a small offset $s=0.008$:
-\begin{equation}
-    \bar{\alpha}_t = \frac{f(t)}{f(0)}, \quad f(t) = \cos\left(\frac{t/T + s}{1 + s} \cdot \frac{\pi}{2}\right)^2
-\end{equation}
-
-\subsubsection{Reverse Denoising Process}
-A denoising network $\boldsymbol{\Phi}$ is trained to predict the noise $\boldsymbol{\epsilon}$ added at each timestep, enabling the recovery of the clean parameters:
-\begin{equation}
-    \hat{\boldsymbol{\theta}}_0 = \frac{1}{\sqrt{\bar{\alpha}_t}} \left( \boldsymbol{\theta}_t - \sqrt{1 - \bar{\alpha}_t} \cdot \boldsymbol{\Phi}(\boldsymbol{\theta}_t, t) \right)
-\end{equation}
-
-\subsubsection{Patch Sampling}
-The denoised parameters $\hat{\boldsymbol{\theta}}_0$ are used to construct a sampling grid via the Spatial Transformer Network:
-\begin{equation}
-    \mathbf{G}_i = \hat{\boldsymbol{\theta}}_0^{(i)} \cdot \mathbf{G}_{\text{base}}
-\end{equation}
-where $\mathbf{G}_{\text{base}}$ is the regular grid and $\mathbf{G}_i$ is the transformed grid for part~$i$. Bilinear sampling extracts the part feature map $\mathbf{F}_i$ from the backbone feature map $\mathbf{F}$.
-
-\subsection{Semantic Controlled Diffusion (SCD) Loss}
-
-The SCD loss guides the denoising process toward semantically meaningful transformations. It consists of three components:
-
-\subsubsection{Noise Prediction Loss}
-Trains the denoising network to predict the added noise:
-\begin{equation}
-    \mathcal{L}_{\text{noise}} = \|\boldsymbol{\Phi}(\boldsymbol{\theta}_t, t) - \boldsymbol{\epsilon}\|_2^2
-\end{equation}
-
-\subsubsection{Theta Consistency Loss}
-Ensures the denoised parameters remain close to the localization network's output:
-\begin{equation}
-    \mathcal{L}_{\text{consist}} = \|\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_0\|_2^2 + 0.1 \cdot (1 - \text{cos}(\hat{\boldsymbol{\theta}}_0, \boldsymbol{\theta}_0))
-\end{equation}
-
-\subsubsection{Part Contrastive Loss}
-Encourages discriminative part features through contrastive learning:
-\begin{equation}
-    \mathcal{L}_{\text{part}} = -\sum_{i=1}^{P} w_i \frac{1}{|\mathcal{P}_i|} \sum_{j \in \mathcal{P}_i} \log \frac{\exp(\mathbf{f}_p^{(i)} \cdot \mathbf{f}_{p,j}^{(i)} / \tau)}{\sum_k \exp(\mathbf{f}_p^{(i)} \cdot \mathbf{f}_{p,k}^{(i)} / \tau)}
-\end{equation}
-where $w_i$ is a learned weight based on part discriminability, $\mathcal{P}_i$ is the set of positive samples, and $\tau=0.07$ is the temperature.
-
-The combined SCD loss is:
-\begin{equation}
-    \mathcal{L}_{scd} = \mathcal{L}_{\text{noise}} + \lambda_c \mathcal{L}_{\text{consist}} + \lambda_p \mathcal{L}_{\text{part}}
-\end{equation}
-
-\subsection{Patch Semantic Consistency (PSC) Loss}
-
-The PSC loss leverages the semantic consistency between global and part features to refine pseudo labels. The consistency is measured using Maximum Mean Discrepancy (MMD)~\cite{gretton2012mmd} between the neighborhood structures of global and part features:
-
-\begin{equation}
-    \text{MMD}^2(\mathcal{G}_j, \mathcal{P}_j^{(i)}) = \|\mu_{\mathcal{G}_j} - \mu_{\mathcal{P}_j^{(i)}}\|_{\mathcal{H}}^2
-\end{equation}
-where $\mathcal{G}_j$ and $\mathcal{P}_j^{(i)}$ denote the $k$-nearest neighbor sets in the global and $i$-th part feature spaces, respectively, and $\mu$ denotes the kernel mean embedding.
-
-The PSC loss has two components:
-
-\subsubsection{PSC Label Refinement (PSC-LR)}
-Uses the weighted ensemble of part predictions to refine global pseudo labels:
-\begin{equation}
-    \tilde{y} = \lambda_{\text{ref}} \cdot y + (1 - \lambda_{\text{ref}}) \cdot \sum_{i=1}^{P} w_i \cdot p_i
-\end{equation}
-where $y$ is the pseudo label, $p_i$ is the softmax prediction from part~$i$, and $w_i$ is the consistency-based weight.
-
-\subsubsection{PSC Label Smoothing (PSC-LS)}
-Applies consistency-aware label smoothing to part classifiers:
-\begin{equation}
-    \mathcal{L}_{\text{psc-ls}}^{(i)} = s_j^{(i)} \mathcal{L}_{ce} + (1 - s_j^{(i)}) D_{KL}(p_i \| u)
-\end{equation}
-where $s_j^{(i)}$ is the consistency score and $u$ is the uniform distribution.
-
-\subsection{Camera-Aware Contrastive Learning}
-
-To address the domain gap introduced by different camera conditions, the framework incorporates camera-aware contrastive learning~\cite{wang2021cap}. Camera-level proxies are constructed for each (identity, camera) pair:
-\begin{equation}
-    \mathcal{L}_{cam} = -\sum_{i=1}^{B} \frac{1}{|\mathcal{P}_i^+|} \sum_{j \in \mathcal{P}_i^+} \log \frac{\exp(s_{ij}/\tau)}{\sum_{k \in \mathcal{P}_i^+ \cup \mathcal{N}_i^-} \exp(s_{ik}/\tau)}
-\end{equation}
-where $\mathcal{P}_i^+$ contains positive proxies of the same identity but different cameras, and $\mathcal{N}_i^-$ contains hard negative proxies.
-
-\subsection{Total Training Objective}
-
-The overall training loss combines all components:
-\begin{equation}
-    \mathcal{L} = \mathcal{L}_{ces} + \mathcal{L}_{tri} + W_{cam} \cdot \mathcal{L}_{cam} + W_{diff} \cdot \mathcal{L}_{scd} + \mathcal{L}_{psc}
-\end{equation}
-where $\mathcal{L}_{ces}$ is cross-entropy with label smoothing~\cite{szegedy2016rethinking}, $\mathcal{L}_{tri}$ is the soft triplet loss~\cite{hermans2017triplet}, $W_{cam}$ and $W_{diff}$ are weighting hyperparameters.
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Reproduction Setup}
-\label{sec:implementation}
-% ══════════════════════════════════════════════════════════════════════════════
-
-\subsection{Datasets}
-
-We evaluate the PISL framework on two benchmark datasets:
-
-\subsubsection{Market-1501~\cite{zheng2015scalable}}
-A large-scale person Re-ID benchmark captured by six cameras on a university campus. It contains 32,668 images of 1,501 identities. The standard split uses 751 identities (12,936 images) for training, 750 identities (3,368 images) for query, and 751 identities (15,913 images) for gallery. We use the single-query evaluation protocol.
-
-\subsubsection{VeRi-776~\cite{liu2016deepveri}}
-A large-scale vehicle Re-ID benchmark captured by 20 cameras in urban surveillance settings. It contains 49,357 images of 776 vehicles. The training set has 576 identities (37,778 images), the query set has 200 identities (1,678 images), and the gallery set has 200 identities (11,579 images).
-
-Table~\ref{tab:datasets} summarizes the dataset statistics.
-
-\begin{table}[!t]
-    \centering
-    \caption{Dataset Statistics}
-    \label{tab:datasets}
-    \begin{tabular}{l c c c c}
-        \toprule
-        \textbf{Dataset} & \textbf{\#IDs} & \textbf{\#Images} & \textbf{\#Cameras} & \textbf{Domain} \\
-        \midrule
-        \multicolumn{5}{l}{\textit{Market-1501}} \\
-        \quad Train   & 751 & 12,936 & 6  & Person \\
-        \quad Query   & 750 & 3,368  & 6  & Person \\
-        \quad Gallery & 751 & 15,913 & 6  & Person \\
-        \midrule
-        \multicolumn{5}{l}{\textit{VeRi-776}} \\
-        \quad Train   & 576 & 37,778 & 20 & Vehicle \\
-        \quad Query   & 200 & 1,678  & 19 & Vehicle \\
-        \quad Gallery & 200 & 11,579 & 19 & Vehicle \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\subsection{Hardware and Software Environment}
-
-All experiments were conducted on a shared GPU server (SYS-4029GP-TRT) equipped with six NVIDIA GeForce RTX~2080~Ti GPUs (11~GB VRAM each), running CUDA~11.4. The software stack includes Python~3.8+, PyTorch, faiss-gpu~1.7.2~\cite{johnson2019faiss} for efficient similarity search, scikit-learn for DBSCAN clustering, and Weights~\&~Biases (W\&B)~\cite{wandb2020} for experiment tracking and loss curve monitoring.
-
-\subsection{Training Configuration}
-
-We follow the official training protocol using the camera-aware PISL training script. Table~\ref{tab:hyperparams} summarizes the hyperparameter settings for each dataset.
-
-\begin{table}[!t]
-    \centering
-    \caption{Hyperparameter Settings for Each Dataset}
-    \label{tab:hyperparams}
-    \begin{tabular}{l c c}
-        \toprule
-        \textbf{Hyperparameter} & \textbf{Market-1501} & \textbf{VeRi-776} \\
-        \midrule
-        Input size ($H \times W$)        & $384 \times 128$  & $256 \times 256$  \\
-        Batch size                        & 64                & 64                \\
-        Instances per ID ($n$)            & 4                 & 8                 \\
-        Optimizer                         & Adam              & Adam              \\
-        Learning rate                     & $1 \times 10^{-4}$  & $1 \times 10^{-4}$  \\
-        Weight decay                      & $5 \times 10^{-4}$  & $5 \times 10^{-4}$  \\
-        Epochs                            & 50                & 50                \\
-        Iterations per epoch              & 400               & 400               \\
-        LR step size                      & 20                & 20                \\
-        Number of parts ($P$)             & 3                 & 3                 \\
-        DBSCAN $\epsilon$                 & 0.4               & 0.7               \\
-        DBSCAN min\_samples               & 4                 & 4                 \\
-        $k_1$ (Jaccard distance)          & 30                & 30                \\
-        $k_2$ (Jaccard distance)          & 6                 & 6                 \\
-        $k$ (semantic consistency)        & 20                & 20                \\
-        $W_{cam}$ (camera loss weight)    & 0.5               & 0.5               \\
-        $W_{diff}$ (diffusion loss weight) & 0.1              & 0.1               \\
-        $W_{ref}$ (label refinement)      & 0.5               & 0.5               \\
-        SE (smoothing start epoch)        & 5                 & 5                 \\
-        Diffusion steps ($T$)             & 1000              & 1000              \\
-        Temperature ($\tau$)              & 0.07              & 0.07              \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\subsection{Data Augmentation}
-
-The training data augmentation pipeline includes: (1)~resizing to the target resolution, (2)~random horizontal flipping with probability~0.5, (3)~padding by 10~pixels followed by random cropping, and (4)~random erasing with probability~0.5. During testing, only resizing and normalization are applied. ImageNet statistics (mean $=[0.485, 0.456, 0.406]$, std $=[0.229, 0.224, 0.225]$) are used for normalization.
-
-\subsection{Evaluation Protocol}
-
-We use two standard evaluation metrics:
-\begin{itemize}
-    \item \textbf{Mean Average Precision (mAP)}: Measures the area under the precision-recall curve, averaged over all queries.
-    \item \textbf{Cumulative Matching Characteristics (CMC)}: Reports the probability that a correct match appears within the top-$k$ ranked results (Rank-1, Rank-5, Rank-10).
-\end{itemize}
-
-We report results both without and with $k$-reciprocal re-ranking~\cite{zhong2017reranking}, which refines the initial distance matrix using local neighborhood information.
-
-\subsection{Challenges During Reproduction}
-
-Several practical challenges were encountered during the reproduction process:
-
-\begin{enumerate}
-    \item \textbf{Faiss Version Compatibility}: The original code was developed with faiss-gpu~1.6.3. Transitioning to faiss-gpu~1.7.2 required replacing the faiss utility and re-ranking modules due to API changes in the distance computation and index construction interfaces.
-    \item \textbf{GPU Memory Management}: The semantic consistency computation involves computing pairwise distance matrices for $k$-nearest neighborhoods, which is memory-intensive. Batch processing with configurable batch sizes (32 default, 16 minimum) was employed to prevent out-of-memory errors on 11~GB 2080~Ti GPUs.
-    \item \textbf{Multi-GPU Training}: DataParallel was used for multi-GPU training across the available RTX~2080~Ti GPUs, which differs from the paper's setup of four Tesla~T4 GPUs.
-    \item \textbf{Training Resumption}: Resume functionality with checkpoint saving (both \texttt{best.pth} and \texttt{last.pth}) was implemented to handle potential interruptions during the 50-epoch training runs, each taking approximately 19--33~hours.
-\end{enumerate}
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Experimental Results}
-\label{sec:results}
-% ══════════════════════════════════════════════════════════════════════════════
-
-\subsection{Quantitative Results}
-
-\subsubsection{Comparison with Paper Results}
-
-Table~\ref{tab:main_results} presents our reproduced results alongside the results reported in the original paper~\cite{tao2024unsupervised}. Results are shown for both standard evaluation and with $k$-reciprocal re-ranking.
-
-\begin{table}[!t]
-    \centering
-    \caption{Comparison of Reproduced Results with the Original Paper. Results are reported as percentages (\%). \textbf{Bold} indicates the best result in each column. $\Delta$ denotes the gap between our reproduction and the paper.}
-    \label{tab:main_results}
-    \begin{tabular}{l l c c c c}
-        \toprule
-        \textbf{Dataset} & \textbf{Source} & \textbf{mAP} & \textbf{R-1} & \textbf{R-5} & \textbf{R-10} \\
-        \midrule
-        \multicolumn{6}{l}{\textit{Without Re-ranking}} \\
-        \midrule
-        \multirow{3}{*}{Market}
-            & Paper~\cite{tao2024unsupervised}  & \textbf{84.6} & \textbf{93.5} & -- & -- \\
-            & Ours                              & 77.7 & 91.0 & 96.4 & 97.9 \\
-            & $\Delta$                          & \textcolor{red}{$-$6.9} & \textcolor{red}{$-$2.5} & -- & -- \\
-        \midrule
-        \multirow{3}{*}{VeRi}
-            & Paper~\cite{tao2024unsupervised}  & \textbf{43.1} & \textbf{96.5} & -- & -- \\
-            & Ours                              & 41.7 & 87.1 & 91.8 & 93.8 \\
-            & $\Delta$                          & \textcolor{red}{$-$1.4} & \textcolor{red}{$-$9.4} & -- & -- \\
-        \midrule
-        \multicolumn{6}{l}{\textit{With Re-ranking~\cite{zhong2017reranking}}} \\
-        \midrule
-        Market  & Ours  & \textbf{88.6} & 92.6 & 95.5 & 96.7 \\
-        VeRi    & Ours  & 42.9 & 87.7 & 89.6 & 92.1 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\textbf{Key Observations:}
-\begin{itemize}
-    \item \textbf{VeRi-776 mAP}: Our reproduction achieves 41.7\% mAP, only 1.4\% below the reported 43.1\%, demonstrating a strong reproduction on this dataset. With re-ranking, the gap narrows further to just 0.2\% (42.9\% vs.\ 43.1\%).
-    \item \textbf{Market-1501 mAP}: Our reproduction achieves 77.7\% mAP, 6.9\% below the reported 84.6\%. However, with re-ranking, our mAP reaches 88.6\%, \textit{exceeding} the paper's reported result of 84.6\%.
-    \item \textbf{Rank-1 Accuracy}: Our Market-1501 Rank-1 (91.0\%) is close to the paper (93.5\%), while the VeRi-776 Rank-1 gap (87.1\% vs.\ 96.5\%) is more notable and is discussed in Section~\ref{sec:discussion}.
-\end{itemize}
-
-\subsubsection{Comparison with State-of-the-Art Methods}
-
-Table~\ref{tab:sota} compares our reproduced results with representative unsupervised Re-ID methods on Market-1501 and VeRi-776. The comparison values are cited from the original PISL paper~\cite{tao2024unsupervised}.
-
-\begin{table}[!t]
-    \centering
-    \caption{Comparison with State-of-the-Art Unsupervised Re-ID Methods. Results (\%) are cited from the respective original papers. $\dagger$ denotes our reproduced results.}
-    \label{tab:sota}
-    \begin{tabular}{l c c c c}
-        \toprule
-        \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Market-1501}} & \multicolumn{2}{c}{\textbf{VeRi-776}} \\
-        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
-        & mAP & R-1 & mAP & R-1 \\
-        \midrule
-        SpCL~\cite{ge2020selfpaced}       & 73.1 & 88.1 & 36.9 & 79.9 \\
-        CAP~\cite{wang2021cap}             & 79.2 & 91.4 & 33.1 & 83.2 \\
-        ICE~\cite{chen2021ice}             & 82.9 & 93.8 & 40.0 & 92.0 \\
-        RLCC~\cite{zhang2021rlcc}          & 77.7 & 90.4 & --   & --   \\
-        PPLR~\cite{cho2022pplr}            & 84.4 & 94.3 & 38.5 & 91.3 \\
-        PISL~\cite{tao2024unsupervised}    & \textbf{84.6} & 93.5 & \textbf{43.1} & \textbf{96.5} \\
-        \midrule
-        PISL (Ours)$^\dagger$              & 77.7 & 91.0 & 41.7 & 87.1 \\
-        PISL + RR (Ours)$^\dagger$         & 88.6 & 92.6 & 42.9 & 87.7 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-Our reproduction without re-ranking outperforms SpCL and RLCC on Market-1501 in mAP (77.7\% vs.\ 73.1\% and 77.7\%), and achieves the second-highest mAP on VeRi-776 (41.7\%), surpassing SpCL (36.9\%), CAP (33.1\%), PPLR (38.5\%), and ICE (40.0\%). This demonstrates the effectiveness of the PISL framework even in our reproduction setting.
-
-\subsection{Training Dynamics}
-\label{sec:training_dynamics}
-
-The training process was monitored through Weights~\&~Biases~\cite{wandb2020}, which logged the individual loss components and cluster statistics at each training step. Table~\ref{tab:loss_components} summarizes the final-epoch loss component values for our best VeRi-776 and Market-1501 models.
-
-\begin{table}[!t]
-    \centering
-    \caption{Final Training Loss Component Values}
-    \label{tab:loss_components}
-    \begin{tabular}{l c c}
-        \toprule
-        \textbf{Loss Component} & \textbf{Market-1501} & \textbf{VeRi-776} \\
-        \midrule
-        Total Loss ($\mathcal{L}$)         & 9.40   & 11.21  \\
-        Global CE ($\mathcal{L}_{ces}$)    & 4.09   & 4.71   \\
-        Part CE ($\mathcal{L}_{part}$)     & 2.28   & 3.37   \\
-        Triplet ($\mathcal{L}_{tri}$)      & 0.046  & 0.034  \\
-        Camera ($\mathcal{L}_{cam}$)       & 5.43   & 5.53   \\
-        Diffusion ($\mathcal{L}_{scd}$)    & 2.68   & 3.26   \\
-        Noise ($\mathcal{L}_{noise}$)      & 1.08   & 1.11   \\
-        Consistency ($\mathcal{L}_{consist}$) & 0.86 & 0.49   \\
-        Contrastive ($\mathcal{L}_{contra}$) & 3.88 & 6.36   \\
-        \midrule
-        Training Accuracy                  & 98.4\% & 89.1\% \\
-        Final Clusters                     & 612    & 1,030  \\
-        Final Outliers                     & 140    & 17     \\
-        Final Trainset Size                & 12,796 & 37,761 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-Notable observations from the training dynamics:
-\begin{itemize}
-    \item The \textbf{triplet loss} converges to near-zero values (0.034--0.046), indicating effective metric learning where positive pairs become close and negative pairs are well-separated.
-    \item The \textbf{noise prediction loss} stabilizes around 1.08--1.11, showing that the denoising network learns to predict the added noise effectively.
-    \item The \textbf{number of clusters} stabilizes at 612 for Market-1501 (close to the 751 ground-truth identities) and 1,030 for VeRi-776 (higher than the 576 ground-truth identities), suggesting some over-segmentation in the vehicle domain.
-    \item The \textbf{outlier count} decreases to very low values (17 for VeRi, 140 for Market), indicating effective pseudo label assignment.
-\end{itemize}
-
-
-\subsection{Qualitative Results}
-
-\subsubsection{Attention Heatmaps}
-
-Fig.~\ref{fig:heatmaps_market} and Fig.~\ref{fig:heatmaps_veri} show attention heatmap visualizations for Market-1501 and VeRi-776, respectively. Each visualization shows the original image, the feature map attention, and the overlay.
-
-\begin{figure}[!t]
-    \centering
-    \begin{subfigure}[b]{\columnwidth}
-        \centering
-        \includegraphics[width=\columnwidth]{heatmaps/heatmap_0_pid_1271.png}
-    \end{subfigure}
-    \vspace{2mm}
-    \begin{subfigure}[b]{\columnwidth}
-        \centering
-        \includegraphics[width=\columnwidth]{heatmaps/heatmap_2_pid_194.png}
-    \end{subfigure}
-    \caption{Attention heatmap visualizations on Market-1501. The model learns to focus on discriminative body regions: upper body, torso, and lower body, demonstrating the effectiveness of the Spatial Diffusion Model in generating semantically meaningful patches.}
-    \label{fig:heatmaps_market}
-\end{figure}
-
-\begin{figure}[!t]
-    \centering
-    \begin{subfigure}[b]{\columnwidth}
-        \centering
-        \includegraphics[width=\columnwidth]{veri/heatmaps/heatmap_2_pid_65.png}
-    \end{subfigure}
-    \vspace{2mm}
-    \begin{subfigure}[b]{\columnwidth}
-        \centering
-        \includegraphics[width=\columnwidth]{veri/heatmaps/heatmap_3_pid_27.png}
-    \end{subfigure}
-    \caption{Attention heatmap visualizations on VeRi-776. The model attends to distinctive vehicle regions such as tail lights, license plate area, and vehicle contours, showing that the SDM adapts to the vehicle domain.}
-    \label{fig:heatmaps_veri}
-\end{figure}
-
-For Market-1501 (Fig.~\ref{fig:heatmaps_market}), the model learns to attend to discriminative body regions organized into semantically meaningful parts (upper body, torso, lower body). The attention maps show strong activations on clothing patterns, accessories (e.g., bags), and distinctive body proportions --- all features crucial for person re-identification. Importantly, the attention avoids background clutter, focusing primarily on the person.
-
-For VeRi-776 (Fig.~\ref{fig:heatmaps_veri}), the attention maps adapt to vehicle-specific features. The model focuses on distinctive regions such as tail lights, license plate areas, rear emblems, and overall vehicle silhouette. This demonstrates that the Spatial Diffusion Model generalizes across domains, learning to extract semantically relevant regions without explicit supervision.
-
-\subsubsection{Retrieval Ranking Results}
-
-Fig.~\ref{fig:ranking_market} and Fig.~\ref{fig:ranking_veri} show example retrieval results for query images on both datasets. For each query, the top-10 ranked gallery images are displayed, with correctly matched images highlighted in green borders and labeled as ``True,'' while same-camera images are labeled as ``Junk'' (excluded from evaluation per the standard protocol).
-
-\begin{figure*}[!t]
-    \centering
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{ranking/query_1044_pid_569.png}
-    \end{subfigure}
-    \vspace{2mm}
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{ranking/query_3350_pid_1105.png}
-    \end{subfigure}
-    \caption{Retrieval ranking results on Market-1501. For each query (leftmost), the top-10 ranked gallery images are shown. Green borders and ``True'' labels indicate correct matches from different cameras. ``Junk'' labels indicate same-camera images (excluded from evaluation). The model successfully retrieves the correct person across viewpoint, pose, and lighting changes.}
-    \label{fig:ranking_market}
-\end{figure*}
-
-\begin{figure*}[!t]
-    \centering
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{veri/ranking/query_1030_pid_74.png}
-    \end{subfigure}
-    \vspace{2mm}
-    \begin{subfigure}[b]{\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{veri/ranking/query_1237_pid_262.png}
-    \end{subfigure}
-    \caption{Retrieval ranking results on VeRi-776. The model correctly retrieves the same vehicle across different camera viewpoints (front, rear, side). Note the robustness to significant viewpoint changes, illumination variations, and partial occlusions.}
-    \label{fig:ranking_veri}
-\end{figure*}
-
-The retrieval results demonstrate the model's ability to correctly match identities across significant appearance variations:
-\begin{itemize}
-    \item \textbf{Market-1501}: The model handles viewpoint changes (front/back/side), pose variations (walking, standing), illumination differences, and partial occlusions effectively.
-    \item \textbf{VeRi-776}: The model successfully matches vehicles across drastically different viewpoints (front, rear, top-down) and lighting conditions, leveraging distinctive features like license plates, vehicle shape, and color.
-\end{itemize}
-
-\subsubsection{t-SNE Feature Visualization}
-
-Fig.~\ref{fig:tsne_market} and Fig.~\ref{fig:tsne_veri} present t-SNE~\cite{van2008tsne} visualizations of the learned feature embeddings for selected identities on both datasets.
-
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{tsne/tsne_plot.png}
-    \caption{t-SNE visualization of feature embeddings on Market-1501 (15 selected identities). Each color represents a different person identity. The clear cluster separation demonstrates that the learned features effectively group same-identity images together while maintaining inter-class separation.}
-    \label{fig:tsne_market}
-\end{figure}
-
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\columnwidth]{veri/tsne/tsne_plot.png}
-    \caption{t-SNE visualization of feature embeddings on VeRi-776 (15 selected vehicle identities). The well-separated clusters indicate strong discriminative power of the learned features, despite the intra-class variation caused by different camera viewpoints in vehicle Re-ID.}
-    \label{fig:tsne_veri}
-\end{figure}
-
-The t-SNE visualizations reveal:
-\begin{itemize}
-    \item \textbf{Clear Cluster Formation}: Both datasets show well-formed, compact clusters for each identity, indicating strong intra-class compactness.
-    \item \textbf{Inter-Class Separation}: Clusters are well-separated in the embedding space, demonstrating good inter-class discriminability.
-    \item \textbf{Minimal Overlap}: There is very little overlap between clusters, suggesting that the pseudo label refinement process effectively reduces label noise and produces discriminative representations.
-    \item \textbf{Domain Adaptation}: The VeRi-776 embeddings show larger intra-class variance compared to Market-1501, which is expected given the more extreme viewpoint variations in vehicle Re-ID.
-\end{itemize}
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Analysis and Discussion}
-\label{sec:discussion}
-% ══════════════════════════════════════════════════════════════════════════════
-
-\subsection{Analysis of VeRi-776 Results}
-
-Our VeRi-776 reproduction is notably close to the paper's results in terms of mAP (41.7\% vs.\ 43.1\%, a gap of only 1.4\%). With re-ranking, the gap narrows to just 0.2\% (42.9\% vs.\ 43.1\%). This suggests that the overall retrieval quality --- measured by the precision-recall trade-off --- is faithfully reproduced.
-
-However, the Rank-1 accuracy shows a larger gap (87.1\% vs.\ 96.5\%). This discrepancy between a close mAP and a wider Rank-1 gap indicates that while our model retrieves relevant images well across the ranking list, the \textit{top-1} retrieval is less precise. Possible explanations include:
-
-\begin{itemize}
-    \item \textbf{Cluster granularity}: Our model produces 1,030 clusters for 576 ground-truth identities, suggesting over-segmentation. This could introduce noise in the pseudo labels that affects the most confident predictions.
-    \item \textbf{Hardware differences}: The original paper uses 4$\times$ Tesla T4 GPUs (16~GB each), while we use RTX~2080~Ti GPUs (11~GB each). Differences in effective batch processing during the semantic consistency computation could affect training dynamics.
-    \item \textbf{Random seed sensitivity}: Unsupervised Re-ID methods are known to be sensitive to random initialization due to the clustering-based pseudo label generation.
-\end{itemize}
-
-\subsection{Analysis of Market-1501 Results}
-
-The Market-1501 reproduction shows a more significant mAP gap (77.7\% vs.\ 84.6\%) without re-ranking. Several factors may contribute:
-
-\begin{itemize}
-    \item \textbf{Hyperparameter sensitivity}: While we used the paper's recommended $\epsilon = 0.4$ for DBSCAN, the interaction between $\epsilon$, batch size, learning rate, and the camera contrastive weight ($W_{cam}$) creates a complex hyperparameter space. The paper's exact configuration on Market-1501 may involve fine-tuned settings not fully captured in the released code.
-    \item \textbf{Number of clusters}: Our model converges to 612 clusters compared to 751 ground-truth identities, indicating some under-segmentation that merges distinct identities and introduces noise.
-    \item \textbf{Multi-GPU synchronization}: Using 6$\times$ 2080~Ti with DataParallel versus 4$\times$ T4 affects batch normalization statistics, gradient averaging, and effective learning dynamics.
-\end{itemize}
-
-Notably, applying $k$-reciprocal re-ranking~\cite{zhong2017reranking} boosts our Market-1501 mAP from 77.7\% to \textbf{88.6\%}, which \textit{surpasses} the paper's reported 84.6\%. This demonstrates that the features learned by our reproduced model possess strong local neighborhood structure that is effectively exploited by the re-ranking algorithm. The gap without re-ranking likely reflects differences in the initial distance ranking rather than fundamental feature quality.
-
-\subsection{Effect of Camera-Aware Contrastive Learning}
-
-The camera-aware contrastive loss $\mathcal{L}_{cam}$ constitutes a significant portion of the total loss (5.43 for Market, 5.53 for VeRi), reflecting its importance in learning camera-invariant representations. The camera-aware proxies construct a rich supervisory signal by contrasting features of the same identity across different cameras while pushing apart features of different identities.
-
-The camera loss is particularly impactful on VeRi-776, which has 20~cameras (compared to Market-1501's 6~cameras), providing more camera-level supervisory pairs. This may partially explain why our VeRi-776 mAP reproduction is closer to the paper than our Market-1501 reproduction.
-
-\subsection{Contribution of the Diffusion Model}
-
-The diffusion model components (noise prediction loss $\approx 1.1$, total SCD loss $\approx 2.7$--$3.3$) demonstrate that the SDM successfully learns to denoise spatial transformer parameters. The noise prediction loss stabilizing around 1.1 (compared to a theoretical optimum near 1.0 for Gaussian noise prediction with the cosine schedule) indicates effective denoising capability.
-
-The qualitative heatmap results (Figs.~\ref{fig:heatmaps_market}--\ref{fig:heatmaps_veri}) provide visual evidence that the SDM generates semantically meaningful patches that focus on discriminative body/vehicle regions, validating the paper's core claim that diffusion models can enhance unsupervised Re-ID through structured patch generation.
-
-\subsection{Reproducibility Considerations}
-
-We identify several factors that affect reproducibility of the PISL framework:
-
-\begin{enumerate}
-    \item \textbf{Stochastic clustering}: DBSCAN with Jaccard distance depends on the feature quality, which varies with random initialization. Different seeds can lead to different pseudo label assignments and divergent training trajectories.
-    \item \textbf{Faiss implementation}: The Jaccard distance computation relies on faiss for $k$-nearest neighbor search. Different faiss versions (1.6.3 vs.\ 1.7.2) may produce slightly different rankings due to floating-point computation differences.
-    \item \textbf{GPU architecture}: Differences in tensor core operations, memory management, and parallel execution between T4 and 2080~Ti architectures can affect numerical reproducibility.
-    \item \textbf{Training duration}: Each full training run (50~epochs) takes approximately 19--33 hours depending on the dataset, limiting the number of hyperparameter search iterations feasible within the project timeline.
-\end{enumerate}
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-\section{Conclusion}
-\label{sec:conclusion}
-% ══════════════════════════════════════════════════════════════════════════════
-
-This report presented a detailed reproduction of the PISL framework~\cite{tao2024unsupervised} for unsupervised person and vehicle re-identification. We successfully implemented and trained the camera-aware PISL model on two benchmark datasets, achieving competitive results that validate the key claims of the original paper.
-
-\textbf{Summary of Findings:}
-\begin{itemize}
-    \item On \textbf{VeRi-776}, our reproduction closely matches the paper with only a 1.4\% mAP gap (41.7\% vs.\ 43.1\%), narrowing to just 0.2\% with re-ranking (42.9\% vs.\ 43.1\%).
-    \item On \textbf{Market-1501}, while there is a 6.9\% mAP gap without re-ranking (77.7\% vs.\ 84.6\%), applying re-ranking yields 88.6\% mAP, surpassing the paper's reported result.
-    \item Qualitative results confirm that the Spatial Diffusion Model successfully generates semantically meaningful patches that attend to discriminative body and vehicle regions.
-    \item The t-SNE visualizations and retrieval rankings demonstrate strong discriminative feature learning despite the absence of identity labels.
-\end{itemize}
-
-\textbf{Future Work:}
-\begin{itemize}
-    \item Extend the reproduction to MSMT17~\cite{wei2018msmt17}, the largest and most challenging benchmark used in the original paper.
-    \item Investigate the integration of Vision Transformer (ViT) backbones as an alternative to ResNet-50, which may improve feature quality and part localization.
-    \item Conduct systematic ablation studies to isolate the contribution of each loss component (SDM, SCD, PSC, camera-aware contrastive).
-    \item Explore hyperparameter optimization strategies, particularly for the DBSCAN threshold $\epsilon$ and the loss weighting factors, to close the remaining gap on Market-1501.
-\end{itemize}
-
-
-% ══════════════════════════════════════════════════════════════════════════════
-% References
-% ══════════════════════════════════════════════════════════════════════════════
-\balance
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
