@@ -282,8 +282,17 @@ def main_worker(args):
         if not value.requires_grad:
             continue
         params += [{"params": [value], "lr": args.lr, "weight_decay": args.weight_decay}]
-    optimizer = torch.optim.Adam(params)
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=0.1)
+        
+    if args.arch == 'vit':
+        # ViTs require AdamW and weight decay
+        optimizer = torch.optim.AdamW(params, weight_decay=args.weight_decay)
+        # ViTs absolutely require a warmup to prevent early gradient spikes from destroying the backbone
+        warmup_scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.01, total_iters=10)
+        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs - 10)
+        lr_scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer, schedulers=[warmup_scheduler, cosine_scheduler], milestones=[10])
+    else:
+        optimizer = torch.optim.Adam(params)
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=0.1)
 
     for _ in range(args.start_epoch):
         lr_scheduler.step()
