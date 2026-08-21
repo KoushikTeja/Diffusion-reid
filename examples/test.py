@@ -178,6 +178,5 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=1)
 
     # model configs
-    parser.add_argument('--part', type=int, default=3, help="number of part")
 
     main()
