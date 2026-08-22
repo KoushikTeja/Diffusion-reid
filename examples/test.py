@@ -11,7 +11,7 @@ from torch.backends import cudnn
 from torch.utils.data import DataLoader
 
 from pisl import datasets
-from pisl.models import resnet50part
+from pisl.models import resnet50part, vit_base_part
 from pisl.evaluators import Evaluator
 from pisl.utils.data import transforms as T
 from pisl.utils.data.preprocessor import Preprocessor
@@ -99,7 +99,7 @@ def main_worker(args):
     )
 
     # Create and load model
-    model = create_model(args.part)
+    model = create_model(args.part, args.arch, img_size=(args.height, args.width))
     load_checkpoint_to_model(args.resume, model)
 
     # Evaluate model
@@ -128,7 +128,7 @@ def set_seed(seed):
         cudnn.deterministic = True
         cudnn.benchmark = False
 
-def create_model(num_parts):
+def create_model(num_parts, arch='resnet', img_size=(256, 128)):
     """Create model
     
     Args:
@@ -137,7 +137,10 @@ def create_model(num_parts):
     Returns:
         model: Model object
     """
-    model = resnet50part(num_parts=num_parts, num_classes=3000)
+    if arch == 'vit':
+        model = vit_base_part(num_parts=num_parts, num_classes=3000, img_size=img_size)
+    else:
+        model = resnet50part(num_parts=num_parts, num_classes=3000)
     model.cuda()
     return nn.DataParallel(model)
 
@@ -161,6 +164,10 @@ if __name__ == '__main__':
     parser.add_argument('--height', type=int, default=384, help="input height")
     parser.add_argument('--width', type=int, default=128, help="input width")
 
+    # model
+    parser.add_argument('--arch', type=str, default='vit', choices=['resnet', 'vit'])
+    parser.add_argument('--part', type=int, default=3, help="number of part")
+
     # path
     working_dir = osp.dirname(osp.abspath(__file__))
     parser.add_argument('--data-dir', type=str, metavar='PATH', default=osp.join(working_dir, 'data'))
@@ -171,6 +178,5 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=1)
 
     # model configs
-    parser.add_argument('--part', type=int, default=3, help="number of part")
 
     main()

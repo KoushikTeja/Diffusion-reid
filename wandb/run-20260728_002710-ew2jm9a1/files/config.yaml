@@ -1,0 +1,137 @@
+_wandb:
+    value:
+        cli_version: 0.22.3
+        e:
+            buhfi1dbamdtzvxnv17t9ldvs68x3m0u:
+                args:
+                    - -d
+                    - veri
+                    - -n
+                    - "8"
+                    - --height
+                    - "256"
+                    - --width
+                    - "256"
+                    - --eps
+                    - "0.7"
+                    - --logs-dir
+                    - logs/veri
+                codePath: examples/train_pisl_cam.py
+                codePathLocal: examples/train_pisl_cam.py
+                cpu_count: 16
+                cpu_count_logical: 32
+                cudaVersion: "11.4"
+                disk:
+                    /:
+                        total: "491000610816"
+                        used: "114636562432"
+                email: koushik.viluvala@gmail.com
+                executable: /home1/koushik_t/miniconda3/envs/pisl/bin/python
+                git:
+                    commit: 666a9e3f92c3e2901e7900e199d22fdde7ae860c
+                    remote: https://github.com/KoushikTeja/Diffusion-reid.git
+                gpu: NVIDIA GeForce RTX 2080 Ti
+                gpu_count: 6
+                gpu_nvidia:
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-64826b53-4d40-cb22-c50e-3f69f3ac72bc
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-032b5af7-ae84-a20d-37ef-e9bf0399efa5
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-3978a98c-1c04-e40e-3a3c-2da0dfeb3143
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-af30027d-253c-172c-17c8-d0027a753391
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-2fd5c919-dd9b-054c-1ea6-f0178ef76aaf
+                    - architecture: Turing
+                      name: NVIDIA GeForce RTX 2080 Ti
+                      uuid: GPU-01e604b9-7a0b-abbd-0bbe-33891626df18
+                host: SYS-4029GP-TRT
+                memory:
+                    total: "539641638912"
+                os: Linux-5.4.0-150-generic-x86_64-with-glibc2.17
+                program: examples/train_pisl_cam.py
+                python: CPython 3.8.20
+                root: /home1/koushik_t/Diffusion-reid
+                startedAt: "2026-07-27T18:57:10.246898Z"
+                writerId: buhfi1dbamdtzvxnv17t9ldvs68x3m0u
+        m: []
+        python_version: 3.8.20
+        t:
+            "1":
+                - 1
+                - 5
+                - 41
+                - 53
+            "2":
+                - 1
+                - 5
+                - 41
+                - 53
+            "3":
+                - 16
+            "4": 3.8.20
+            "5": 0.22.3
+            "12": 0.22.3
+            "13": linux-x86_64
+Wcam:
+    value: 0.5
+Wdiff:
+    value: 0.1
+Wref:
+    value: 0.5
+batch_size:
+    value: 64
+best_mAP:
+    value: 0
+data_dir:
+    value: /home1/koushik_t/Diffusion-reid/examples/data
+dataset:
+    value: veri
+epochs:
+    value: 50
+eps:
+    value: 0.7
+eval_step:
+    value: 5
+height:
+    value: 256
+iters:
+    value: 400
+k1:
+    value: 30
+k2:
+    value: 6
+knn:
+    value: 20
+logs_dir:
+    value: logs/veri
+lr:
+    value: 0.00035
+num_instances:
+    value: 8
+part:
+    value: 3
+print_freq:
+    value: 10
+resume:
+    value: ""
+se:
+    value: 5
+seed:
+    value: 1
+start_epoch:
+    value: 0
+step_size:
+    value: 20
+weight_decay:
+    value: 0.0005
+width:
+    value: 256
+workers:
+    value: 4

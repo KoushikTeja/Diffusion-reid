@@ -1,0 +1,65 @@
+\documentclass[12pt]{report} 
+
+%load any additional packages
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\setlength{\topmargin}{0.0in}
+\setlength{\oddsidemargin}{0.33in}
+\setlength{\evensidemargin}{-0.08in}
+\setlength{\textheight}{8.5in}
+\setlength{\textwidth}{6.0in}
+
+% ── Modify these fields ──────────────────────────────────────────────────────
+\def\mytitle{Unsupervised Learning of Intrinsic Semantics with Diffusion Model for Person Re-Identification: A Reproduction Study}
+\def\myname{Koushik Teja Viluvala}
+\def\mydegree{Master of Technology}
+\def\mysupervisor{Supervisor Name}       % ← fill in
+\def\myrollno{Roll Number}               % ← fill in
+\def\mydep{Computer Science and Engineering}
+\def\mydegreedate{August 2026}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\graphicspath{ {Images/} {../figs/} {../examples/visualizations/} }
+
+\begin{document}
+ \baselineskip=18pt plus1pt
+ \setcounter{secnumdepth}{3}
+ \setcounter{tocdepth}{3}
+ \pagenumbering{roman}
+ 
+ %Front Matter
+ \include{./FrontMatter/titlePage}
+ \include{./FrontMatter/certificate}
+ %\include{./FrontMatter/dedication}
+ \include{./FrontMatter/acknowledgements}
+ \include{./FrontMatter/abstract}
+ \tableofcontents
+ \listoffigures
+ \listoftables
+ 
+ %Main material
+ \clearpage
+ \pagenumbering{arabic}
+ 
+ \include{./Chapters/chapter1}
+ \include{./Chapters/chapter2}
+ \include{./Chapters/chapter3}
+ \include{./Chapters/chapter4}
+ \include{./Chapters/chapter5}
+ 
+ %Bibliography
+ \addcontentsline{toc}{chapter}{Bibliography}
+ \bibliographystyle{unsrtnat}
+ \bibliography{references}
+ 
+\end{document}

@@ -1,0 +1,254 @@
+
+=================================================================
+  EPOCH 0/49   (elapsed so far: 00h 00m 03.65s)
+=================================================================
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+Extract Features: [50/591]	Time 1.164 (1.364)	Data 0.000 (0.015)	
+Extract Features: [100/591]	Time 1.179 (1.270)	Data 0.000 (0.008)	
+Extract Features: [150/591]	Time 1.327 (1.240)	Data 0.000 (0.005)	
+Extract Features: [200/591]	Time 1.198 (1.225)	Data 0.000 (0.004)	
+Extract Features: [250/591]	Time 1.178 (1.218)	Data 0.000 (0.003)	
+Extract Features: [300/591]	Time 1.201 (1.213)	Data 0.000 (0.003)	
+Extract Features: [350/591]	Time 1.198 (1.212)	Data 0.000 (0.002)	
+Extract Features: [400/591]	Time 1.188 (1.209)	Data 0.000 (0.002)	
+Extract Features: [450/591]	Time 1.171 (1.208)	Data 0.000 (0.002)	
+Extract Features: [500/591]	Time 1.190 (1.206)	Data 0.000 (0.002)	
+Extract Features: [550/591]	Time 1.185 (1.205)	Data 0.000 (0.002)	
+  ⏱  [Feature extraction] 00h 11m 53.55s  |  global=[37778, 2048]  parts=[37778, 2048, 3]
+Computing jaccard distance...
+Processing 0/37778 ...
+Processing 2560/37778 ...
+Processing 5120/37778 ...
+Processing 7680/37778 ...
+Processing 10240/37778 ...
+Processing 12800/37778 ...
+Processing 15360/37778 ...
+Processing 17920/37778 ...
+Processing 20480/37778 ...
+Processing 23040/37778 ...
+Processing 25600/37778 ...
+Processing 28160/37778 ...
+Processing 30720/37778 ...
+Processing 33280/37778 ...
+Processing 35840/37778 ...
+Jaccard distance computing time cost: 106.64372086524963
+  ⏱  [Jaccard + DBSCAN clustering] 00h 01m 57.41s  |  clusters=570
+Compute semantic consistency score...
+semantic consistency score time cost: 162.61840963363647
+  ⏱  [Semantic consistency] 00h 02m 42.94s  |  scores shape=[37778, 3]
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torchvision/transforms/transforms.py:332: UserWarning: Argument 'interpolation' of type int is deprecated since 0.13 and will be removed in 0.15. Please use InterpolationMode enum.
+  warnings.warn(
+
+  ==> Statistics for epoch 0: 570 clusters, 1023 un-clustered instances
+  ⏱  [Dataset rebuild] 00h 00m 00.30s  |  trainset size=36755
+  ⏱  [Centroids + memory banks] 00h 00m 01.23s  |  proxies=1000  centroids=570
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/Diffusion-reid/pisl/loss/triplet.py:13: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1174.)
+  dist.addmm_(1, -2, x, y.t())
+Epoch: [0][10/400]	Time 0.673 (2.146)	L_GCE 5.498 (5.533)	L_PCE 5.660 (5.946)	L_TRI 10.973 (11.884)	L_CAM 2.158 (2.444)	L_DIFF 5.596 (5.315)	L_NOISE 1.005 (1.389)	L_CONS 3.263 (0.945)	L_CONT 9.866 (11.513)	Prec 7.81% (12.19%)	
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+Epoch: [0][20/400]	Time 0.715 (1.434)	L_GCE 5.898 (5.681)	L_PCE 6.097 (6.003)	L_TRI 12.696 (11.165)	L_CAM 4.521 (2.841)	L_DIFF 4.346 (5.020)	L_NOISE 1.202 (1.242)	L_CONS 0.148 (1.057)	L_CONT 10.232 (10.833)	Prec 0.00% (6.64%)	
+Epoch: [0][30/400]	Time 0.650 (1.182)	L_GCE 6.058 (5.804)	L_PCE 6.395 (6.105)	L_TRI 7.939 (11.140)	L_CAM 0.995 (2.735)	L_DIFF 4.696 (4.906)	L_NOISE 0.962 (1.176)	L_CONS 1.610 (1.049)	L_CONT 9.763 (10.684)	Prec 1.56% (4.48%)	
+Epoch: [0][40/400]	Time 0.725 (1.062)	L_GCE 6.174 (5.884)	L_PCE 6.449 (6.170)	L_TRI 8.023 (10.904)	L_CAM 3.344 (2.837)	L_DIFF 4.302 (4.786)	L_NOISE 1.051 (1.136)	L_CONS 0.167 (0.938)	L_CONT 10.556 (10.601)	Prec 0.00% (3.36%)	
+Epoch: [0][50/400]	Time 0.719 (0.991)	L_GCE 6.203 (5.953)	L_PCE 6.450 (6.230)	L_TRI 10.237 (10.747)	L_CAM 4.432 (2.871)	L_DIFF 3.997 (4.701)	L_NOISE 0.957 (1.124)	L_CONS 0.558 (0.822)	L_CONT 9.202 (10.553)	Prec 0.00% (2.69%)	
+Epoch: [0][60/400]	Time 0.695 (0.940)	L_GCE 6.162 (6.008)	L_PCE 6.270 (6.271)	L_TRI 11.441 (10.758)	L_CAM 3.237 (2.917)	L_DIFF 4.689 (4.651)	L_NOISE 1.047 (1.103)	L_CONS 0.544 (0.779)	L_CONT 11.234 (10.527)	Prec 1.56% (2.27%)	
+Epoch: [0][70/400]	Time 0.678 (0.902)	L_GCE 6.335 (6.048)	L_PCE 6.528 (6.302)	L_TRI 8.793 (10.709)	L_CAM 3.201 (2.894)	L_DIFF 4.351 (4.603)	L_NOISE 0.999 (1.092)	L_CONS 0.639 (0.731)	L_CONT 10.106 (10.484)	Prec 0.00% (1.94%)	
+Epoch: [0][80/400]	Time 0.682 (0.892)	L_GCE 6.041 (6.033)	L_PCE 6.127 (6.256)	L_TRI 12.022 (10.685)	L_CAM 3.426 (2.963)	L_DIFF 4.977 (4.578)	L_NOISE 1.125 (1.087)	L_CONS 1.126 (0.747)	L_CONT 10.965 (10.392)	Prec 0.00% (2.23%)	
+Epoch: [0][90/400]	Time 0.659 (0.868)	L_GCE 6.041 (6.013)	L_PCE 6.220 (6.216)	L_TRI 11.009 (10.669)	L_CAM 1.121 (2.948)	L_DIFF 4.897 (4.538)	L_NOISE 0.988 (1.074)	L_CONS 0.680 (0.743)	L_CONT 11.897 (10.308)	Prec 1.56% (2.29%)	
+Epoch: [0][100/400]	Time 0.682 (0.850)	L_GCE 5.801 (6.007)	L_PCE 5.833 (6.202)	L_TRI 9.928 (10.652)	L_CAM 3.207 (2.920)	L_DIFF 3.984 (4.521)	L_NOISE 0.973 (1.069)	L_CONS 0.269 (0.711)	L_CONT 9.589 (10.322)	Prec 0.00% (2.14%)	
+Epoch: [0][110/400]	Time 0.669 (0.834)	L_GCE 6.044 (6.002)	L_PCE 6.134 (6.189)	L_TRI 12.658 (10.541)	L_CAM 2.228 (2.905)	L_DIFF 4.550 (4.503)	L_NOISE 1.085 (1.063)	L_CONS 0.907 (0.735)	L_CONT 10.040 (10.241)	Prec 0.00% (1.99%)	
+Epoch: [0][120/400]	Time 0.704 (0.822)	L_GCE 5.920 (5.999)	L_PCE 6.165 (6.184)	L_TRI 5.325 (10.499)	L_CAM 4.410 (2.986)	L_DIFF 3.596 (4.478)	L_NOISE 0.967 (1.059)	L_CONS 0.584 (0.752)	L_CONT 7.788 (10.140)	Prec 0.00% (1.82%)	
+Epoch: [0][130/400]	Time 0.645 (0.811)	L_GCE 6.018 (6.000)	L_PCE 6.087 (6.183)	L_TRI 6.489 (10.384)	L_CAM 0.000 (2.925)	L_DIFF 4.618 (4.450)	L_NOISE 1.044 (1.057)	L_CONS 0.952 (0.738)	L_CONT 10.327 (10.081)	Prec 0.00% (1.68%)	
+Epoch: [0][140/400]	Time 0.651 (0.801)	L_GCE 6.138 (6.001)	L_PCE 6.343 (6.183)	L_TRI 7.722 (10.292)	L_CAM 1.124 (2.909)	L_DIFF 4.509 (4.443)	L_NOISE 0.999 (1.055)	L_CONS 0.738 (0.758)	L_CONT 10.471 (10.028)	Prec 0.00% (1.56%)	
+Epoch: [0][150/400]	Time 0.714 (0.802)	L_GCE 5.593 (5.983)	L_PCE 5.688 (6.158)	L_TRI 7.708 (10.175)	L_CAM 4.378 (2.904)	L_DIFF 5.170 (4.433)	L_NOISE 1.028 (1.053)	L_CONS 2.039 (0.767)	L_CONT 10.408 (9.988)	Prec 3.12% (1.80%)	
+Epoch: [0][160/400]	Time 0.699 (0.794)	L_GCE 5.861 (5.963)	L_PCE 6.050 (6.131)	L_TRI 7.204 (10.046)	L_CAM 4.399 (2.885)	L_DIFF 4.393 (4.426)	L_NOISE 0.928 (1.050)	L_CONS 0.797 (0.783)	L_CONT 10.223 (9.950)	Prec 0.00% (1.85%)	
+Epoch: [0][170/400]	Time 0.705 (0.788)	L_GCE 5.557 (5.944)	L_PCE 5.638 (6.111)	L_TRI 8.138 (9.981)	L_CAM 4.179 (2.889)	L_DIFF 3.912 (4.411)	L_NOISE 1.048 (1.050)	L_CONS 0.860 (0.798)	L_CONT 8.115 (9.873)	Prec 0.00% (1.87%)	
+Epoch: [0][180/400]	Time 0.656 (0.782)	L_GCE 5.733 (5.940)	L_PCE 5.900 (6.109)	L_TRI 7.267 (9.947)	L_CAM 1.119 (2.875)	L_DIFF 3.724 (4.400)	L_NOISE 0.946 (1.049)	L_CONS 0.397 (0.785)	L_CONT 8.600 (9.862)	Prec 0.00% (1.80%)	
+Epoch: [0][190/400]	Time 0.695 (0.777)	L_GCE 6.052 (5.934)	L_PCE 6.190 (6.102)	L_TRI 11.144 (9.864)	L_CAM 4.328 (2.875)	L_DIFF 4.912 (4.400)	L_NOISE 0.989 (1.048)	L_CONS 1.383 (0.805)	L_CONT 10.770 (9.833)	Prec 0.00% (1.71%)	
+Epoch: [0][200/400]	Time 0.707 (0.772)	L_GCE 5.825 (5.926)	L_PCE 5.922 (6.095)	L_TRI 4.197 (9.729)	L_CAM 4.221 (2.872)	L_DIFF 4.440 (4.374)	L_NOISE 1.029 (1.047)	L_CONS 1.013 (0.792)	L_CONT 9.683 (9.770)	Prec 0.00% (1.64%)	
+Epoch: [0][210/400]	Time 0.660 (0.768)	L_GCE 5.719 (5.922)	L_PCE 5.912 (6.095)	L_TRI 5.299 (9.724)	L_CAM 2.195 (2.909)	L_DIFF 3.595 (4.374)	L_NOISE 0.974 (1.047)	L_CONS 0.698 (0.811)	L_CONT 7.575 (9.740)	Prec 0.00% (1.58%)	
+Epoch: [0][220/400]	Time 0.695 (0.770)	L_GCE 5.628 (5.910)	L_PCE 5.771 (6.078)	L_TRI 8.719 (9.657)	L_CAM 4.501 (2.922)	L_DIFF 4.812 (4.370)	L_NOISE 1.044 (1.045)	L_CONS 1.899 (0.819)	L_CONT 9.394 (9.716)	Prec 1.56% (1.62%)	
+Epoch: [0][230/400]	Time 0.676 (0.766)	L_GCE 5.060 (5.891)	L_PCE 4.993 (6.054)	L_TRI 3.154 (9.569)	L_CAM 3.141 (2.906)	L_DIFF 3.838 (4.378)	L_NOISE 1.099 (1.044)	L_CONS 1.543 (0.860)	L_CONT 6.559 (9.679)	Prec 9.38% (1.79%)	
+Epoch: [0][240/400]	Time 0.668 (0.762)	L_GCE 5.440 (5.872)	L_PCE 5.601 (6.033)	L_TRI 5.999 (9.503)	L_CAM 2.246 (2.908)	L_DIFF 3.811 (4.370)	L_NOISE 1.153 (1.045)	L_CONS 0.689 (0.875)	L_CONT 7.710 (9.625)	Prec 0.00% (1.85%)	
+Epoch: [0][250/400]	Time 0.704 (0.759)	L_GCE 5.806 (5.861)	L_PCE 5.977 (6.024)	L_TRI 9.295 (9.489)	L_CAM 5.655 (2.934)	L_DIFF 5.670 (4.370)	L_NOISE 0.969 (1.044)	L_CONS 2.331 (0.884)	L_CONT 11.787 (9.614)	Prec 0.00% (1.84%)	
+Epoch: [0][260/400]	Time 0.695 (0.755)	L_GCE 5.505 (5.853)	L_PCE 5.650 (6.017)	L_TRI 4.996 (9.419)	L_CAM 5.327 (2.916)	L_DIFF 4.162 (4.364)	L_NOISE 1.013 (1.042)	L_CONS 1.189 (0.886)	L_CONT 8.515 (9.595)	Prec 3.12% (1.82%)	
+Epoch: [0][270/400]	Time 0.678 (0.752)	L_GCE 5.932 (5.843)	L_PCE 6.279 (6.008)	L_TRI 12.179 (9.373)	L_CAM 3.479 (2.908)	L_DIFF 4.411 (4.350)	L_NOISE 1.051 (1.042)	L_CONS 0.834 (0.885)	L_CONT 9.812 (9.551)	Prec 0.00% (1.78%)	
+Epoch: [0][280/400]	Time 0.668 (0.749)	L_GCE 5.858 (5.836)	L_PCE 6.163 (6.003)	L_TRI 9.018 (9.263)	L_CAM 3.323 (2.900)	L_DIFF 4.010 (4.327)	L_NOISE 1.001 (1.041)	L_CONS 0.491 (0.870)	L_CONT 9.210 (9.505)	Prec 0.00% (1.73%)	
+Epoch: [0][290/400]	Time 0.667 (0.750)	L_GCE 5.208 (5.822)	L_PCE 5.191 (5.986)	L_TRI 6.342 (9.172)	L_CAM 2.258 (2.879)	L_DIFF 5.429 (4.330)	L_NOISE 0.966 (1.040)	L_CONS 2.949 (0.892)	L_CONT 9.963 (9.479)	Prec 7.81% (1.85%)	
+Epoch: [0][300/400]	Time 0.746 (0.749)	L_GCE 5.142 (5.800)	L_PCE 5.092 (5.958)	L_TRI 7.140 (9.067)	L_CAM 5.348 (2.887)	L_DIFF 3.970 (4.328)	L_NOISE 1.042 (1.038)	L_CONS 1.171 (0.917)	L_CONT 7.807 (9.439)	Prec 6.25% (2.14%)	
+Epoch: [0][310/400]	Time 0.648 (0.746)	L_GCE 5.318 (5.784)	L_PCE 5.459 (5.941)	L_TRI 2.038 (8.973)	L_CAM 1.032 (2.880)	L_DIFF 3.978 (4.331)	L_NOISE 1.056 (1.037)	L_CONS 1.064 (0.948)	L_CONT 7.967 (9.402)	Prec 4.69% (2.23%)	
+Epoch: [0][320/400]	Time 0.682 (0.744)	L_GCE 5.221 (5.769)	L_PCE 5.530 (5.925)	L_TRI 5.245 (8.884)	L_CAM 3.169 (2.875)	L_DIFF 3.814 (4.315)	L_NOISE 0.959 (1.036)	L_CONS 1.032 (0.936)	L_CONT 7.795 (9.368)	Prec 1.56% (2.24%)	
+Epoch: [0][330/400]	Time 0.634 (0.742)	L_GCE 5.657 (5.760)	L_PCE 5.656 (5.917)	L_TRI 7.276 (8.828)	L_CAM 0.000 (2.879)	L_DIFF 5.189 (4.322)	L_NOISE 1.079 (1.035)	L_CONS 1.979 (0.962)	L_CONT 10.400 (9.354)	Prec 0.00% (2.22%)	
+Epoch: [0][340/400]	Time 0.725 (0.741)	L_GCE 5.467 (5.749)	L_PCE 5.805 (5.908)	L_TRI 7.751 (8.776)	L_CAM 5.273 (2.893)	L_DIFF 3.447 (4.310)	L_NOISE 1.005 (1.035)	L_CONS 0.325 (0.961)	L_CONT 7.596 (9.317)	Prec 4.69% (2.21%)	
+Epoch: [0][350/400]	Time 0.647 (0.739)	L_GCE 5.382 (5.741)	L_PCE 5.575 (5.900)	L_TRI 4.214 (8.678)	L_CAM 1.019 (2.878)	L_DIFF 4.481 (4.303)	L_NOISE 1.056 (1.035)	L_CONS 1.934 (0.959)	L_CONT 8.192 (9.295)	Prec 0.00% (2.20%)	
+Epoch: [0][360/400]	Time 0.681 (0.741)	L_GCE 4.956 (5.727)	L_PCE 4.949 (5.886)	L_TRI 4.335 (8.583)	L_CAM 3.053 (2.886)	L_DIFF 4.165 (4.301)	L_NOISE 0.941 (1.033)	L_CONS 0.902 (0.977)	L_CONT 9.245 (9.264)	Prec 17.19% (2.34%)	
+Epoch: [0][370/400]	Time 0.669 (0.739)	L_GCE 5.195 (5.710)	L_PCE 5.353 (5.865)	L_TRI 6.013 (8.490)	L_CAM 0.984 (2.869)	L_DIFF 4.324 (4.299)	L_NOISE 0.959 (1.034)	L_CONS 1.658 (0.988)	L_CONT 8.452 (9.240)	Prec 6.25% (2.64%)	
+Epoch: [0][380/400]	Time 0.731 (0.739)	L_GCE 5.180 (5.693)	L_PCE 5.287 (5.847)	L_TRI 3.862 (8.419)	L_CAM 5.427 (2.895)	L_DIFF 4.232 (4.290)	L_NOISE 0.970 (1.033)	L_CONS 1.006 (0.993)	L_CONT 9.197 (9.200)	Prec 14.06% (2.78%)	
+Epoch: [0][390/400]	Time 0.665 (0.737)	L_GCE 5.225 (5.680)	L_PCE 5.355 (5.834)	L_TRI 3.723 (8.350)	L_CAM 2.066 (2.883)	L_DIFF 3.970 (4.283)	L_NOISE 0.967 (1.033)	L_CONS 1.143 (0.991)	L_CONT 8.103 (9.182)	Prec 3.12% (2.83%)	
+Epoch: [0][400/400]	Time 0.686 (0.737)	L_GCE 5.024 (5.668)	L_PCE 5.268 (5.821)	L_TRI 2.162 (8.231)	L_CAM 2.136 (2.889)	L_DIFF 3.812 (4.290)	L_NOISE 0.949 (1.032)	L_CONS 1.662 (1.023)	L_CONT 6.772 (9.155)	Prec 3.12% (2.85%)	
+  ⏱  [Training iterations] 00h 04m 55.61s  |  400 iters @ 0.74s/iter
+
+  📊 EPOCH 0 TIMING SUMMARY
+  ───────────────────────────────────────────────────────
+  Feature extraction:     00h 11m 53.55s
+  Jaccard + clustering:   00h 01m 57.41s
+  Semantic consistency:   00h 02m 42.94s
+  Dataset rebuild:        00h 00m 00.30s
+  Memory banks:           00h 00m 01.23s
+  Training iterations:    00h 04m 55.61s
+  ───────────────────────────────────────────────────────
+  Total this epoch:       00h 21m 31.06s
+  Avg epoch time:         00h 21m 31.06s
+  Epochs remaining:       49
+  ETA:                    17h 34m 21.87s
+  Total elapsed:          00h 21m 34.71s
+
+=================================================================
+  EPOCH 1/49   (elapsed so far: 00h 21m 35.95s)
+=================================================================
+Extract Features: [50/591]	Time 1.614 (1.276)	Data 0.000 (0.022)	
+Extract Features: [100/591]	Time 1.221 (1.355)	Data 0.000 (0.011)	
+Extract Features: [150/591]	Time 1.209 (1.313)	Data 0.000 (0.007)	
+Extract Features: [200/591]	Time 1.222 (1.291)	Data 0.000 (0.006)	
+Extract Features: [250/591]	Time 1.235 (1.279)	Data 0.000 (0.005)	
+Extract Features: [300/591]	Time 1.276 (1.287)	Data 0.000 (0.004)	
+Extract Features: [350/591]	Time 1.206 (1.279)	Data 0.000 (0.003)	
+Extract Features: [400/591]	Time 1.228 (1.272)	Data 0.000 (0.003)	
+Extract Features: [450/591]	Time 1.212 (1.266)	Data 0.000 (0.003)	
+Extract Features: [500/591]	Time 1.241 (1.273)	Data 0.000 (0.002)	
+Extract Features: [550/591]	Time 1.239 (1.269)	Data 0.000 (0.002)	
+  ⏱  [Feature extraction] 00h 12m 29.96s  |  global=[37778, 2048]  parts=[37778, 2048, 3]
+Computing jaccard distance...
+Processing 0/37778 ...
+Processing 2560/37778 ...
+Processing 5120/37778 ...
+Processing 7680/37778 ...
+Processing 10240/37778 ...
+Processing 12800/37778 ...
+Processing 15360/37778 ...
+Processing 17920/37778 ...
+Processing 20480/37778 ...
+Processing 23040/37778 ...
+Processing 25600/37778 ...
+Processing 28160/37778 ...
+Processing 30720/37778 ...
+Processing 33280/37778 ...
+Processing 35840/37778 ...
+Jaccard distance computing time cost: 104.89215302467346
+  ⏱  [Jaccard + DBSCAN clustering] 00h 01m 55.71s  |  clusters=704
+Compute semantic consistency score...
+semantic consistency score time cost: 164.38980793952942
+  ⏱  [Semantic consistency] 00h 02m 44.63s  |  scores shape=[37778, 3]
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torchvision/transforms/transforms.py:332: UserWarning: Argument 'interpolation' of type int is deprecated since 0.13 and will be removed in 0.15. Please use InterpolationMode enum.
+  warnings.warn(
+
+  ==> Statistics for epoch 1: 704 clusters, 236 un-clustered instances
+  ⏱  [Dataset rebuild] 00h 00m 00.54s  |  trainset size=37542
+  ⏱  [Centroids + memory banks] 00h 00m 01.21s  |  proxies=1244  centroids=704
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+Epoch: [1][10/400]	Time 0.693 (0.823)	L_GCE 7.286 (7.419)	L_PCE 5.596 (5.964)	L_TRI 5.713 (5.086)	L_CAM 4.737 (3.120)	L_DIFF 4.726 (4.273)	L_NOISE 0.995 (1.021)	L_CONS 2.212 (1.570)	L_CONT 8.753 (8.225)	Prec 20.31% (20.78%)	
+Epoch: [1][20/400]	Time 0.690 (0.750)	L_GCE 7.331 (7.359)	L_PCE 6.042 (6.096)	L_TRI 6.562 (5.265)	L_CAM 3.498 (3.000)	L_DIFF 3.957 (4.606)	L_NOISE 1.015 (1.008)	L_CONS 0.815 (2.144)	L_CONT 8.452 (8.421)	Prec 21.88% (19.69%)	
+Epoch: [1][30/400]	Time 0.691 (0.730)	L_GCE 7.532 (7.216)	L_PCE 6.456 (6.102)	L_TRI 6.038 (5.321)	L_CAM 3.174 (3.137)	L_DIFF 4.790 (4.352)	L_NOISE 0.965 (1.013)	L_CONS 1.136 (1.599)	L_CONT 10.855 (8.468)	Prec 20.31% (19.79%)	
+Epoch: [1][40/400]	Time 0.697 (0.721)	L_GCE 7.707 (7.173)	L_PCE 5.887 (6.052)	L_TRI 6.954 (5.509)	L_CAM 3.024 (3.209)	L_DIFF 4.902 (4.376)	L_NOISE 0.973 (1.017)	L_CONS 1.909 (1.531)	L_CONT 9.913 (8.646)	Prec 10.94% (19.92%)	
+Epoch: [1][50/400]	Time 0.695 (0.712)	L_GCE 7.466 (7.230)	L_PCE 6.214 (6.084)	L_TRI 7.184 (5.732)	L_CAM 4.603 (3.115)	L_DIFF 4.741 (4.436)	L_NOISE 0.999 (1.011)	L_CONS 0.764 (1.466)	L_CONT 11.201 (8.973)	Prec 23.44% (18.41%)	
+Epoch: [1][60/400]	Time 0.703 (0.709)	L_GCE 7.376 (7.170)	L_PCE 6.356 (6.088)	L_TRI 7.008 (5.951)	L_CAM 4.720 (3.275)	L_DIFF 5.485 (4.430)	L_NOISE 0.935 (1.003)	L_CONS 2.478 (1.434)	L_CONT 11.039 (9.035)	Prec 4.69% (17.47%)	
+Epoch: [1][70/400]	Time 0.695 (0.703)	L_GCE 6.572 (7.091)	L_PCE 6.354 (6.105)	L_TRI 5.939 (6.095)	L_CAM 3.314 (3.137)	L_DIFF 3.734 (4.420)	L_NOISE 0.929 (0.998)	L_CONS 0.523 (1.421)	L_CONT 8.481 (9.040)	Prec 6.25% (16.52%)	
+Epoch: [1][80/400]	Time 0.684 (0.702)	L_GCE 6.190 (7.012)	L_PCE 6.088 (6.114)	L_TRI 5.676 (6.054)	L_CAM 1.201 (3.091)	L_DIFF 3.875 (4.367)	L_NOISE 1.004 (0.995)	L_CONS 0.875 (1.322)	L_CONT 8.115 (9.036)	Prec 3.12% (15.45%)	
+Epoch: [1][90/400]	Time 0.666 (0.718)	L_GCE 5.435 (6.924)	L_PCE 5.020 (6.107)	L_TRI 1.794 (5.953)	L_CAM 2.106 (3.067)	L_DIFF 4.390 (4.361)	L_NOISE 1.055 (0.997)	L_CONS 1.232 (1.308)	L_CONT 9.061 (9.036)	Prec 45.31% (15.47%)	
+Epoch: [1][100/400]	Time 0.662 (0.714)	L_GCE 5.952 (6.808)	L_PCE 5.654 (6.037)	L_TRI 6.273 (5.828)	L_CAM 2.103 (3.043)	L_DIFF 4.603 (4.364)	L_NOISE 0.987 (0.999)	L_CONS 1.962 (1.337)	L_CONT 8.784 (8.988)	Prec 18.75% (15.86%)	
+Epoch: [1][110/400]	Time 0.652 (0.713)	L_GCE 5.456 (6.715)	L_PCE 5.440 (6.001)	L_TRI 2.822 (5.665)	L_CAM 1.077 (3.017)	L_DIFF 3.515 (4.363)	L_NOISE 1.117 (0.998)	L_CONS 0.638 (1.349)	L_CONT 6.931 (8.967)	Prec 15.62% (15.88%)	
+Epoch: [1][120/400]	Time 0.695 (0.711)	L_GCE 5.406 (6.629)	L_PCE 5.406 (5.960)	L_TRI 3.547 (5.586)	L_CAM 2.895 (3.059)	L_DIFF 4.561 (4.373)	L_NOISE 1.059 (0.999)	L_CONS 2.307 (1.381)	L_CONT 7.829 (8.943)	Prec 28.12% (16.04%)	
+Epoch: [1][130/400]	Time 0.690 (0.709)	L_GCE 5.823 (6.559)	L_PCE 5.701 (5.938)	L_TRI 3.857 (5.515)	L_CAM 3.081 (3.024)	L_DIFF 4.191 (4.385)	L_NOISE 0.969 (0.999)	L_CONS 0.928 (1.420)	L_CONT 9.194 (8.920)	Prec 9.38% (15.82%)	
+Epoch: [1][140/400]	Time 0.649 (0.707)	L_GCE 5.397 (6.490)	L_PCE 5.482 (5.921)	L_TRI 2.682 (5.411)	L_CAM 1.161 (3.050)	L_DIFF 3.819 (4.357)	L_NOISE 1.032 (0.998)	L_CONS 0.894 (1.399)	L_CONT 7.797 (8.865)	Prec 25.00% (15.71%)	
+Epoch: [1][150/400]	Time 0.708 (0.707)	L_GCE 5.967 (6.436)	L_PCE 5.979 (5.911)	L_TRI 2.745 (5.346)	L_CAM 3.025 (3.055)	L_DIFF 5.221 (4.345)	L_NOISE 1.136 (0.998)	L_CONS 1.909 (1.374)	L_CONT 10.435 (8.866)	Prec 10.94% (15.68%)	
+Epoch: [1][160/400]	Time 0.691 (0.705)	L_GCE 5.771 (6.388)	L_PCE 5.916 (5.907)	L_TRI 3.776 (5.294)	L_CAM 3.181 (3.028)	L_DIFF 3.961 (4.349)	L_NOISE 0.974 (0.999)	L_CONS 0.397 (1.381)	L_CONT 9.294 (8.865)	Prec 4.69% (15.60%)	
+Epoch: [1][170/400]	Time 0.653 (0.703)	L_GCE 5.913 (6.351)	L_PCE 6.117 (5.909)	L_TRI 3.768 (5.278)	L_CAM 1.248 (3.017)	L_DIFF 4.881 (4.346)	L_NOISE 1.019 (1.000)	L_CONS 1.665 (1.364)	L_CONT 10.099 (8.879)	Prec 3.12% (15.33%)	
+Epoch: [1][180/400]	Time 0.657 (0.710)	L_GCE 5.797 (6.318)	L_PCE 5.610 (5.903)	L_TRI 7.434 (5.280)	L_CAM 1.123 (3.000)	L_DIFF 4.367 (4.343)	L_NOISE 1.085 (1.001)	L_CONS 0.866 (1.347)	L_CONT 9.497 (8.895)	Prec 18.75% (15.24%)	
+Epoch: [1][190/400]	Time 0.647 (0.709)	L_GCE 5.066 (6.258)	L_PCE 4.896 (5.855)	L_TRI 2.020 (5.197)	L_CAM 0.000 (2.969)	L_DIFF 4.617 (4.344)	L_NOISE 0.992 (1.000)	L_CONS 2.260 (1.377)	L_CONT 8.315 (8.848)	Prec 45.31% (16.00%)	
+Epoch: [1][200/400]	Time 0.730 (0.707)	L_GCE 5.273 (6.200)	L_PCE 5.232 (5.818)	L_TRI 4.884 (5.136)	L_CAM 6.491 (2.971)	L_DIFF 3.779 (4.322)	L_NOISE 0.963 (1.001)	L_CONS 1.044 (1.375)	L_CONT 7.649 (8.781)	Prec 18.75% (16.27%)	
+Epoch: [1][210/400]	Time 0.665 (0.706)	L_GCE 5.182 (6.158)	L_PCE 5.254 (5.802)	L_TRI 5.033 (5.099)	L_CAM 1.168 (2.968)	L_DIFF 3.760 (4.309)	L_NOISE 0.944 (1.001)	L_CONS 1.245 (1.364)	L_CONT 7.312 (8.753)	Prec 10.94% (16.19%)	
+Epoch: [1][220/400]	Time 0.690 (0.705)	L_GCE 5.697 (6.122)	L_PCE 5.912 (5.792)	L_TRI 2.917 (5.072)	L_CAM 4.315 (2.978)	L_DIFF 5.267 (4.325)	L_NOISE 0.990 (1.002)	L_CONS 2.575 (1.391)	L_CONT 9.966 (8.758)	Prec 7.81% (16.21%)	
+Epoch: [1][230/400]	Time 0.664 (0.704)	L_GCE 4.970 (6.078)	L_PCE 5.212 (5.774)	L_TRI 3.051 (4.974)	L_CAM 2.291 (2.990)	L_DIFF 3.503 (4.304)	L_NOISE 0.947 (1.003)	L_CONS 0.400 (1.371)	L_CONT 7.854 (8.720)	Prec 28.12% (16.20%)	
+Epoch: [1][240/400]	Time 0.764 (0.703)	L_GCE 5.227 (6.049)	L_PCE 5.653 (5.770)	L_TRI 4.305 (4.941)	L_CAM 4.184 (2.976)	L_DIFF 4.008 (4.306)	L_NOISE 0.959 (1.003)	L_CONS 1.589 (1.378)	L_CONT 7.516 (8.711)	Prec 7.81% (16.13%)	
+Epoch: [1][250/400]	Time 0.676 (0.702)	L_GCE 5.029 (6.021)	L_PCE 5.569 (5.764)	L_TRI 3.457 (4.929)	L_CAM 3.060 (2.984)	L_DIFF 4.282 (4.315)	L_NOISE 0.955 (1.004)	L_CONS 1.962 (1.394)	L_CONT 7.820 (8.713)	Prec 17.19% (16.03%)	
+Epoch: [1][260/400]	Time 0.665 (0.701)	L_GCE 5.147 (5.997)	L_PCE 5.566 (5.759)	L_TRI 2.959 (4.865)	L_CAM 2.091 (2.976)	L_DIFF 3.821 (4.338)	L_NOISE 1.022 (1.005)	L_CONS 1.667 (1.438)	L_CONT 6.552 (8.715)	Prec 7.81% (15.91%)	
+Epoch: [1][270/400]	Time 0.709 (0.704)	L_GCE 4.668 (5.967)	L_PCE 4.586 (5.742)	L_TRI 3.928 (4.807)	L_CAM 3.368 (2.957)	L_DIFF 3.520 (4.338)	L_NOISE 0.930 (1.006)	L_CONS 0.693 (1.427)	L_CONT 7.481 (8.727)	Prec 35.94% (16.24%)	
+Epoch: [1][280/400]	Time 0.659 (0.704)	L_GCE 4.558 (5.927)	L_PCE 4.548 (5.708)	L_TRI 2.780 (4.747)	L_CAM 0.922 (2.951)	L_DIFF 4.320 (4.345)	L_NOISE 1.031 (1.007)	L_CONS 2.548 (1.456)	L_CONT 6.716 (8.699)	Prec 25.00% (16.71%)	
+Epoch: [1][290/400]	Time 0.674 (0.703)	L_GCE 5.103 (5.895)	L_PCE 4.971 (5.682)	L_TRI 1.154 (4.697)	L_CAM 1.154 (2.920)	L_DIFF 4.032 (4.338)	L_NOISE 0.993 (1.006)	L_CONS 0.905 (1.455)	L_CONT 8.622 (8.683)	Prec 28.12% (17.03%)	
+Epoch: [1][300/400]	Time 0.702 (0.703)	L_GCE 5.763 (5.866)	L_PCE 5.951 (5.666)	L_TRI 5.332 (4.658)	L_CAM 4.593 (2.931)	L_DIFF 5.684 (4.338)	L_NOISE 1.009 (1.006)	L_CONS 2.371 (1.452)	L_CONT 11.632 (8.686)	Prec 21.88% (17.18%)	
+Epoch: [1][310/400]	Time 0.716 (0.703)	L_GCE 4.684 (5.833)	L_PCE 5.149 (5.647)	L_TRI 3.575 (4.627)	L_CAM 5.903 (2.938)	L_DIFF 3.657 (4.328)	L_NOISE 1.089 (1.004)	L_CONS 1.104 (1.454)	L_CONT 6.720 (8.656)	Prec 10.94% (17.32%)	
+Epoch: [1][320/400]	Time 0.677 (0.703)	L_GCE 4.839 (5.812)	L_PCE 5.181 (5.639)	L_TRI 2.564 (4.608)	L_CAM 2.305 (2.949)	L_DIFF 3.504 (4.316)	L_NOISE 1.082 (1.005)	L_CONS 0.821 (1.434)	L_CONT 6.703 (8.647)	Prec 9.38% (17.24%)	
+Epoch: [1][330/400]	Time 0.668 (0.702)	L_GCE 5.322 (5.790)	L_PCE 5.474 (5.631)	L_TRI 2.506 (4.559)	L_CAM 2.239 (2.949)	L_DIFF 4.579 (4.311)	L_NOISE 0.985 (1.005)	L_CONS 1.958 (1.430)	L_CONT 8.715 (8.638)	Prec 9.38% (17.15%)	
+Epoch: [1][340/400]	Time 0.670 (0.702)	L_GCE 4.926 (5.772)	L_PCE 5.219 (5.625)	L_TRI 2.071 (4.524)	L_CAM 1.889 (2.961)	L_DIFF 3.847 (4.316)	L_NOISE 0.931 (1.006)	L_CONS 1.484 (1.444)	L_CONT 7.248 (8.628)	Prec 21.88% (17.08%)	
+Epoch: [1][350/400]	Time 0.655 (0.701)	L_GCE 4.655 (5.756)	L_PCE 5.232 (5.621)	L_TRI 1.270 (4.464)	L_CAM 1.142 (2.942)	L_DIFF 3.641 (4.323)	L_NOISE 1.001 (1.006)	L_CONS 1.102 (1.454)	L_CONT 6.965 (8.633)	Prec 17.19% (16.99%)	
+Epoch: [1][360/400]	Time 0.750 (0.704)	L_GCE 4.714 (5.737)	L_PCE 4.750 (5.605)	L_TRI 1.963 (4.441)	L_CAM 5.014 (2.950)	L_DIFF 4.513 (4.323)	L_NOISE 0.980 (1.006)	L_CONS 1.430 (1.445)	L_CONT 9.395 (8.649)	Prec 46.88% (17.35%)	
+Epoch: [1][370/400]	Time 0.751 (0.705)	L_GCE 4.563 (5.706)	L_PCE 4.636 (5.577)	L_TRI 2.072 (4.398)	L_CAM 5.198 (2.978)	L_DIFF 4.484 (4.320)	L_NOISE 0.921 (1.006)	L_CONS 2.298 (1.452)	L_CONT 8.049 (8.627)	Prec 43.75% (17.77%)	
+Epoch: [1][380/400]	Time 0.723 (0.705)	L_GCE 5.099 (5.682)	L_PCE 5.052 (5.557)	L_TRI 1.941 (4.348)	L_CAM 3.147 (2.974)	L_DIFF 4.675 (4.318)	L_NOISE 0.996 (1.007)	L_CONS 1.512 (1.453)	L_CONT 9.745 (8.616)	Prec 12.50% (17.88%)	
+Epoch: [1][390/400]	Time 0.743 (0.705)	L_GCE 4.373 (5.657)	L_PCE 4.682 (5.542)	L_TRI 2.941 (4.303)	L_CAM 4.823 (2.953)	L_DIFF 4.433 (4.319)	L_NOISE 1.113 (1.006)	L_CONS 2.777 (1.469)	L_CONT 6.438 (8.596)	Prec 28.12% (18.06%)	
+Epoch: [1][400/400]	Time 0.670 (0.705)	L_GCE 5.276 (5.637)	L_PCE 5.363 (5.528)	L_TRI 1.780 (4.272)	L_CAM 2.009 (2.944)	L_DIFF 5.110 (4.331)	L_NOISE 0.893 (1.006)	L_CONS 2.026 (1.494)	L_CONT 10.678 (8.592)	Prec 20.31% (18.21%)	
+  ⏱  [Training iterations] 00h 04m 42.86s  |  400 iters @ 0.71s/iter
+
+  📊 EPOCH 1 TIMING SUMMARY
+  ───────────────────────────────────────────────────────
+  Feature extraction:     00h 12m 29.96s
+  Jaccard + clustering:   00h 01m 55.71s
+  Semantic consistency:   00h 02m 44.63s
+  Dataset rebuild:        00h 00m 00.54s
+  Memory banks:           00h 00m 01.21s
+  Training iterations:    00h 04m 42.86s
+  ───────────────────────────────────────────────────────
+  Total this epoch:       00h 21m 54.91s
+  Avg epoch time:         00h 21m 42.98s
+  Epochs remaining:       48
+  ETA:                    17h 22m 23.23s
+  Total elapsed:          00h 43m 30.86s
+
+=================================================================
+  EPOCH 2/49   (elapsed so far: 00h 43m 33.05s)
+=================================================================
+Extract Features: [50/591]	Time 1.254 (1.252)	Data 0.000 (0.016)	
+Extract Features: [100/591]	Time 1.248 (1.249)	Data 0.000 (0.008)	
+Extract Features: [150/591]	Time 1.608 (1.265)	Data 0.000 (0.006)	
+Extract Features: [200/591]	Time 1.250 (1.327)	Data 0.000 (0.004)	
+Extract Features: [250/591]	Time 1.233 (1.310)	Data 0.000 (0.003)	
+Extract Features: [300/591]	Time 1.239 (1.297)	Data 0.000 (0.003)	
+Extract Features: [350/591]	Time 1.237 (1.289)	Data 0.000 (0.003)	
+Extract Features: [400/591]	Time 1.232 (1.282)	Data 0.000 (0.002)	
+Extract Features: [450/591]	Time 1.240 (1.292)	Data 0.000 (0.002)	
+Extract Features: [500/591]	Time 1.632 (1.288)	Data 0.000 (0.002)	
+Extract Features: [550/591]	Time 1.239 (1.284)	Data 0.000 (0.002)	
+  ⏱  [Feature extraction] 00h 12m 37.84s  |  global=[37778, 2048]  parts=[37778, 2048, 3]
+Computing jaccard distance...
+Traceback (most recent call last):
+  File "examples/train_pisl_cam.py", line 528, in <module>
+    main()
+  File "examples/train_pisl_cam.py", line 225, in main
+    main_worker(args)
+  File "examples/train_pisl_cam.py", line 322, in main_worker
+    pseudo_labels, num_classes = compute_pseudo_labels(global_features, cluster, args.k1)
+  File "examples/train_pisl_cam.py", line 139, in compute_pseudo_labels
+    mat_dist = compute_jaccard_distance(features, k1=k1, k2=6)
+  File "/home1/koushik_t/Diffusion-reid/pisl/utils/faiss_rerank.py", line 47, in compute_jaccard_distance
+    _, batch_initial_rank = search_raw_array_pytorch(res, target_features, batch_features, k1)
+  File "/home1/koushik_t/Diffusion-reid/pisl/utils/faiss_utils.py", line 81, in search_raw_array_pytorch
+    index.add(xb.cpu().numpy())
+  File "/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/faiss/__init__.py", line 215, in replacement_add
+    self.add_c(n, swig_ptr(x))
+  File "/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/faiss/swigfaiss_avx2.py", line 9091, in add
+    return _swigfaiss_avx2.GpuIndexFlat_add(self, arg2, x)
+RuntimeError: Error in virtual void* faiss::gpu::StandardGpuResourcesImpl::allocMemory(const faiss::gpu::AllocRequest&) at /root/miniconda3/conda-bld/faiss-pkg_1641228905850/work/faiss/gpu/StandardGpuResources.cpp:452: Error: 'err == cudaSuccess' failed: StandardGpuResources: alloc fail type FlatData dev 0 space Device stream 0xbfc23080 size 309477376 bytes (cudaMalloc error out of memory [2])

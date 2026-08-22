@@ -1,0 +1,147 @@
+
+=================================================================
+  EPOCH 0/49   (elapsed so far: 00h 00m 03.27s)
+=================================================================
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+Extract Features: [50/591]	Time 1.195 (1.274)	Data 0.000 (0.012)	
+Extract Features: [100/591]	Time 1.189 (1.235)	Data 0.000 (0.006)	
+Extract Features: [150/591]	Time 1.201 (1.224)	Data 0.000 (0.004)	
+Extract Features: [200/591]	Time 1.211 (1.224)	Data 0.000 (0.003)	
+Extract Features: [250/591]	Time 1.223 (1.235)	Data 0.000 (0.003)	
+Extract Features: [300/591]	Time 1.236 (1.229)	Data 0.000 (0.002)	
+Extract Features: [350/591]	Time 1.202 (1.226)	Data 0.000 (0.002)	
+Extract Features: [400/591]	Time 1.198 (1.223)	Data 0.000 (0.002)	
+Extract Features: [450/591]	Time 1.197 (1.221)	Data 0.000 (0.001)	
+Extract Features: [500/591]	Time 1.209 (1.219)	Data 0.000 (0.001)	
+Extract Features: [550/591]	Time 1.190 (1.229)	Data 0.000 (0.001)	
+  ⏱  [Feature extraction] 00h 12m 07.06s  |  global=[37778, 2048]  parts=[37778, 2048, 3]
+Computing jaccard distance...
+Processing 0/37778 ...
+Processing 2560/37778 ...
+Processing 5120/37778 ...
+Processing 7680/37778 ...
+Processing 10240/37778 ...
+Processing 12800/37778 ...
+Processing 15360/37778 ...
+Processing 17920/37778 ...
+Processing 20480/37778 ...
+Processing 23040/37778 ...
+Processing 25600/37778 ...
+Processing 28160/37778 ...
+Processing 30720/37778 ...
+Processing 33280/37778 ...
+Processing 35840/37778 ...
+Jaccard distance computing time cost: 92.79684209823608
+  ⏱  [Jaccard + DBSCAN clustering] 00h 01m 43.17s  |  clusters=570
+Compute semantic consistency score...
+semantic consistency score time cost: 160.62232542037964
+  ⏱  [Semantic consistency] 00h 02m 40.86s  |  scores shape=[37778, 3]
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torchvision/transforms/transforms.py:332: UserWarning: Argument 'interpolation' of type int is deprecated since 0.13 and will be removed in 0.15. Please use InterpolationMode enum.
+  warnings.warn(
+
+  ==> Statistics for epoch 0: 570 clusters, 1023 un-clustered instances
+  ⏱  [Dataset rebuild] 00h 00m 00.16s  |  trainset size=36755
+  ⏱  [Centroids + memory banks] 00h 00m 00.96s  |  proxies=1000  centroids=570
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/Diffusion-reid/pisl/loss/triplet.py:13: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at  ../torch/csrc/utils/python_arg_parser.cpp:1174.)
+  dist.addmm_(1, -2, x, y.t())
+Epoch: [0][10/400]	Time 0.689 (2.162)	L_GCE 5.500 (5.533)	L_PCE 5.665 (5.943)	L_TRI 10.813 (11.858)	L_CAM 2.155 (2.444)	L_DIFF 5.785 (5.355)	L_NOISE 1.004 (1.389)	L_CONS 3.629 (1.024)	L_CONT 9.887 (11.512)	Prec 7.81% (12.50%)	
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4277: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/torch/nn/functional.py:4215: UserWarning: Default grid_sample and affine_grid behavior has changed to align_corners=False since 1.3.0. Please specify align_corners=True if the old behavior is desired. See the documentation of grid_sample for details.
+  warnings.warn(
+Epoch: [0][20/400]	Time 0.698 (1.443)	L_GCE 5.868 (5.671)	L_PCE 6.024 (5.991)	L_TRI 12.619 (11.196)	L_CAM 4.456 (2.839)	L_DIFF 4.272 (5.054)	L_NOISE 1.201 (1.242)	L_CONS 0.130 (1.148)	L_CONT 10.023 (10.793)	Prec 0.00% (6.88%)	
+Epoch: [0][30/400]	Time 0.659 (1.191)	L_GCE 6.086 (5.799)	L_PCE 6.372 (6.105)	L_TRI 7.976 (11.138)	L_CAM 1.003 (2.740)	L_DIFF 4.491 (4.874)	L_NOISE 0.976 (1.176)	L_CONS 1.285 (0.996)	L_CONT 9.574 (10.666)	Prec 0.00% (4.69%)	
+Epoch: [0][40/400]	Time 0.692 (1.066)	L_GCE 6.208 (5.880)	L_PCE 6.533 (6.168)	L_TRI 6.073 (10.940)	L_CAM 3.429 (2.841)	L_DIFF 4.198 (4.759)	L_NOISE 1.054 (1.137)	L_CONS 0.331 (0.931)	L_CONT 9.928 (10.523)	Prec 0.00% (3.52%)	
+Epoch: [0][50/400]	Time 0.697 (0.990)	L_GCE 6.224 (5.950)	L_PCE 6.458 (6.228)	L_TRI 11.198 (10.869)	L_CAM 4.413 (2.873)	L_DIFF 3.798 (4.667)	L_NOISE 0.957 (1.123)	L_CONS 0.204 (0.802)	L_CONT 9.130 (10.474)	Prec 0.00% (2.84%)	
+Epoch: [0][60/400]	Time 0.691 (0.940)	L_GCE 6.181 (6.006)	L_PCE 6.288 (6.270)	L_TRI 10.404 (10.927)	L_CAM 3.304 (2.921)	L_DIFF 4.689 (4.613)	L_NOISE 1.038 (1.103)	L_CONS 0.682 (0.735)	L_CONT 11.035 (10.472)	Prec 0.00% (2.37%)	
+Epoch: [0][70/400]	Time 0.676 (0.902)	L_GCE 6.318 (6.049)	L_PCE 6.521 (6.300)	L_TRI 9.276 (10.825)	L_CAM 3.278 (2.896)	L_DIFF 4.272 (4.562)	L_NOISE 0.979 (1.091)	L_CONS 0.497 (0.687)	L_CONT 10.149 (10.424)	Prec 0.00% (2.03%)	
+Epoch: [0][80/400]	Time 0.686 (0.892)	L_GCE 6.091 (6.036)	L_PCE 6.147 (6.257)	L_TRI 10.459 (10.764)	L_CAM 3.394 (2.967)	L_DIFF 4.912 (4.543)	L_NOISE 1.134 (1.086)	L_CONS 1.140 (0.731)	L_CONT 10.691 (10.306)	Prec 1.56% (2.27%)	
+Epoch: [0][90/400]	Time 0.657 (0.869)	L_GCE 5.937 (6.013)	L_PCE 6.105 (6.210)	L_TRI 10.627 (10.755)	L_CAM 1.135 (2.951)	L_DIFF 4.805 (4.502)	L_NOISE 0.991 (1.073)	L_CONS 0.655 (0.724)	L_CONT 11.623 (10.224)	Prec 4.69% (2.45%)	
+Epoch: [0][100/400]	Time 0.672 (0.849)	L_GCE 5.749 (6.010)	L_PCE 5.760 (6.198)	L_TRI 8.975 (10.746)	L_CAM 3.209 (2.923)	L_DIFF 3.927 (4.490)	L_NOISE 0.967 (1.068)	L_CONS 0.246 (0.688)	L_CONT 9.459 (10.263)	Prec 4.69% (2.30%)	
+Epoch: [0][110/400]	Time 0.668 (0.834)	L_GCE 6.050 (6.004)	L_PCE 6.197 (6.183)	L_TRI 10.798 (10.574)	L_CAM 2.292 (2.911)	L_DIFF 4.468 (4.469)	L_NOISE 1.098 (1.063)	L_CONS 0.905 (0.699)	L_CONT 9.726 (10.191)	Prec 0.00% (2.16%)	
+Epoch: [0][120/400]	Time 0.696 (0.823)	L_GCE 5.831 (6.001)	L_PCE 5.985 (6.179)	L_TRI 6.021 (10.530)	L_CAM 4.411 (2.991)	L_DIFF 3.643 (4.445)	L_NOISE 0.970 (1.058)	L_CONS 0.615 (0.723)	L_CONT 7.886 (10.086)	Prec 0.00% (1.98%)	
+Epoch: [0][130/400]	Time 0.635 (0.811)	L_GCE 6.040 (6.003)	L_PCE 6.114 (6.179)	L_TRI 5.867 (10.394)	L_CAM 0.000 (2.931)	L_DIFF 4.462 (4.419)	L_NOISE 1.045 (1.056)	L_CONS 0.840 (0.703)	L_CONT 9.992 (10.038)	Prec 0.00% (1.83%)	
+Epoch: [0][140/400]	Time 0.650 (0.803)	L_GCE 6.216 (6.007)	L_PCE 6.375 (6.183)	L_TRI 10.278 (10.313)	L_CAM 1.128 (2.914)	L_DIFF 4.596 (4.402)	L_NOISE 0.997 (1.054)	L_CONS 0.628 (0.706)	L_CONT 10.948 (9.983)	Prec 0.00% (1.70%)	
+Epoch: [0][150/400]	Time 0.704 (0.804)	L_GCE 5.656 (5.990)	L_PCE 5.753 (6.158)	L_TRI 7.914 (10.201)	L_CAM 4.345 (2.909)	L_DIFF 5.083 (4.400)	L_NOISE 1.035 (1.053)	L_CONS 2.101 (0.732)	L_CONT 9.993 (9.936)	Prec 6.25% (1.88%)	
+Epoch: [0][160/400]	Time 0.811 (0.797)	L_GCE 5.830 (5.971)	L_PCE 6.000 (6.133)	L_TRI 8.816 (10.090)	L_CAM 4.358 (2.890)	L_DIFF 4.295 (4.382)	L_NOISE 0.939 (1.049)	L_CONS 0.658 (0.730)	L_CONT 10.091 (9.893)	Prec 1.56% (1.93%)	
+Epoch: [0][170/400]	Time 0.703 (0.790)	L_GCE 5.547 (5.952)	L_PCE 5.646 (6.113)	L_TRI 8.709 (10.046)	L_CAM 4.149 (2.895)	L_DIFF 3.878 (4.372)	L_NOISE 1.043 (1.049)	L_CONS 1.000 (0.759)	L_CONT 7.784 (9.811)	Prec 0.00% (1.92%)	
+Epoch: [0][180/400]	Time 0.664 (0.783)	L_GCE 5.788 (5.944)	L_PCE 5.941 (6.107)	L_TRI 5.532 (10.001)	L_CAM 1.116 (2.880)	L_DIFF 3.746 (4.362)	L_NOISE 0.948 (1.047)	L_CONS 0.579 (0.752)	L_CONT 8.363 (9.796)	Prec 0.00% (1.90%)	
+Epoch: [0][190/400]	Time 0.692 (0.777)	L_GCE 6.052 (5.938)	L_PCE 6.251 (6.100)	L_TRI 10.532 (9.945)	L_CAM 4.331 (2.879)	L_DIFF 4.784 (4.368)	L_NOISE 0.977 (1.047)	L_CONS 1.175 (0.782)	L_CONT 10.735 (9.768)	Prec 0.00% (1.80%)	
+Epoch: [0][200/400]	Time 0.720 (0.773)	L_GCE 5.882 (5.930)	L_PCE 6.017 (6.095)	L_TRI 6.172 (9.841)	L_CAM 4.241 (2.876)	L_DIFF 4.391 (4.341)	L_NOISE 1.030 (1.046)	L_CONS 1.131 (0.769)	L_CONT 9.316 (9.700)	Prec 0.00% (1.71%)	
+Epoch: [0][210/400]	Time 0.667 (0.769)	L_GCE 5.719 (5.926)	L_PCE 5.908 (6.094)	L_TRI 6.544 (9.865)	L_CAM 2.131 (2.912)	L_DIFF 3.506 (4.341)	L_NOISE 0.972 (1.046)	L_CONS 0.559 (0.792)	L_CONT 7.514 (9.664)	Prec 0.00% (1.63%)	
+Epoch: [0][220/400]	Time 0.700 (0.771)	L_GCE 5.654 (5.913)	L_PCE 5.699 (6.075)	L_TRI 10.844 (9.792)	L_CAM 4.471 (2.926)	L_DIFF 5.033 (4.337)	L_NOISE 1.041 (1.044)	L_CONS 2.374 (0.804)	L_CONT 9.351 (9.637)	Prec 3.12% (1.70%)	
+Epoch: [0][230/400]	Time 0.697 (0.768)	L_GCE 5.248 (5.893)	L_PCE 5.272 (6.051)	L_TRI 5.063 (9.733)	L_CAM 3.133 (2.910)	L_DIFF 3.830 (4.349)	L_NOISE 1.102 (1.044)	L_CONS 1.305 (0.841)	L_CONT 6.918 (9.615)	Prec 4.69% (1.90%)	
+Epoch: [0][240/400]	Time 0.666 (0.764)	L_GCE 5.460 (5.875)	L_PCE 5.464 (6.030)	L_TRI 6.883 (9.673)	L_CAM 2.170 (2.912)	L_DIFF 3.956 (4.346)	L_NOISE 1.145 (1.044)	L_CONS 0.736 (0.864)	L_CONT 8.143 (9.567)	Prec 3.12% (1.99%)	
+Epoch: [0][250/400]	Time 0.727 (0.762)	L_GCE 5.880 (5.864)	L_PCE 6.039 (6.020)	L_TRI 6.685 (9.638)	L_CAM 5.701 (2.939)	L_DIFF 5.529 (4.347)	L_NOISE 0.963 (1.043)	L_CONS 2.100 (0.869)	L_CONT 11.720 (9.565)	Prec 0.00% (2.01%)	
+Epoch: [0][260/400]	Time 0.705 (0.758)	L_GCE 5.379 (5.854)	L_PCE 5.498 (6.011)	L_TRI 4.348 (9.543)	L_CAM 5.388 (2.921)	L_DIFF 4.039 (4.343)	L_NOISE 1.007 (1.042)	L_CONS 1.007 (0.875)	L_CONT 8.427 (9.545)	Prec 0.00% (1.99%)	
+Epoch: [0][270/400]	Time 0.682 (0.755)	L_GCE 5.904 (5.844)	L_PCE 6.248 (6.003)	L_TRI 11.863 (9.483)	L_CAM 3.460 (2.913)	L_DIFF 4.359 (4.322)	L_NOISE 1.053 (1.041)	L_CONS 0.880 (0.863)	L_CONT 9.556 (9.497)	Prec 0.00% (1.93%)	
+Epoch: [0][280/400]	Time 0.681 (0.753)	L_GCE 5.896 (5.838)	L_PCE 6.118 (5.999)	L_TRI 8.416 (9.386)	L_CAM 3.351 (2.905)	L_DIFF 4.031 (4.302)	L_NOISE 0.990 (1.040)	L_CONS 0.350 (0.853)	L_CONT 9.555 (9.451)	Prec 0.00% (1.87%)	
+Epoch: [0][290/400]	Time 0.689 (0.755)	L_GCE 5.317 (5.823)	L_PCE 5.404 (5.981)	L_TRI 6.590 (9.285)	L_CAM 2.260 (2.884)	L_DIFF 5.856 (4.310)	L_NOISE 0.967 (1.039)	L_CONS 3.959 (0.887)	L_CONT 9.699 (9.424)	Prec 9.38% (2.06%)	
+Epoch: [0][300/400]	Time 0.720 (0.754)	L_GCE 5.128 (5.799)	L_PCE 5.138 (5.952)	L_TRI 8.440 (9.180)	L_CAM 5.325 (2.891)	L_DIFF 3.827 (4.307)	L_NOISE 1.055 (1.038)	L_CONS 0.870 (0.911)	L_CONT 7.793 (9.379)	Prec 9.38% (2.39%)	
+Epoch: [0][310/400]	Time 0.650 (0.752)	L_GCE 5.209 (5.783)	L_PCE 5.302 (5.934)	L_TRI 1.959 (9.098)	L_CAM 1.039 (2.885)	L_DIFF 4.242 (4.314)	L_NOISE 1.051 (1.037)	L_CONS 1.387 (0.946)	L_CONT 8.323 (9.348)	Prec 9.38% (2.49%)	
+Epoch: [0][320/400]	Time 0.689 (0.750)	L_GCE 5.213 (5.766)	L_PCE 5.457 (5.917)	L_TRI 4.740 (8.984)	L_CAM 3.174 (2.878)	L_DIFF 3.832 (4.300)	L_NOISE 0.956 (1.036)	L_CONS 0.764 (0.937)	L_CONT 8.314 (9.318)	Prec 9.38% (2.52%)	
+Epoch: [0][330/400]	Time 0.629 (0.748)	L_GCE 5.725 (5.758)	L_PCE 5.851 (5.909)	L_TRI 5.900 (8.911)	L_CAM 0.000 (2.881)	L_DIFF 5.196 (4.304)	L_NOISE 1.081 (1.035)	L_CONS 1.823 (0.953)	L_CONT 10.678 (9.310)	Prec 3.12% (2.53%)	
+Epoch: [0][340/400]	Time 0.770 (0.746)	L_GCE 5.474 (5.748)	L_PCE 5.841 (5.901)	L_TRI 6.491 (8.846)	L_CAM 5.259 (2.895)	L_DIFF 3.357 (4.290)	L_NOISE 1.009 (1.035)	L_CONS 0.229 (0.947)	L_CONT 7.444 (9.273)	Prec 0.00% (2.53%)	
+Epoch: [0][350/400]	Time 0.674 (0.745)	L_GCE 5.448 (5.740)	L_PCE 5.603 (5.895)	L_TRI 5.880 (8.736)	L_CAM 1.044 (2.881)	L_DIFF 4.700 (4.285)	L_NOISE 1.055 (1.035)	L_CONS 2.190 (0.949)	L_CONT 8.502 (9.255)	Prec 1.56% (2.50%)	
+Epoch: [0][360/400]	Time 0.685 (0.747)	L_GCE 4.970 (5.727)	L_PCE 4.967 (5.879)	L_TRI 4.739 (8.639)	L_CAM 3.083 (2.889)	L_DIFF 4.372 (4.283)	L_NOISE 0.944 (1.033)	L_CONS 1.062 (0.960)	L_CONT 9.657 (9.232)	Prec 17.19% (2.69%)	
+Epoch: [0][370/400]	Time 0.662 (0.745)	L_GCE 5.212 (5.710)	L_PCE 5.252 (5.858)	L_TRI 4.214 (8.533)	L_CAM 1.004 (2.872)	L_DIFF 4.221 (4.289)	L_NOISE 0.962 (1.033)	L_CONS 1.282 (0.984)	L_CONT 8.726 (9.212)	Prec 1.56% (2.97%)	
+Epoch: [0][380/400]	Time 0.714 (0.744)	L_GCE 5.079 (5.691)	L_PCE 5.128 (5.837)	L_TRI 3.903 (8.455)	L_CAM 5.404 (2.896)	L_DIFF 4.374 (4.277)	L_NOISE 0.974 (1.033)	L_CONS 1.285 (0.984)	L_CONT 9.192 (9.174)	Prec 14.06% (3.12%)	
+Epoch: [0][390/400]	Time 0.666 (0.742)	L_GCE 5.218 (5.678)	L_PCE 5.323 (5.823)	L_TRI 2.701 (8.376)	L_CAM 1.998 (2.885)	L_DIFF 3.936 (4.273)	L_NOISE 0.963 (1.032)	L_CONS 0.950 (0.988)	L_CONT 8.327 (9.154)	Prec 1.56% (3.14%)	
+Epoch: [0][400/400]	Time 0.677 (0.741)	L_GCE 5.001 (5.665)	L_PCE 5.232 (5.811)	L_TRI 1.927 (8.276)	L_CAM 2.103 (2.891)	L_DIFF 3.858 (4.277)	L_NOISE 0.952 (1.031)	L_CONS 1.631 (1.011)	L_CONT 6.965 (9.134)	Prec 3.12% (3.18%)	
+  ⏱  [Training iterations] 00h 04m 57.52s  |  400 iters @ 0.74s/iter
+
+  📊 EPOCH 0 TIMING SUMMARY
+  ───────────────────────────────────────────────────────
+  Feature extraction:     00h 12m 07.06s
+  Jaccard + clustering:   00h 01m 43.17s
+  Semantic consistency:   00h 02m 40.86s
+  Dataset rebuild:        00h 00m 00.16s
+  Memory banks:           00h 00m 00.96s
+  Training iterations:    00h 04m 57.52s
+  ───────────────────────────────────────────────────────
+  Total this epoch:       00h 21m 29.74s
+  Avg epoch time:         00h 21m 29.74s
+  Epochs remaining:       49
+  ETA:                    17h 33m 17.27s
+  Total elapsed:          00h 21m 33.01s
+
+=================================================================
+  EPOCH 1/49   (elapsed so far: 00h 21m 35.34s)
+=================================================================
+Extract Features: [50/591]	Time 1.244 (1.322)	Data 0.000 (0.021)	
+Extract Features: [100/591]	Time 1.254 (1.363)	Data 0.000 (0.010)	
+Extract Features: [150/591]	Time 1.240 (1.321)	Data 0.000 (0.007)	
+Extract Features: [200/591]	Time 1.232 (1.299)	Data 0.000 (0.005)	
+Extract Features: [250/591]	Time 1.233 (1.287)	Data 0.000 (0.004)	
+Extract Features: [300/591]	Time 1.228 (1.278)	Data 0.000 (0.004)	
+Extract Features: [350/591]	Time 1.238 (1.272)	Data 0.000 (0.003)	
+Extract Features: [400/591]	Time 1.219 (1.267)	Data 0.000 (0.003)	
+Extract Features: [450/591]	Time 1.239 (1.264)	Data 0.000 (0.002)	
+Extract Features: [500/591]	Time 1.226 (1.260)	Data 0.000 (0.002)	
+Extract Features: [550/591]	Time 1.229 (1.258)	Data 0.000 (0.002)	
+  ⏱  [Feature extraction] 00h 12m 23.91s  |  global=[37778, 2048]  parts=[37778, 2048, 3]
+Computing jaccard distance...
+Traceback (most recent call last):
+  File "examples/train_pisl_cam.py", line 528, in <module>
+    main()
+  File "examples/train_pisl_cam.py", line 225, in main
+    main_worker(args)
+  File "examples/train_pisl_cam.py", line 322, in main_worker
+    pseudo_labels, num_classes = compute_pseudo_labels(global_features, cluster, args.k1)
+  File "examples/train_pisl_cam.py", line 139, in compute_pseudo_labels
+    mat_dist = compute_jaccard_distance(features, k1=k1, k2=6)
+  File "/home1/koushik_t/Diffusion-reid/pisl/utils/faiss_rerank.py", line 46, in compute_jaccard_distance
+    index = faiss.GpuIndexFlatL2(res, target_features.size(1), cfg)
+  File "/home1/koushik_t/miniconda3/envs/pisl/lib/python3.8/site-packages/faiss/swigfaiss_avx2.py", line 9130, in __init__
+    _swigfaiss_avx2.GpuIndexFlatL2_swiginit(self, _swigfaiss_avx2.new_GpuIndexFlatL2(*args))
+RuntimeError: Error in virtual void* faiss::gpu::StandardGpuResourcesImpl::allocMemory(const faiss::gpu::AllocRequest&) at /root/miniconda3/conda-bld/faiss-pkg_1641228905850/work/faiss/gpu/StandardGpuResources.cpp:452: Error: 'err == cudaSuccess' failed: StandardGpuResources: alloc fail type TemporaryMemoryBuffer dev 0 space Device stream 0xd15ca980 size 536870912 bytes (cudaMalloc error out of memory [2])
