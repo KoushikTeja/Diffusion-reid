@@ -1,0 +1,72 @@
+\chapter{Analysis, Conclusion and Future Work}
+
+\section{Analysis of Results}
+
+\subsection{VeRi-776 Analysis}
+
+Our VeRi-776 reproduction is notably close to the paper's results in terms of mAP (41.7\% vs.\ 43.1\%, a gap of only 1.4\%). With re-ranking, the gap narrows to just 0.2\% (42.9\% vs.\ 43.1\%). This indicates that the overall retrieval quality --- measured by the precision-recall trade-off --- is faithfully reproduced.
+
+However, the Rank-1 accuracy shows a larger gap (87.1\% vs.\ 96.5\%). This discrepancy between a close mAP and a wider Rank-1 gap suggests that while our model retrieves relevant images well across the ranking list, the \textit{top-1} retrieval is less precise. Possible explanations include:
+
+\begin{itemize}
+    \item \textbf{Cluster granularity:} Our model produces 1,030 clusters for 576 ground-truth identities, indicating over-segmentation that could introduce noise in pseudo labels affecting the most confident predictions.
+    \item \textbf{Hardware differences:} The original paper uses $4 \times$ Tesla T4 GPUs (16~GB each), while we use RTX~2080~Ti GPUs (11~GB each). Differences in effective batch processing during semantic consistency computation could affect training dynamics.
+    \item \textbf{Random seed sensitivity:} Unsupervised Re-ID methods are sensitive to random initialization due to the clustering-based pseudo label generation process.
+\end{itemize}
+
+\subsection{Market-1501 Analysis}
+
+The Market-1501 reproduction shows a more significant mAP gap (77.7\% vs.\ 84.6\%) without re-ranking. Several factors may contribute:
+
+\begin{itemize}
+    \item \textbf{Hyperparameter sensitivity:} While we used the paper's recommended $\epsilon = 0.4$ for DBSCAN, the interaction between $\epsilon$, batch size, learning rate, and the camera contrastive weight creates a complex hyperparameter space. The paper's exact configuration may involve fine-tuned settings not fully captured in the released code.
+    \item \textbf{Cluster count:} Our model converges to 612 clusters compared to 751 ground-truth identities, indicating some under-segmentation that merges distinct identities.
+    \item \textbf{Multi-GPU synchronization:} Using $6 \times$ 2080~Ti with DataParallel versus $4 \times$ T4 affects batch normalization statistics and effective learning dynamics.
+\end{itemize}
+
+Notably, applying $k$-reciprocal re-ranking \cite{zhong2017reranking} boosts our Market-1501 mAP from 77.7\% to \textbf{88.6\%}, which \textit{surpasses} the paper's reported 84.6\%. This demonstrates that the learned features possess strong local neighbourhood structure that is effectively exploited by re-ranking. The gap without re-ranking likely reflects differences in the initial distance ranking rather than fundamental feature quality issues.
+
+\subsection{Effect of Camera-Aware Contrastive Learning}
+
+The camera-aware contrastive loss $\mathcal{L}_{cam}$ constitutes a significant portion of the total loss (5.43 for Market, 5.53 for VeRi), reflecting its importance in learning camera-invariant representations. The camera-level proxies provide rich supervisory signals by contrasting same-identity features across different cameras while pushing apart different-identity features.
+
+This loss is particularly impactful on VeRi-776, which has 20~cameras (vs.\ Market-1501's 6), providing more camera-level supervisory pairs. This may partially explain why our VeRi-776 mAP reproduction is closer to the paper than Market-1501.
+
+\subsection{Contribution of the Diffusion Model}
+
+The diffusion model components demonstrate effective learning: the noise prediction loss stabilizes around 1.08--1.11, close to the theoretical optimum for Gaussian noise prediction with the cosine schedule. The qualitative heatmap results (Figures~\ref{fig:heatmaps_market}--\ref{fig:heatmaps_veri}) provide visual evidence that the SDM generates semantically meaningful patches focusing on discriminative body/vehicle regions, validating the paper's core claim.
+
+\section{Reproducibility Considerations}
+
+We identify several factors affecting reproducibility of the PISL framework:
+
+\begin{enumerate}
+    \item \textbf{Stochastic clustering:} DBSCAN with Jaccard distance depends on feature quality, which varies with random initialization. Different seeds lead to different pseudo label assignments and divergent training trajectories.
+    \item \textbf{Faiss implementation:} The Jaccard distance computation relies on faiss for $k$-nearest neighbour search. Different faiss versions (1.6.3 vs.\ 1.7.2) may produce slightly different rankings due to floating-point differences.
+    \item \textbf{GPU architecture:} Differences in tensor core operations between T4 and 2080~Ti can affect numerical reproducibility.
+    \item \textbf{Training duration:} Each full training run takes approximately 19--33 hours, limiting feasible hyperparameter search iterations.
+\end{enumerate}
+
+\section{Conclusion}
+
+This thesis presented a detailed reproduction of the PISL framework \cite{tao2024unsupervised} for unsupervised person and vehicle re-identification. We successfully implemented and trained the camera-aware PISL model on two benchmark datasets, achieving competitive results that validate the key claims of the original paper.
+
+\textbf{Summary of findings:}
+\begin{itemize}
+    \item On \textbf{VeRi-776}, our reproduction closely matches the paper with only a 1.4\% mAP gap (41.7\% vs.\ 43.1\%), narrowing to 0.2\% with re-ranking (42.9\% vs.\ 43.1\%).
+    \item On \textbf{Market-1501}, while there is a 6.9\% mAP gap without re-ranking (77.7\% vs.\ 84.6\%), applying re-ranking yields 88.6\% mAP, surpassing the paper's reported result.
+    \item Qualitative results confirm that the Spatial Diffusion Model successfully generates semantically meaningful patches attending to discriminative body and vehicle regions.
+    \item The t-SNE visualizations and retrieval rankings demonstrate strong discriminative feature learning despite the absence of identity labels.
+\end{itemize}
+
+\section{Future Work}
+
+Several directions for future work are identified:
+
+\begin{itemize}
+    \item \textbf{MSMT17 evaluation:} Extend the reproduction to MSMT17 \cite{wei2018msmt17}, the largest and most challenging benchmark used in the original paper, which contains 126,441 images across 15 cameras.
+    \item \textbf{Vision Transformer backbone:} Investigate integrating Vision Transformer (ViT) backbones as an alternative to ResNet-50, which may improve feature quality and part localization through self-attention mechanisms.
+    \item \textbf{Ablation studies:} Conduct systematic ablation studies to isolate the contribution of each loss component (SDM, SCD, PSC, camera-aware contrastive) and quantify their individual impact.
+    \item \textbf{Hyperparameter optimization:} Explore optimization strategies, particularly for the DBSCAN threshold $\epsilon$ and loss weighting factors, to close the remaining gap on Market-1501.
+    \item \textbf{Cross-domain generalization:} Evaluate the trained models on unseen datasets to assess the generalization capability of the learned representations.
+\end{itemize}

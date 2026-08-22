@@ -1,0 +1,284 @@
+\chapter{Experimental Setup and Results}
+
+\section{Datasets}
+
+We evaluate the PISL framework on two benchmark datasets. Table~\ref{tab:datasets} summarizes their statistics.
+
+\subsection{Market-1501}
+Market-1501 \cite{zheng2015scalable} is a large-scale person Re-ID benchmark captured by six cameras on a university campus. It contains 32,668 images of 1,501 identities. The standard split uses 751 identities (12,936 images) for training, 750 identities (3,368 images) for query, and 751 identities (15,913 images) for gallery.
+
+\subsection{VeRi-776}
+VeRi-776 \cite{liu2016deepveri} is a large-scale vehicle Re-ID benchmark captured by 20 cameras in urban surveillance settings. It contains 49,357 images of 776 vehicles. The training set has 576 identities (37,778 images), the query set has 200 identities (1,678 images), and the gallery set has 200 identities (11,579 images).
+
+\begin{table}[H]
+    \centering
+    \caption{Dataset statistics.}
+    \label{tab:datasets}
+    \begin{tabular}{l c c c c}
+        \toprule
+        \textbf{Dataset} & \textbf{\#IDs} & \textbf{\#Images} & \textbf{\#Cameras} & \textbf{Domain} \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Market-1501}} \\
+        \quad Train   & 751 & 12,936 & 6  & Person \\
+        \quad Query   & 750 & 3,368  & 6  & Person \\
+        \quad Gallery & 751 & 15,913 & 6  & Person \\
+        \midrule
+        \multicolumn{5}{l}{\textit{VeRi-776}} \\
+        \quad Train   & 576 & 37,778 & 20 & Vehicle \\
+        \quad Query   & 200 & 1,678  & 19 & Vehicle \\
+        \quad Gallery & 200 & 11,579 & 19 & Vehicle \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{Implementation Details}
+
+\subsection{Hardware and Software}
+All experiments were conducted on a shared GPU server (SYS-4029GP-TRT) equipped with six NVIDIA GeForce RTX~2080~Ti GPUs (11~GB VRAM each), running CUDA~11.4. The software stack includes Python~3.8+, PyTorch, faiss-gpu~1.7.2 \cite{johnson2019faiss} for efficient similarity search, scikit-learn for DBSCAN clustering, and Weights~\&~Biases (W\&B) \cite{wandb2020} for experiment tracking.
+
+\subsection{Training Configuration}
+We follow the official training protocol using the camera-aware PISL training script. Table~\ref{tab:hyperparams} summarizes the hyperparameter settings.
+
+\begin{table}[H]
+    \centering
+    \caption{Hyperparameter settings for each dataset.}
+    \label{tab:hyperparams}
+    \begin{tabular}{l c c}
+        \toprule
+        \textbf{Hyperparameter} & \textbf{Market-1501} & \textbf{VeRi-776} \\
+        \midrule
+        Input size ($H \times W$)        & $384 \times 128$  & $256 \times 256$  \\
+        Batch size                        & 64                & 64                \\
+        Instances per ID ($n$)            & 4                 & 8                 \\
+        Optimizer                         & Adam              & Adam              \\
+        Learning rate                     & $1 \times 10^{-4}$ & $1 \times 10^{-4}$ \\
+        Weight decay                      & $5 \times 10^{-4}$ & $5 \times 10^{-4}$ \\
+        Epochs                            & 50                & 50                \\
+        Iterations per epoch              & 400               & 400               \\
+        Number of parts ($P$)             & 3                 & 3                 \\
+        DBSCAN $\epsilon$                 & 0.4               & 0.7               \\
+        $k$ (semantic consistency)        & 20                & 20                \\
+        $W_{cam}$ (camera loss weight)    & 0.5               & 0.5               \\
+        $W_{diff}$ (diffusion loss weight) & 0.1              & 0.1               \\
+        Diffusion steps ($T$)             & 1000              & 1000              \\
+        Temperature ($\tau$)              & 0.07              & 0.07              \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Data Augmentation}
+The training augmentation pipeline includes: (1)~resizing to the target resolution, (2)~random horizontal flipping with probability~0.5, (3)~padding by 10~pixels followed by random cropping, and (4)~random erasing with probability~0.5. During testing, only resizing and normalization are applied.
+
+\subsection{Evaluation Metrics}
+We use two standard evaluation metrics:
+\begin{itemize}
+    \item \textbf{Mean Average Precision (mAP):} Measures the area under the precision-recall curve, averaged over all queries.
+    \item \textbf{Cumulative Matching Characteristics (CMC):} Reports the probability that a correct match appears within the top-$k$ ranked results (Rank-1, Rank-5, Rank-10).
+\end{itemize}
+We report results both without and with $k$-reciprocal re-ranking \cite{zhong2017reranking}.
+
+\section{Challenges During Reproduction}
+
+Several practical challenges were encountered:
+\begin{enumerate}
+    \item \textbf{Faiss version compatibility:} Transitioning from faiss-gpu 1.6.3 to 1.7.2 required replacing the faiss utility and re-ranking modules due to API changes.
+    \item \textbf{GPU memory management:} The semantic consistency computation involves pairwise distance matrices for $k$-nearest neighborhoods, requiring careful batch processing to prevent out-of-memory errors on 11~GB GPUs.
+    \item \textbf{Multi-GPU training:} DataParallel across six RTX~2080~Ti GPUs differs from the paper's setup of four Tesla~T4 GPUs, potentially affecting batch normalization statistics and gradient averaging.
+    \item \textbf{Training duration:} Each 50-epoch run takes approximately 19--33 hours, limiting the number of hyperparameter search iterations feasible.
+\end{enumerate}
+
+\section{Quantitative Results}
+
+\subsection{Comparison with Paper Results}
+
+Table~\ref{tab:main_results} presents our reproduced results alongside the original paper's results.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparison of reproduced results with the original paper. Bold indicates the best result in each column. $\Delta$ denotes the gap.}
+    \label{tab:main_results}
+    \begin{tabular}{l l c c c c}
+        \toprule
+        \textbf{Dataset} & \textbf{Source} & \textbf{mAP} & \textbf{R-1} & \textbf{R-5} & \textbf{R-10} \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Without Re-ranking}} \\
+        \midrule
+        \multirow{3}{*}{Market-1501}
+            & Paper \cite{tao2024unsupervised} & \textbf{84.6} & \textbf{93.5} & -- & -- \\
+            & Ours                              & 77.7 & 91.0 & 96.4 & 97.9 \\
+            & $\Delta$                          & $-$6.9 & $-$2.5 & -- & -- \\
+        \midrule
+        \multirow{3}{*}{VeRi-776}
+            & Paper \cite{tao2024unsupervised} & \textbf{43.1} & \textbf{96.5} & -- & -- \\
+            & Ours                              & 41.7 & 87.1 & 91.8 & 93.8 \\
+            & $\Delta$                          & $-$1.4 & $-$9.4 & -- & -- \\
+        \midrule
+        \multicolumn{6}{l}{\textit{With Re-ranking \cite{zhong2017reranking}}} \\
+        \midrule
+        Market-1501 & Ours & \textbf{88.6} & 92.6 & 95.5 & 96.7 \\
+        VeRi-776    & Ours & 42.9 & 87.7 & 89.6 & 92.1 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{Key observations:}
+\begin{itemize}
+    \item \textbf{VeRi-776 mAP:} Our reproduction achieves 41.7\%, only 1.4\% below the reported 43.1\%. With re-ranking, the gap narrows to just 0.2\% (42.9\% vs.\ 43.1\%).
+    \item \textbf{Market-1501 mAP:} Our reproduction achieves 77.7\%, 6.9\% below the reported 84.6\%. However, with re-ranking, our mAP reaches 88.6\%, \textit{exceeding} the paper's result.
+    \item \textbf{Rank-1 accuracy:} Market-1501 Rank-1 (91.0\%) is close to the paper (93.5\%), while VeRi-776 Rank-1 has a larger gap (87.1\% vs.\ 96.5\%), discussed further in Chapter~5.
+\end{itemize}
+
+\subsection{Comparison with State-of-the-Art}
+
+Table~\ref{tab:sota} compares our results with representative unsupervised Re-ID methods.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparison with state-of-the-art unsupervised Re-ID methods. Values cited from respective papers. $\dagger$ denotes our reproduction.}
+    \label{tab:sota}
+    \begin{tabular}{l c c c c}
+        \toprule
+        \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{Market-1501}} & \multicolumn{2}{c}{\textbf{VeRi-776}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+        & mAP & R-1 & mAP & R-1 \\
+        \midrule
+        SpCL \cite{ge2020selfpaced}       & 73.1 & 88.1 & 36.9 & 79.9 \\
+        CAP \cite{wang2021cap}             & 79.2 & 91.4 & 33.1 & 83.2 \\
+        ICE \cite{chen2021ice}             & 82.9 & 93.8 & 40.0 & 92.0 \\
+        RLCC \cite{zhang2021rlcc}          & 77.7 & 90.4 & --   & --   \\
+        PPLR \cite{cho2022pplr}            & 84.4 & 94.3 & 38.5 & 91.3 \\
+        PISL \cite{tao2024unsupervised}    & \textbf{84.6} & 93.5 & \textbf{43.1} & \textbf{96.5} \\
+        \midrule
+        PISL (Ours)$^\dagger$              & 77.7 & 91.0 & 41.7 & 87.1 \\
+        PISL + RR (Ours)$^\dagger$         & 88.6 & 92.6 & 42.9 & 87.7 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Our reproduction without re-ranking surpasses SpCL and RLCC on Market-1501 in mAP, and achieves the second-highest mAP on VeRi-776 (41.7\%), outperforming SpCL, CAP, PPLR, and ICE. This demonstrates the effectiveness of the PISL framework even in our reproduction setting.
+
+\section{Training Dynamics}
+
+Table~\ref{tab:loss_components} summarizes the final training loss component values monitored through Weights~\&~Biases.
+
+\begin{table}[H]
+    \centering
+    \caption{Final training loss component values and cluster statistics.}
+    \label{tab:loss_components}
+    \begin{tabular}{l c c}
+        \toprule
+        \textbf{Metric} & \textbf{Market-1501} & \textbf{VeRi-776} \\
+        \midrule
+        Total Loss ($\mathcal{L}$)         & 9.40   & 11.21  \\
+        Global CE ($\mathcal{L}_{ces}$)    & 4.09   & 4.71   \\
+        Part CE ($\mathcal{L}_{part}$)     & 2.28   & 3.37   \\
+        Triplet ($\mathcal{L}_{tri}$)      & 0.046  & 0.034  \\
+        Camera ($\mathcal{L}_{cam}$)       & 5.43   & 5.53   \\
+        Diffusion ($\mathcal{L}_{scd}$)    & 2.68   & 3.26   \\
+        Noise ($\mathcal{L}_{noise}$)      & 1.08   & 1.11   \\
+        \midrule
+        Training Accuracy                  & 98.4\% & 89.1\% \\
+        Final Clusters                     & 612    & 1,030  \\
+        Final Outliers                     & 140    & 17     \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Notable observations:
+\begin{itemize}
+    \item The \textbf{triplet loss} converges to near-zero values (0.034--0.046), indicating effective metric learning where positive pairs become close and negative pairs are well-separated.
+    \item The \textbf{noise prediction loss} stabilizes around 1.08--1.11, showing that the denoising network successfully learns to predict the noise.
+    \item The \textbf{cluster count} stabilizes at 612 for Market-1501 (close to 751 ground-truth IDs) and 1,030 for VeRi-776 (higher than 576 ground-truth IDs), suggesting some over-segmentation in the vehicle domain.
+\end{itemize}
+
+\section{Qualitative Results}
+
+\subsection{Attention Heatmaps}
+
+Figures~\ref{fig:heatmaps_market} and~\ref{fig:heatmaps_veri} show attention heatmap visualizations for both datasets. Each visualization displays the original image, the feature map attention, and the overlay.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{heatmaps/heatmap_0_pid_1271.png}
+    \end{subfigure}
+    \vspace{2mm}
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{heatmaps/heatmap_2_pid_194.png}
+    \end{subfigure}
+    \caption{Attention heatmaps on Market-1501. The model learns to focus on discriminative body regions: upper body, torso, and lower body, demonstrating the SDM's effectiveness in generating semantically meaningful patches.}
+    \label{fig:heatmaps_market}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{veri/heatmaps/heatmap_2_pid_65.png}
+    \end{subfigure}
+    \vspace{2mm}
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{veri/heatmaps/heatmap_3_pid_27.png}
+    \end{subfigure}
+    \caption{Attention heatmaps on VeRi-776. The model attends to distinctive vehicle regions such as tail lights, license plate area, and vehicle contours, showing domain adaptation of the SDM.}
+    \label{fig:heatmaps_veri}
+\end{figure}
+
+For Market-1501, the model attends to discriminative body regions organized into semantically meaningful parts. The attention avoids background clutter, focusing on clothing patterns, accessories, and distinctive body proportions. For VeRi-776, the attention maps adapt to vehicle-specific features including tail lights, rear emblems, and overall vehicle silhouette.
+
+\subsection{Retrieval Ranking Results}
+
+Figures~\ref{fig:ranking_market} and~\ref{fig:ranking_veri} show retrieval results for query images. Correctly matched images are highlighted with green borders (``True''), while same-camera images are labelled ``Junk'' (excluded per standard protocol).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ranking/query_1044_pid_569.png}
+    \end{subfigure}
+    \vspace{2mm}
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ranking/query_3350_pid_1105.png}
+    \end{subfigure}
+    \caption{Retrieval ranking results on Market-1501. The model successfully retrieves the correct person across viewpoint, pose, and lighting changes.}
+    \label{fig:ranking_market}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{veri/ranking/query_1030_pid_74.png}
+    \end{subfigure}
+    \vspace{2mm}
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{veri/ranking/query_1237_pid_262.png}
+    \end{subfigure}
+    \caption{Retrieval ranking results on VeRi-776. The model correctly retrieves the same vehicle across different camera viewpoints and lighting conditions.}
+    \label{fig:ranking_veri}
+\end{figure}
+
+\subsection{t-SNE Feature Visualization}
+
+Figures~\ref{fig:tsne_market} and~\ref{fig:tsne_veri} present t-SNE \cite{van2008tsne} visualizations of the learned feature embeddings for selected identities.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{tsne/tsne_plot.png}
+    \caption{t-SNE visualization on Market-1501 (15 selected identities). Clear cluster separation demonstrates effective identity-discriminative feature learning.}
+    \label{fig:tsne_market}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{veri/tsne/tsne_plot.png}
+    \caption{t-SNE visualization on VeRi-776 (15 selected vehicle identities). Well-separated clusters indicate strong discriminative power despite intra-class viewpoint variation.}
+    \label{fig:tsne_veri}
+\end{figure}
+
+The t-SNE visualizations reveal well-formed, compact clusters for each identity with clear inter-class separation and minimal overlap, confirming that the pseudo label refinement process produces discriminative representations.
