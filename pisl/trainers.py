@@ -75,10 +75,9 @@ class PISLTrainer(object):
             # Forward pass through the model
             # emb_g: global features, emb_p: part features
             # logits_g: global classification logits, logits_p: part classification logits
-            # theta_pred: predicted transformation parameters
-            # theta_init: initial transformation parameters
-            # noise_pred: predicted noise, noise: ground truth noise
-            emb_g, emb_p, logits_g, logits_p, theta_pred, theta_init, noise_pred, noise = self.model(inputs)
+            # noise_pred: predicted noise, noisy_theta: noisy parameters, noise: ground truth noise
+            # initial_theta: STN proposal, pred_theta_0: analytic reconstructed theta_0 (P1)
+            emb_g, emb_p, logits_g, logits_p, noise_pred, noisy_theta, noise, initial_theta, pred_theta_0 = self.model(inputs)
             logits_g, logits_p = logits_g[:, :self.num_class], logits_p[:, :self.num_class, :]
 
             # Compute various losses
@@ -98,8 +97,8 @@ class PISLTrainer(object):
                         loss_pce += self.criterion_ce(logits_p[:, :, part], targets)
                 loss_pce /= self.num_part
 
-            # Compute diffusion model loss
-            loss_diff, _ = self.criterion_diff(theta_pred, theta_init, noise_pred, noise, emb_p, targets)
+            # Compute diffusion model loss using predicted clean theta_0 for consistency supervision
+            loss_diff, _ = self.criterion_diff(pred_theta_0, initial_theta, noise_pred, noise, emb_p, targets)
 
             # Combine all losses
             loss = loss_gce + loss_tri + loss_pce + self.Wdiff * loss_diff
@@ -243,7 +242,7 @@ class PISLTrainerCAM(object):
             inputs, targets, cams, ca = self._parse_data(data)
 
             # Forward pass through the model
-            emb_g, emb_p, logits_g, logits_p, noise_pred, noisy_theta, noise, initial_theta = self.model(inputs)
+            emb_g, emb_p, logits_g, logits_p, noise_pred, noisy_theta, noise, initial_theta, pred_theta_0 = self.model(inputs)
             logits_g, logits_p = logits_g[:, :self.num_class], logits_p[:, :self.num_class, :]
 
             # Compute various losses
@@ -268,10 +267,10 @@ class PISLTrainerCAM(object):
                 loss_pce /= self.num_part
                 loss_pcam /= self.num_part
 
-            # Compute diffusion model loss
+            # Compute diffusion model loss using predicted clean theta_0 for consistency supervision
             loss_diffusion, loss_dict = self.criterion_diffusion(
-                noisy_theta,  # Predicted transformation parameters
-                initial_theta,  # Initial transformation parameters (already computed in forward pass)
+                pred_theta_0,  # Predicted clean transformation parameters (P1: supervises denoiser & STN)
+                initial_theta,  # Initial transformation parameters from STN
                 noise_pred,  # Predicted noise
                 noise,  # Ground truth noise
                 emb_p,  # Part features for contrastive learning
@@ -332,7 +331,7 @@ class PISLTrainerCAM(object):
                               
                 try:
                     import wandb
-                    if wandb.run is not None:
+                    if getattr(wandb, 'run', None) is not None:
                         wandb.log({
                             "Train/Loss_Global": losses_gce.val,
                             "Train/Loss_Part": losses_pce.val,

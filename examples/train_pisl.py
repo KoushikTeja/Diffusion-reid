@@ -172,8 +172,10 @@ def compute_semantic_consistency(features_g, features_p, k, search_option=0):
                 
                 # Add stability control
                 mmd_score = torch.clamp(mmd_score, min=0.0, max=1.0)
-                
-                score[batch_start + j, i] = mmd_score
+                # P3: Gaussian heat kernel conversion from MMD distance to similarity score
+                sigma = 0.5
+                sim_score = torch.exp(- (mmd_score ** 2) / (2 * (sigma ** 2)))
+                score[batch_start + j, i] = torch.clamp(sim_score, min=0.01, max=1.0)
     
     print("semantic consistency score time cost: {}".format(time.time() - end))
     
@@ -218,12 +220,16 @@ def main_worker(args):
     # evaluator
     evaluator = Evaluator(model)
 
-    # optimizer
+    # P6: Decoupled parameter groups with differential learning rates
     params = []
     for key, value in model.named_parameters():
         if not value.requires_grad:
             continue
-        params += [{"params": [value], "lr": args.lr, "weight_decay": args.weight_decay}]
+        is_backbone = 'base' in key
+        is_bias_or_bn = value.dim() <= 1 or 'bn' in key.lower() or 'bias' in key.lower()
+        lr = args.lr * 0.1 if is_backbone else args.lr
+        weight_decay = 0.0 if is_bias_or_bn else args.weight_decay
+        params.append({"params": [value], "lr": lr, "weight_decay": weight_decay})
     optimizer = torch.optim.Adam(params)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=0.1)
 
@@ -284,6 +290,15 @@ def main_worker(args):
             centroids_p_i = F.normalize(centroids_p_i, p=2, dim=1)
             classifier_p_i = getattr(model.module, 'classifier' + str(i))
             classifier_p_i.weight.data[:num_class].copy_(centroids_p_i)
+
+        # P6: Reset Adam momentum buffers for overwritten classifier weights
+        for p in [model.module.classifier.weight] + [getattr(model.module, f'classifier{i}').weight for i in range(num_part)]:
+            if p in optimizer.state:
+                state = optimizer.state[p]
+                if 'exp_avg' in state:
+                    state['exp_avg'].zero_()
+                if 'exp_avg_sq' in state:
+                    state['exp_avg_sq'].zero_()
 
         # training
         trainer = PISLTrainer(model, score, num_class=num_class, num_part=num_part, beta=args.beta,
