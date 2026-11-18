@@ -17,10 +17,11 @@
 # #SBATCH --mail-user=your_email@iitkgp.ac.in   # Uncomment and add your email
 
 # ------------------------------------------------------------------------------
-# 1. Mandatory Storage Rule: Execute strictly from /scratch/$USER
+# 1. Mandatory Storage Rule: Execute strictly from $SCRATCH
 # ------------------------------------------------------------------------------
-PROJECT_DIR="/scratch/${USER}/Diffusion-reid"
-DATA_DIR="/scratch/${USER}/data"
+SCRATCH_ROOT="${SCRATCH:-/scratch/scratch26/${USER}}"
+PROJECT_DIR="${SCRATCH_ROOT}/Diffusion-reid"
+DATA_DIR="${SCRATCH_ROOT}/data"
 LOGS_DIR="${PROJECT_DIR}/logs/math_veri"
 
 cd "${PROJECT_DIR}" || { echo "Directory ${PROJECT_DIR} not found! Exiting."; exit 1; }
