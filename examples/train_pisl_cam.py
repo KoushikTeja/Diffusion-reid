@@ -203,7 +203,12 @@ def compute_semantic_consistency(features_g, features_p, k, search_option=0):
                 ) / (k * 2)
 
                 mmd_score = torch.clamp(mmd_score, min=0.0, max=1.0)
-                score[batch_start + j, i] = mmd_score
+                # P3: Gaussian heat kernel conversion from MMD distance to similarity score
+                # Clean well-aligned parts (dist -> 0) get s -> 1.0 (ce_loss prioritized)
+                # Corrupted/occluded parts get s -> 0 (uniform label smoothing prioritized)
+                sigma = 0.5
+                sim_score = torch.exp(- (mmd_score ** 2) / (2 * (sigma ** 2)))
+                score[batch_start + j, i] = torch.clamp(sim_score, min=0.01, max=1.0)
 
     print("semantic consistency score time cost: {}".format(time.time() - end))
     return score
@@ -273,12 +278,23 @@ def main_worker(args):
         print(f"  => Restored best mAP: {best_mAP:.1%}")
 
     evaluator = Evaluator(model)
+    model.module.eval_fusion = not args.no_eval_fusion
 
+    # P6: Decoupled parameter groups with differential learning rates
+    # Backbone (pretrained): 0.1x LR (3.5e-5) to preserve features
+    # STN / Diffusion / Classifiers: 1.0x LR (3.5e-4) for fast convergence
+    # Zero weight decay on biases and BatchNorm parameters
     params = []
     for key, value in model.named_parameters():
         if not value.requires_grad:
             continue
-        params += [{"params": [value], "lr": args.lr, "weight_decay": args.weight_decay}]
+        is_backbone = 'base' in key
+        is_bias_or_bn = value.dim() <= 1 or 'bn' in key.lower() or 'bias' in key.lower()
+        
+        lr = args.lr * 0.1 if is_backbone else args.lr
+        weight_decay = 0.0 if is_bias_or_bn else args.weight_decay
+        params.append({"params": [value], "lr": lr, "weight_decay": weight_decay})
+
     optimizer = torch.optim.Adam(params)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=0.1)
 
@@ -391,7 +407,7 @@ def main_worker(args):
 
         global_centroids = F.normalize(torch.stack(global_centroids), p=2, dim=1)
         model.module.classifier.weight.data[:num_classes].copy_(global_centroids)
-        camera_memory = CameraContrast(global_centroids.size(1), len(proxy_pids)).cuda()
+        camera_memory = CameraContrast(global_centroids.size(1), len(proxy_pids), tau_merge=args.tau_merge).cuda()
         camera_memory.proxy = F.normalize(torch.stack(camera_proxies), p=2, dim=1).cuda()
         camera_memory.pids = torch.Tensor(proxy_pids).long().cuda()
         camera_memory.cids = torch.Tensor(proxy_cids).long().cuda()
@@ -402,12 +418,24 @@ def main_worker(args):
             part_centroids_i = F.normalize(part_centroids_i, p=2, dim=1)
             part_classifier = getattr(model.module, 'classifier' + str(i))
             part_classifier.weight.data[:num_classes].copy_(part_centroids_i)
-            part_memory = CameraContrast(global_centroids.size(1), len(proxy_pids)).cuda()
+            part_memory = CameraContrast(global_centroids.size(1), len(proxy_pids), tau_merge=args.tau_merge).cuda()
             camera_part_proxies_i = torch.stack(camera_part_proxies)[:, :, i]
             part_memory.proxy = F.normalize(camera_part_proxies_i, p=2, dim=1).cuda()
             part_memory.pids = torch.Tensor(proxy_pids).long().cuda()
             part_memory.cids = torch.Tensor(proxy_cids).long().cuda()
             part_memories.append(part_memory)
+
+        # P6: Reset Adam momentum buffers for overwritten classifier weights to prevent sudden drift
+        classifier_params = [model.module.classifier.weight] + [
+            getattr(model.module, f'classifier{i}').weight for i in range(num_parts)
+        ]
+        for p in classifier_params:
+            if p in optimizer.state:
+                state = optimizer.state[p]
+                if 'exp_avg' in state:
+                    state['exp_avg'].zero_()
+                if 'exp_avg_sq' in state:
+                    state['exp_avg_sq'].zero_()
 
         t_memory = time.time() - t0
         print_step("Centroids + memory banks", t_memory,
@@ -524,5 +552,11 @@ if __name__ == '__main__':
     parser.add_argument('--k1', type=int, default=30)
     parser.add_argument('--k2', type=int, default=6)
     parser.add_argument('--eps', type=float, default=0.5)
+
+    # mathematical optimizations (P5 & P6)
+    parser.add_argument('--tau-merge', type=float, default=0.0,
+                        help="threshold to discount multi-view false negatives in CameraContrast (e.g. 0.65 for VeRi)")
+    parser.add_argument('--no-eval-fusion', action='store_true', default=False,
+                        help="disable test-time feature fusion (fused global + parts is enabled by default)")
 
     main()
