@@ -7,9 +7,9 @@
 #SBATCH -p gpu                         # Partition: 'gpu' for PARAM Shakti (or 'dgx_all' on DGX)
 #SBATCH --nodes=1                      # Run on a single compute node
 #SBATCH --ntasks=1                     # Single task
-#SBATCH --cpus-per-task=8              # 8 CPU cores for DataLoader workers
-#SBATCH --gres=gpu:1                   # 1 GPU (Tesla V100 on PARAM Shakti / H100 on DGX)
-#SBATCH --mem=32000                    # 32 GB system memory
+#SBATCH --cpus-per-task=16             # 16 CPU cores for DataLoader workers
+#SBATCH --gres=gpu:2                   # 2 GPUs (Tesla V100 on PARAM Shakti / H100 on DGX)
+#SBATCH --mem=64000                    # 64 GB system memory
 #SBATCH -t 24:00:00                    # Walltime HH:MM:SS (Max 72h on 'gpu' partition)
 #SBATCH -o logs_slurm/%j-%x.out        # Standard output log (%j = Job ID, %x = Job name)
 #SBATCH -e logs_slurm/%j-%x.err        # Standard error log
@@ -21,7 +21,16 @@
 # ------------------------------------------------------------------------------
 SCRATCH_ROOT="${SCRATCH:-/scratch/scratch26/${USER}}"
 PROJECT_DIR="${SCRATCH_ROOT}/Diffusion-reid"
-DATA_DIR="${SCRATCH_ROOT}/data"
+
+# Auto-detect dataset directory
+if [ -d "${PROJECT_DIR}/examples/data" ]; then
+    DATA_DIR="${PROJECT_DIR}/examples/data"
+elif [ -d "${SCRATCH_ROOT}/data" ]; then
+    DATA_DIR="${SCRATCH_ROOT}/data"
+else
+    DATA_DIR="${PROJECT_DIR}/examples/data"
+fi
+
 LOGS_DIR="${PROJECT_DIR}/logs/plain_market1501"
 
 cd "${PROJECT_DIR}" || { echo "Directory ${PROJECT_DIR} not found! Exiting."; exit 1; }
@@ -30,24 +39,28 @@ mkdir -p logs_slurm "${LOGS_DIR}"
 # ------------------------------------------------------------------------------
 # 2. Environment Setup (Modules & Conda)
 # ------------------------------------------------------------------------------
-# Purge stale modules and load CUDA
 module purge
-module load compilers/cuda/11.8 2>/dev/null || module load cuda/11.8 2>/dev/null || true
+module load compiler/cuda/11.7 2>/dev/null || module load compiler/cuda/11.8 2>/dev/null || module load compilers/cuda/11.8 2>/dev/null || module load cuda/11.8 2>/dev/null || true
 
-# Activate your conda/virtual environment
-# Adjust the path below if your conda is installed in /home/$USER/miniconda3
+# Activate conda environment
 if [ -f "/home/${USER}/miniconda3/etc/profile.d/conda.sh" ]; then
     source "/home/${USER}/miniconda3/etc/profile.d/conda.sh"
     conda activate diffreid
 elif [ -f "/scratch/${USER}/miniconda3/etc/profile.d/conda.sh" ]; then
     source "/scratch/${USER}/miniconda3/etc/profile.d/conda.sh"
     conda activate diffreid
+elif [ -f "/home/${USER}/anaconda3/etc/profile.d/conda.sh" ]; then
+    source "/home/${USER}/anaconda3/etc/profile.d/conda.sh"
+    conda activate diffreid
 else
-    echo "Warning: Conda init script not found. Using default python."
+    source ~/.bashrc 2>/dev/null || true
+    conda activate diffreid 2>/dev/null || true
 fi
 
-# PyTorch DataLoader CPU threading configuration
+# Multi-threading & WandB settings
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+export WANDB_MODE="${WANDB_MODE:-disabled}"
+export PYTHONUNBUFFERED=1
 
 # ------------------------------------------------------------------------------
 # 3. Diagnostics
@@ -57,6 +70,7 @@ echo "Job ID:        ${SLURM_JOB_ID}"
 echo "Node:          ${SLURMD_NODENAME}"
 echo "Start Time:    $(date)"
 echo "Working Dir:   $(pwd)"
+echo "Data Dir:      ${DATA_DIR}"
 echo "Branch:        $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'N/A')"
 echo "Commit:        $(git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
 echo "========================================================================"
