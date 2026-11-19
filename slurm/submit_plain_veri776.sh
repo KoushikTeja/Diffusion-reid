@@ -31,7 +31,7 @@ mkdir -p logs_slurm "${LOGS_DIR}"
 # 2. Environment Setup (Modules & Conda)
 # ------------------------------------------------------------------------------
 module purge
-module load compiler/cuda/11.7 2>/dev/null || module load compiler/cuda/12.4 2>/dev/null || module load compiler/cuda/11.2 2>/dev/null || true
+module load compilers/cuda/11.8 2>/dev/null || module load cuda/11.8 2>/dev/null || true
 
 if [ -f "/home/${USER}/miniconda3/etc/profile.d/conda.sh" ]; then
     source "/home/${USER}/miniconda3/etc/profile.d/conda.sh"
