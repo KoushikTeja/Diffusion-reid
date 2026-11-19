@@ -7,9 +7,9 @@
 #SBATCH -p gpu                         # Partition: 'gpu' for PARAM Shakti (or 'dgx_all' on DGX)
 #SBATCH --nodes=1                      # Run on a single compute node
 #SBATCH --ntasks=1                     # Single task
-#SBATCH --cpus-per-task=16             # 16 CPU cores for DataLoader workers
-#SBATCH --gres=gpu:2                   # 2 GPUs (Tesla V100 on PARAM Shakti / H100 on DGX)
-#SBATCH --mem=64000                    # 64 GB system memory
+#SBATCH --cpus-per-task=8              # 8 CPU cores for DataLoader workers
+#SBATCH --gres=gpu:1                   # 1 GPU (Tesla V100 on PARAM Shakti / H100 on DGX)
+#SBATCH --mem=32000                    # 32 GB system memory
 #SBATCH -t 24:00:00                    # Walltime HH:MM:SS (Max 72h on 'gpu' partition)
 #SBATCH -o logs_slurm/%j-%x.out        # Standard output log (%j = Job ID, %x = Job name)
 #SBATCH -e logs_slurm/%j-%x.err        # Standard error log
