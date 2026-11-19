@@ -32,7 +32,7 @@ mkdir -p logs_slurm "${LOGS_DIR}"
 # ------------------------------------------------------------------------------
 # Purge stale modules and load CUDA
 module purge
-module load compilers/cuda/11.8 2>/dev/null || module load cuda/11.8 2>/dev/null || true
+module load compiler/cuda/11.7 2>/dev/null || module load compiler/cuda/12.4 2>/dev/null || module load compiler/cuda/11.2 2>/dev/null || true
 
 # Activate your conda/virtual environment
 # Adjust the path below if your conda is installed in /home/$USER/miniconda3
