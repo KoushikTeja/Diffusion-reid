@@ -146,14 +146,26 @@ def main():
         from pisl.models.resnet_part import resnet50part
         import torch
 
-        # Test instantiation (will load weights if available)
+        # Test instantiation (loads offline weights)
         model = resnet50part(num_parts=3, num_classes=3000)
-        model.eval()
         dummy_input = torch.randn(2, 3, 384, 128)
+
+        # 4a. Eval mode forward pass
+        model.eval()
         with torch.no_grad():
-            f_p, f_c, f_g = model(dummy_input)
-        print(f"  [OK] Model successfully instantiated and passed forward test!")
-        print(f"       f_p shape: {f_p.shape}, f_c shape: {f_c.shape}, f_g shape: {f_g.shape}")
+            eval_out = model(dummy_input)
+        if isinstance(eval_out, torch.Tensor):
+            print(f"  [OK] Eval forward pass successful! Output feature shape: {eval_out.shape}")
+        else:
+            print(f"  [OK] Eval forward pass successful! Returned {len(eval_out)} elements")
+
+        # 4b. Training mode forward pass
+        model.train()
+        train_out = model(dummy_input)
+        if isinstance(train_out, (tuple, list)):
+            print(f"  [OK] Training forward pass successful! Returned {len(train_out)} training outputs (features, logits, diffusion params)")
+        else:
+            print(f"  [OK] Training forward pass successful! Output shape: {train_out.shape}")
     except Exception as e:
         print(f"  [FAIL] Model instantiation or forward pass failed: {e}")
         all_ok = False
