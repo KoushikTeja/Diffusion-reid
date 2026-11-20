@@ -41,3 +41,4 @@ gpu_justification_report.txt
 
 # wandb
 wandb/
+logs_slrum/

@@ -1,0 +1,105 @@
+\chapter{Analysis, Conclusion and Future Work}
+\label{ch:analysis_conclusion}
+\label{chap:conclusion}
+
+This concluding chapter synthesizes the theoretical, algorithmic, and empirical contributions of this thesis. First, we examine empirical dispersion across stochastic seeds and analyze the graph-theoretic mechanics of $k$-reciprocal mutual nearest neighbor re-ranking. Second, we establish the near-optimality ceiling of our representations relative to supervised upper bounds, conduct an Oracle Clustering experiment, and analyze parameter-space versus pixel-space diffusion regularisation. Third, we delineate current architectural limitations. Fourth, we outline strategic frontier directions, including Vision Transformers, Vision-Language Models, and explicit 3D representations. Finally, we summarize the principal findings and milestone achievements of this dissertation.
+
+\section{Empirical Analysis of Stochastic Seed Variance and Environmental Factors}
+\label{sec:seed_hardware_debunking}
+
+\subsection{Empirical Telemetry and Dispersion Analysis Across Random Seeds}
+
+In empirical reproduction studies of the PISL framework \cite{tao2024unsupervised}, initial reproduction runs exhibit minor variations relative to published benchmarks (e.g., 83.8\% vs.\ 84.6\% mAP on Market-1501, and 42.3\% vs.\ 43.1\% mAP on VeRi-776). While conventional literature often dismisses such discrepancies as the consequence of stochastic seed variance, PyTorch nondeterminism, or hardware environment drift, our controlled multi-seed experiments reveal that systematic algorithmic refinements provide consistent and substantial enhancements across seeds.
+
+Table~\ref{tab:seed_dispersion} reports cross-seed dispersion across training runs initialized with distinct random seeds ($\text{seed} \in \{1, 2, 42\}$) under identical baseline hyperparameters (`plain-baseline`, commit `4315cc7`).
+
+\begin{table}[H]
+\centering
+\small
+\caption[Cross-seed empirical telemetry across multiple runs]{Cross-seed empirical telemetry across multiple runs on Market-1501 and VeRi-776 under the baseline pipeline (`plain-baseline`, commit `4315cc7`).}
+\label{tab:seed_dispersion}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Benchmark Metric} & \textbf{Seed = 1} & \textbf{Seed = 2} & \textbf{Seed = 42} & \textbf{Sample Std. Dev. ($\sigma$)} \\
+\midrule
+Market-1501 Base mAP (\%)   & 83.82 & 83.58 & 84.05 & \textbf{0.24\%} \\
+Market-1501 Base Rank-1 (\%)& 92.81 & 92.60 & 92.95 & \textbf{0.18\%} \\
+VeRi-776 Base mAP (\%)      & 42.31 & 42.08 & 42.55 & \textbf{0.24\%} \\
+VeRi-776 Base Rank-1 (\%)   & 95.62 & 95.35 & 95.89 & \textbf{0.27\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As documented in Table~\ref{tab:seed_dispersion}, the empirical standard deviation induced by random seeds is modest ($\sigma \approx 0.18\%$--$0.27\%$), and hardware variations across architectures introduce negligible variance ($<0.1\%$). These empirical observations demonstrate that baseline reproduction is numerically stable. Rather than stemming from stochastic drift, substantial performance gains are unlocked by resolving the subtle mathematical and architectural bottlenecks formally audited in Chapter~\ref{chap:method}: part gradient inversion (Theorem~\ref{thm:part_gradient_inversion}), supervisory polarity inversion in MMD consistency (Theorem~\ref{thm:mmd_polarity_inversion}), metric saturation in soft-margin triplet loss (Theorem~\ref{thm:triplet_gradient_vanishing}), singular affine coordinate collapse (Theorem~\ref{thm:singular_grid_collapse}), and unconditioned denoiser trapping at the unit Gaussian variance floor (Theorem~\ref{thm:denoiser_variance_floor}). With Optimizations P1--P6, performance consistently advances beyond the published baseline across all metrics (Table~\ref{tab:master_quantitative_results}).
+
+\subsection{Mechanics of $k$-Reciprocal Mutual Nearest Neighbor Re-Ranking}
+\label{sec:reranking_mechanics}
+
+In empirical evaluation, $k$-reciprocal re-ranking \cite{zhong2017reranking} exhibited contrasting impacts: on Market-1501, re-ranking yielded a $+5.1\%$ mAP gain (83.8\% to 88.9\%), whereas baseline VeRi-776 yielded only $+1.7\%$ (42.3\% to 44.0\%). This disparity originates from the graph-theoretic mechanics of reciprocal neighborhoods. Let $\mathcal{N}(p, k)$ denote the $k$-nearest neighbors of query $p$ under Euclidean distance. The $k$-reciprocal nearest neighbor set is $\mathcal{R}(p, k) = \{g \in \mathcal{N}(p, k) \mid p \in \mathcal{N}(g, k)\}$, and the Jaccard distance over expanded neighborhoods is:
+\begin{equation}
+    d_{\text{Jaccard}}(p, g) = 1 - \frac{|\mathcal{R}^*(p, k) \cap \mathcal{R}^*(g, k)|}{|\mathcal{R}^*(p, k) \cup \mathcal{R}^*(g, k)|}.
+\end{equation}
+
+In pedestrian retrieval (Market-1501), appearance changes across camera viewpoints are comparatively mild; positive pairs frequently fall within each other's top-$k$ neighbors ($\mathcal{R}(p, k) \neq \emptyset$), allowing reciprocal cliques to effectively filter background distractors. In vehicle retrieval (VeRi-776), vehicles exhibit severe appearance disparities across camera viewpoints (e.g., front grille vs.\ rear tailgate). Under baseline unaligned clustering, the 576 vehicle identities fragmented into 1,030 camera-specific clusters. Furthermore, baseline camera contrastive loss treated cross-camera views of the same vehicle as hard negatives, driving positive pairs out of mutual top-$k$ sets ($\mathcal{R}(p, k) \cap \mathcal{R}(g, k) = \emptyset$) and neutralizing Jaccard re-ranking. Optimization P6c introduces cross-camera false-negative discounting ($\tau_{\text{merge}} = 0.65$), consolidating vehicle clusters to 618 and restoring cross-camera reciprocity, propelling re-ranked mAP to \textbf{54.1\%} (+10.1\% over baseline reproduction) and Rank-1 to \textbf{96.6\%}.
+
+\section{Near-Optimality Ceiling Analysis}
+\label{sec:ceiling_analysis}
+
+\subsection{Supervised Upper Bounds and Capacity Saturation}
+
+To establish the representation ceiling of the ResNet-50 backbone, we reference fully supervised benchmarks utilizing Bag of Tricks (BoT) \cite{lin2019bot} and PCB \cite{sun2018beyond}: 88.5\% mAP / 95.4\% Rank-1 on Market-1501, and 79.5\% mAP / 97.2\% Rank-1 on VeRi-776. Table~\ref{tab:supervised_gap} compares our optimized unsupervised PISL model against these supervised upper bounds.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption[Comparison of optimized unsupervised PISL against supervised ceilings]{Comparison of optimized unsupervised PISL against fully supervised ResNet-50 performance ceilings.}
+\label{tab:supervised_gap}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Benchmark Dataset} & \textbf{Supervised Upper Bound} & \textbf{Optimized PISL (Base)} & \textbf{Optimized PISL (RR)} & \textbf{Gap to Supervised} \\
+\midrule
+Market-1501 mAP (\%)    & 88.5 & 85.6 & \textbf{89.8} & \textbf{$-$2.9\% (Base) / +1.3\% (RR)} \\
+Market-1501 Rank-1 (\%) & 95.4 & 94.2 & \textbf{94.8} & \textbf{$-$1.2\% (Base) / $-$0.6\% (RR)} \\
+VeRi-776 mAP (\%)       & 79.5 & 52.4 & \textbf{54.1} & \textbf{$-$27.1\% (Base) / $-$25.4\% (RR)} \\
+VeRi-776 Rank-1 (\%)    & 97.2 & 96.1 & \textbf{96.6} & \textbf{$-$1.1\% (Base) / $-$0.6\% (RR)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+On Market-1501, optimized unsupervised PISL achieves 85.6\% base mAP (within 2.9\% of supervised BoT) and 89.8\% with re-ranking, surpassing the supervised baseline without re-ranking. This demonstrates near-optimal recovery of identity-discriminative information from the ResNet-50 backbone without human annotations. On VeRi-776, Rank-1 reaches 96.1\% (and 96.6\% with re-ranking), within 0.6\% of the supervised ceiling (97.2\%). However, base mAP stands at 52.4\%, leaving a 27.1\% gap that reflects remaining cross-camera recall challenges.
+
+\subsection{The Oracle Clustering Test}
+\label{sec:oracle_test}
+
+To determine whether the remaining 27.1\% mAP gap on VeRi-776 stems from backbone capacity or unsupervised pseudo-label noise during DBSCAN clustering, we conducted an Oracle Clustering experiment replacing pseudo-labels $\hat{y}$ with ground-truth identity labels $y^*$ while preserving the complete multi-task loss pipeline. Under Oracle Clustering, VeRi-776 base mAP immediately surges from 52.4\% to \textbf{71.8\%} (+19.4\%), and Rank-1 reaches \textbf{97.8\%} (+1.7\%). This indicates that over 70\% of the remaining gap between unsupervised and supervised vehicle Re-ID is attributable to multi-camera cluster fragmentation under extreme viewpoint changes, whereas less than 30\% relates to metric formulations or backbone depth.
+
+\subsection{Parameter-Space vs.\ Pixel-Space Diffusion Regularisation}
+
+The PISL framework regularizes within the 18-dimensional affine parameter manifold ($\boldsymbol{\theta} \in \mathbb{R}^{3 \times 2 \times 3}$) rather than in pixel space ($\mathbf{x} \in \mathbb{R}^{3 \times H \times W}$), presenting key theoretical and computational trade-offs:
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1pt]
+    \item \textbf{Computational Efficiency:} Pixel-space diffusion \cite{ho2020denoising, song2020score} requires deep U-Nets with hundreds of millions of parameters across hundreds of sampling steps. In contrast, parameter-space diffusion operates over an 18-D space via an MLP with 529,170 parameters evaluated over 5 deterministic steps (P5) without sampling bottlenecks on VeRi-776.
+    \item \textbf{Preservation of Biometric Integrity:} Pixel diffusion risks high-frequency generative artifacts that corrupt fine-grained visual details (e.g., emblems, facial traits). Parameter diffusion acts purely as a geometric prior over spatial transformer receptive fields, preserving pristine pixel information.
+    \item \textbf{Conditioning Sensitivity:} Because the parameter space is low-dimensional ($d=18$), denoiser score matching is sensitive to conditioning. As established in Theorem~\ref{thm:denoiser_variance_floor}, omitting $\boldsymbol{\theta}_t$ reduces predictions to unconditional zero mean. Explicit conditioning $\mathbf{h}_0 = [\boldsymbol{\theta}_t, \mathbf{f}_g, \mathbf{t}_{\text{emb}}]$ and Tweedie inversion are essential for valid regularisation.
+\end{enumerate}
+
+\section{Limitations of the Current Approach}
+\label{sec:limitations}
+
+Despite the substantial gains achieved by Optimizations P1--P6, several limitations remain inherent to the framework:
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1pt]
+    \item \textbf{Rigid Horizontal Stripe Partitioning:} While Optimization P2 guarantees non-singular coordinate transformations ($\det(\mathbf{A}) \ge 0.196$) across three horizontal bands, rigid slicing cannot adapt to diagonal body articulations, severe bending, or irregular physical occlusions.
+    \item \textbf{Global DBSCAN Threshold $\epsilon$:} Surveillance networks exhibit non-uniform traffic density. A static global threshold $\epsilon$ inevitably induces over-clustering in sparse viewpoints and under-clustering in dense camera views.
+    \item \textbf{Reliance on Discrete Camera Metadata:} Camera-aware proxy contrastive learning requires discrete camera indices $c_i \in \{1, \dots, C\}$. In unstructured drone feeds or uncalibrated camera networks lacking camera metadata, proxy construction requires external camera estimation.
+\end{enumerate}
+
+\section{Strategic Frontier Directions for Future Work}
+\label{sec:future_work}
+
+Strategic frontier directions for future investigation include: \textbf{(1) Vision Transformers (TransReID):} Vision Transformers (ViT) provide effective alternatives to convolutional backbones for re-identification \cite{he2021transreid}. Future work can integrate Vision Transformers (TransReID \cite{he2021transreid}) using patch self-attention for non-contiguous part discovery and side information embeddings (SIE) to encode camera metadata directly into patch tokens. \textbf{(2) Vision-Language Foundation Models (CLIP-ReID):} Large-scale vision-language pre-training (e.g., CLIP-ReID \cite{li2023clipreid}) offers semantic representations bridging extreme viewpoint shifts where 2D appearance differs but high-level descriptions remain invariant, enabling text-prompted clustering regularization. \textbf{(3) Explicit 3D Geometry and Neural Radiance Fields:} Vehicles are rigid 3D structures governed by projective geometry \cite{wang2017orientation, khorramshahi2019dual}. Incorporating pose estimation and Neural Radiance Fields (NeRF) offers the potential to synthesize continuous cross-view representations to bridge camera gaps. \textbf{(4) Scaling to Ultra-Large-Scale Benchmarks:} Future evaluations should scale to MSMT17 \cite{wei2018msmt17} (126,441 bounding boxes) and VERI-Wild \cite{lou2019veriwide} (400,000 images across 174 cameras), assessing the scalability of adaptive clustering in unconstrained environments.
+
+\section{Concluding Summary}
+\label{sec:conclusion}
+
+This dissertation presented a comprehensive mathematical audit, theoretical formulation, and empirical optimization of the Prior-Informed Score and Diffusion Learning (PISL) framework for unsupervised person and vehicle re-identification. We systematically resolved five core theoretical bottlenecks: inverted part gradients (Theorem~\ref{thm:part_gradient_inversion}), polarity-inverted MMD consistency (Theorem~\ref{thm:mmd_polarity_inversion}), triplet gradient vanishing (Theorem~\ref{thm:triplet_gradient_vanishing}), singular affine coordinate collapse (Theorem~\ref{thm:singular_grid_collapse}), and unconditioned denoiser trapping at the variance floor (Theorem~\ref{thm:denoiser_variance_floor}). In response, six principled refinements (P1--P6) were formulated: score-conditioned denoising with Tweedie inversion (P1), bounded residual STN grids (P2), detached part weighting with Gaussian MMD kernels (P3), hyperspherical normalized soft-margin triplet loss (P4), accelerated 5-step analytic DDIM trajectories (P5), and decoupled optimization with cross-camera false-negative discounting (P6). Empirically, the optimized framework achieves \textbf{85.6\% base mAP} and \textbf{94.2\% base Rank-1} (89.8\% mAP with re-ranking) on Market-1501, and elevates VeRi-776 base mAP to \textbf{52.4\%} and Rank-1 to \textbf{96.1\%} (\textbf{54.1\% mAP} and \textbf{96.6\% Rank-1} with re-ranking). By establishing that generative diffusion can be effectively grounded in compact parameter manifolds and reconciling metric learning with unsupervised clustering dynamics, this work advances a principled foundation for prior-informed generative regularisation in computer vision.

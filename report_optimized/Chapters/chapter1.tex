@@ -1,0 +1,127 @@
+\chapter{Introduction}
+\label{chap:intro}
+
+\section{Background and Motivation}
+\label{sec:intro_bg}
+
+Visual object re-identification (Re-ID) is a core task in automated video surveillance. Given an image of a query target---such as a pedestrian or a vehicle captured by one camera---the objective is to retrieve and rank all occurrences of the same identity across a large gallery of bounding-box images captured by multiple non-overlapping surveillance cameras~\cite{zheng2015scalable}. Reliable re-identification is indispensable for wide-area video surveillance, public transit monitoring, traffic management, and smart city infrastructure.
+
+Historically, most Re-ID research has concentrated on supervised learning paradigms~\cite{he2016deep,hermans2017triplet,lin2019bot}. In supervised settings, deep convolutional neural networks and vision transformers are trained on large datasets annotated with cross-camera identity labels. Although supervised techniques achieve high accuracy, their utility is severely constrained by the prohibitive cost, labor, and privacy hurdles of manual dataset annotation across tens or hundreds of disparate camera viewpoints.
+
+Consequently, \textit{unsupervised} object re-identification has emerged as a vital frontier in computer vision~\cite{ge2020selfpaced,chen2021ice,wang2021cap,cho2022pplr}. Unsupervised Re-ID operates strictly without ground-truth identity annotations on the target domain, aiming instead to discover identity-preserving and camera-invariant semantic structures directly from unannotated imagery.
+
+\subsection{The Dual-Benchmark Imperative: Person and Vehicle Re-ID}
+\label{subsec:dual_benchmark}
+
+A comprehensive evaluation of unsupervised Re-ID methodologies necessitates benchmarking across diverse visual domains with distinct physical and geometric characteristics:
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1pt,leftmargin=*]
+    \item \textbf{Unsupervised Person Re-ID (Market-1501)}: The Market-1501 dataset~\cite{zheng2015scalable} comprises 32,668 bounding boxes of 1,501 pedestrian identities across six camera views. Pedestrian imagery exhibits non-rigid articulated body deformations, carrying accessories, occlusions, and severe illumination shifts.
+    \item \textbf{Unsupervised Vehicle Re-ID (VeRi-776)}: The VeRi-776 dataset~\cite{liu2016deepveri} comprises 49,357 images of 776 vehicles captured across 20 surveillance cameras. Vehicles are rigid 3D polyhedral objects exhibiting extreme viewpoint changes (front, rear, profile appear disjoint) alongside high inter-class visual ambiguity among identical vehicle makes and models.
+\end{enumerate}
+Generalizing across both non-rigid articulated pedestrians and rigid multi-viewpoint vehicles provides a rigorous test of representational robustness and geometric consistency.
+
+\section{Unsupervised Re-Identification: Framework and Challenges}
+\label{sec:unsupervised_reid_challenge}
+
+The dominant paradigm in fully unsupervised Re-ID alternates between pseudo-label generation and metric representation learning:
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1pt,leftmargin=*]
+    \item \textbf{Unsupervised Clustering and Pseudo-Label Assignment}: Features extracted from the backbone are clustered via density-based clustering (e.g., DBSCAN~\cite{ester1996dbscan}) to partition samples into $K$ discrete clusters, treating outliers as unassigned noise.
+    \item \textbf{Contrastive Representation Learning}: Treating cluster assignments as pseudo-identity labels, the model is trained with classification and metric ranking objectives (e.g., triplet loss~\cite{hermans2017triplet}) to minimize intra-cluster dispersion and maximize inter-cluster separation.
+\end{enumerate}
+Because global representations conflate identity features with camera-specific styles, clustering suffers from two core bottlenecks: \textbf{over-segmentation (cluster shattering)}, where samples of the same physical identity are fractured into disjoint camera-specific clusters; and \textbf{under-segmentation (false merging)}, where visually similar instances of different identities are incorrectly merged.
+
+\subsection{Mathematical Problem Formulation}
+\label{subsec:math_formulation}
+
+Let $\mathcal{X} = \{(\mathbf{x}_i, c_i)\}_{i=1}^N$ denote an unannotated training set of $N$ bounding-box images captured across $C$ disjoint camera viewpoints, with camera index $c_i \in \{1, \dots, C\}$. Ground-truth identity labels $y_i \in \{1, \dots, Y^*\}$ are strictly unobserved. The goal is to train a feature extractor $f_{\mathbf{\Theta}}: \mathcal{X} \to \mathbb{R}^D$ satisfying cross-camera identity preservation:
+\begin{equation}
+\label{eq:reid_objective}
+\mathcal{D}\left(f_{\mathbf{\Theta}}(\mathbf{x}_i, c_i), f_{\mathbf{\Theta}}(\mathbf{x}_j, c_j)\right) \ll \mathcal{D}\left(f_{\mathbf{\Theta}}(\mathbf{x}_i, c_i), f_{\mathbf{\Theta}}(\mathbf{x}_k, c_k)\right) \quad \forall y_i = y_j \neq y_k, \; \forall c_i \neq c_j
+\end{equation}
+At epoch $e$, clustering operator $\Psi: \mathbb{R}^{N \times D} \to \{1, \dots, K^{(e)}, -1\}^N$ generates pseudo-identity assignments $\hat{\mathbf{y}}^{(e)} = \Psi(\{f_{\mathbf{\Theta}}(\mathbf{x}_i, c_i)\}_{i=1}^N)$ \label{eq:clustering_operator}. Under severe cross-camera domain shifts, cluster shattering induces:
+\begin{equation}
+\label{eq:cluster_shattering}
+K^{(e)} = \left|\mathrm{Unique}\left(\hat{\mathbf{y}}^{(e)}\right) \setminus \{-1\}\right| \gg Y^*
+\end{equation}
+splitting single physical identities into multiple camera-specific micro-clusters.
+
+\section{The PISL Paradigm and Baseline Reproduction Analysis}
+\label{sec:pisl_paradigm}
+
+To overcome global representation vulnerabilities, Tao~\textit{et~al.}~\cite{tao2024unsupervised} proposed the \textbf{Person Intrinsic Semantic Learning (PISL)} framework (IEEE TIP 2024), integrating \textit{generative diffusion models} into the Spatial Transformer Network (STN)~\cite{jaderberg2015spatial}. Rather than rigid horizontal slicing (PCB~\cite{sun2018beyond}), PISL employs an STN to dynamically localize $P$ semantic parts, regularized by a parameter-space Denoising Diffusion Probabilistic Model (DDPM)~\cite{ho2020denoising} to prevent coordinate collapse.
+
+The baseline PISL incorporates three principal learning mechanisms: (1) a \textbf{Spatial Diffusion Model (SDM)} operating on affine parameter tensors $\boldsymbol{\theta} \in \mathbb{R}^{P \times 2 \times 3}$; (2) a \textbf{Semantic Controlled Diffusion (SCD) Loss} coupling global features $\mathbf{f}_g$ with part features $\mathbf{f}_p$; and (3) a \textbf{Patch Semantic Consistency (PSC) Loss} measuring neighborhood discrepancy via Maximum Mean Discrepancy (MMD)~\cite{gretton2012mmd}.
+
+\subsection{The Empirical Baseline Reproduction}
+\label{subsec:repro_deficit}
+
+Evaluating the PISL framework under standardized multi-GPU training protocols, initial baseline reproduction closely mirrors published findings while exhibiting minor variations, as summarized in Table~\ref{tab:intro_reproduction_deficit}: Market-1501 achieves \textbf{83.8\% mAP} / \textbf{92.8\% Rank-1} ($\Delta = -0.8\%$ / $-0.7\%$ vs.\ TIP 2024), and VeRi-776 achieves \textbf{42.3\% mAP} / \textbf{95.6\% Rank-1} ($\Delta = -0.8\%$ / $-0.9\%$).
+
+\begin{table}[ht]
+\centering
+\caption[Empirical baseline reproduction of the PISL pipeline]{Empirical baseline reproduction of the PISL pipeline on Market-1501 and VeRi-776 under standardized multi-GPU training protocols.}
+\label{tab:intro_reproduction_deficit}
+\begin{tabular}{lcccc}
+\toprule
+\multirow{2}{*}{\textbf{Method / Configuration}} & \multicolumn{2}{c}{\textbf{Market-1501}} & \multicolumn{2}{c}{\textbf{VeRi-776}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& \textbf{mAP (\%)} & \textbf{Rank-1 (\%)} & \textbf{mAP (\%)} & \textbf{Rank-1 (\%)} \\
+\midrule
+PISL (Reported in TIP 2024)~\cite{tao2024unsupervised} & 84.6 & 93.5 & 43.1 & 96.5 \\
+PISL (Reproduction Baseline) & 83.8 & 92.8 & 42.3 & 95.6 \\
+\midrule
+\textbf{Observed Difference ($\Delta$)} & \textbf{$-0.8$} & \textbf{$-0.7$} & \textbf{$-0.8$} & \textbf{$-0.9$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+While conventional literature often dismisses such discrepancies as the consequence of stochastic seed variance, PyTorch nondeterminism, or hardware environment drift, our comprehensive investigation uncovered deeper opportunities for enhancement: identifying subtle optimization bottlenecks across loss formulations, coordinate transformations, and diffusion dynamics allows the system to substantially exceed original benchmark ceilings.
+
+\section{Identification of Eight Algorithmic Bottlenecks and Optimization Opportunities}
+\label{sec:eight_pathologies}
+
+Through line-by-line static mathematical auditing and dynamic telemetry analysis across training epochs, we identified eight structural bottlenecks and optimization opportunities in the baseline pipeline:
+
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1.0pt,leftmargin=*]
+    \item \textbf{Gradient Dynamics in Dynamic Part Softmax Weighting} \label{subsec:path1}:
+    In multi-part contrastive loss (\texttt{pisl/loss/loss.py}), composite part loss was computed using dynamic softmax weighting without gradient detaching: $\mathcal{L}_{\text{cont}} = \sum_{i=1}^P w_i(\mathbf{l}) l_i$. As formally proven in \textbf{Theorem~\ref{thm:grad_inversion}} (Chapter~\ref{chap:method}), automatic differentiation yields $\partial \mathcal{L}_{\text{cont}} / \partial l_k = w_k [ 1 - (l_k - \bar{l}) ]$, where $\bar{l} = \sum_{j} w_j l_j$. Whenever a degraded semantic part exhibits $l_k > \bar{l} + 1.0$, the gradient sign inverts ($\partial \mathcal{L}_{\text{cont}} / \partial l_k < 0$), causing gradient descent to actively increase loss on struggling parts.
+
+    \item \textbf{Supervisory Polarity Alignment in Semantic Consistency} \label{subsec:path2}:
+    In patch consistency learning, raw Maximum Mean Discrepancy ($0 \le \text{MMD} \le 1$) was assigned directly as a consistency score $s = \text{MMD}$ rather than mapped through a decreasing similarity kernel $s = \exp(-\text{MMD}^2 / 2\sigma^2)$. Because MMD is a distance, this inverted supervisory polarity in label smoothing (\textbf{Theorem~\ref{thm:polarity_inversion}}), forcing well-aligned parts toward uniform entropy noise while fitting corrupted parts to hard pseudo-labels.
+
+    \item \textbf{Spatial Transformer Initialization and Geometric Preservation} \label{subsec:path3}:
+    In spatial transformer parameter initialization, affine matrices were initialized with a rank-1 singular matrix ($\det(\mathbf{A}) = 0$). As proven in \textbf{Theorem~\ref{thm:singular_grid}}, this mapping collapses 2D feature maps onto a 1D diagonal line with exactly 22.9\% out-of-bounds zero-padding, constraining effective spatial receptive fields.
+
+    \item \textbf{Coordinate Translation Bounds and Vertical Receptive Field} \label{subsec:path4}:
+    In parameter preprocessing, coordinate translation parameters were clamped strictly to $[0, 1]$. In normalized coordinate space ($[-1, 1]$), upper-body crops require negative vertical offsets ($y \in [-1, 0]$). Clamping $\theta_{12} \ge 0$ made upper-body crops geometrically unreachable and caused zero gradients along clamp boundaries.
+
+    \item \textbf{Diffusion Parameter State Conditioning and Score Matching} \label{subsec:path5}:
+    In the diffusion denoising MLP, the network was conditioned exclusively on $[\mathbf{f}_g, \mathbf{t}_{\text{emb}}]$, omitting the noisy parameter state $\boldsymbol{\theta}_t$. As proven in \textbf{Theorem~\ref{thm:denoiser_floor}}, the Bayes-optimal estimate without observing $\boldsymbol{\theta}_t$ is the unconditional prior mean $\mathcal{L}_{\text{noise}}(\phi) = \mathbb{E}[\|\text{net}_\phi(\mathbf{f}_g, t) - \boldsymbol{\epsilon}\|_2^2] \ge 1.000$, trapping unconditioned denoising at the Gaussian prior floor rather than performing active score matching.
+
+    \item \textbf{Metric Scaling and Hyperspherical Normalization} \label{subsec:path6}:
+    In the metric learning objective, soft-margin triplet loss was applied to unnormalized 2048-dimensional feature vectors without a margin parameter. As established in \textbf{Theorem~\ref{sec:lit_hyperspherical_saturation}} and \textbf{Theorem~\ref{thm:triplet_saturation}}, high-dimensional Euclidean distances cause exponential gradient vanishing ($|\nabla| \le 0.029$), diminishing backpropagated metric learning signals in later epochs.
+
+    \item \textbf{Multi-Camera Representation Alignment and Negative Mining} \label{subsec:path7}:
+    On the VeRi-776 vehicle benchmark, unaligned DBSCAN clustered 576 physical vehicles into 1,030 camera-specific sub-clusters. Treating cross-camera instances of the same vehicle as hard negatives with sharp temperature ($\tau = 0.07$) impeded cross-camera identity consolidation across distinct viewpoints.
+
+    \item \textbf{Multi-Branch Feature Fusion at Inference Time} \label{subsec:path8}:
+    During evaluation, the baseline forward pass returned only the global feature vector, completely bypassing the Spatial Transformer Network and localized part representations, leaving localized part semantics unutilized at test time.
+\end{enumerate}
+
+\section{Summary of Thesis Contributions}
+\label{sec:six_pillars}
+\label{sec:contributions}
+
+To address these bottlenecks and establish a publication-grade foundation for unsupervised Re-ID, this dissertation is structured around five core pillars:
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1.0pt,leftmargin=*]
+    \item \textbf{Diagnostic Mathematical Investigation}: Identifying structural bottlenecks across loss formulations, coordinate transformations, and diffusion dynamics.
+    \item \textbf{Theoretical Theorems}: Proving five core theorems: gradient inversion (Theorem~\ref{thm:grad_inversion}), supervision polarity inversion (Theorem~\ref{thm:polarity_inversion}), triplet gradient saturation (Theorems~\ref{sec:lit_hyperspherical_saturation} and~\ref{thm:triplet_saturation}), singular affine collapse (Theorem~\ref{thm:singular_grid}), and Bayes-optimal variance floor (Theorem~\ref{thm:denoiser_floor}).
+    \item \textbf{Publication-Grade Optimization Suite (P1--P6)}: Developing score conditioning (P1), bounded STN (P2), detached MMD (P3), metric scaling (P4), analytic DDIM (P5), and decoupled optimization with test-time fusion (P6).
+    \item \textbf{State-of-the-Art Benchmark Results}: Achieving \textbf{85.6\% mAP} / \textbf{94.2\% Rank-1} on Market-1501 (89.8\% with re-ranking) and \textbf{52.4\% mAP} / \textbf{96.1\% Rank-1} on VeRi-776 (54.1\% with re-ranking).
+    \item \textbf{Ablations and Frontier Roadmaps}: Providing exhaustive ablation evidence for P1--P6 (A0--A8), analyzing near-optimality ceilings, and charting roadmaps for TransReID and CLIP-ReID.
+\end{enumerate}
+
+\section{Organization of the Dissertation}
+\label{sec:outline}
+
+The dissertation is structured as follows: Chapter~\ref{chap:literature} reviews unsupervised Re-ID, spatial transformers, and diffusion models. Chapter~\ref{chap:method} establishes theoretical proofs (Theorems~1--5), optimization formulations (P1--P6), and algorithms. Chapter~\ref{chap:experiments} presents experimental setups, quantitative results, and ablation studies. Chapter~\ref{chap:conclusion} concludes with ceiling analyses, seed dispersion evaluations, and future research directions.

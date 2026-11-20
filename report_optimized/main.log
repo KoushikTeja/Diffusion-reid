@@ -1,0 +1,869 @@
+**
+(main.tex
+LaTeX2e <2021-11-15> patch level 1
+L3 programming layer <2022-02-24> (report.cls
+Document Class: report 2021/10/04 v1.4n Standard LaTeX document class
+(size12.clo
+File: size12.clo 2021/10/04 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count181
+\c@chapter=\count182
+\c@section=\count183
+\c@subsection=\count184
+\c@subsubsection=\count185
+\c@paragraph=\count186
+\c@subparagraph=\count187
+\c@figure=\count188
+\c@table=\count189
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen138
+) (amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks16
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (amsmath.sty
+Package: amsmath 2021/10/15 v2.17l AMS math features
+\@mathmargin=\skip49
+
+For additional information on amsmath, use the `?' option.
+(amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+ (amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks17
+\ex@=\dimen139
+)) (amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen140
+) (amsopn.sty
+Package: amsopn 2021/08/26 v2.02 operator names
+)
+\inf@bad=\count190
+LaTeX Info: Redefining \frac on input line 234.
+\uproot@=\count191
+\leftroot@=\count192
+LaTeX Info: Redefining \overline on input line 399.
+\classnum@=\count193
+\DOTSCASE@=\count194
+LaTeX Info: Redefining \ldots on input line 496.
+LaTeX Info: Redefining \dots on input line 499.
+LaTeX Info: Redefining \cdots on input line 620.
+\Mathstrutbox@=\box50
+\strutbox@=\box51
+\big@size=\dimen141
+LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
+\macc@depth=\count195
+\c@MaxMatrixCols=\count196
+\dotsspace@=\muskip16
+\c@parentequation=\count197
+\dspbrk@lvl=\count198
+\tag@help=\toks18
+\row@=\count199
+\column@=\count266
+\maxfields@=\count267
+\andhelp@=\toks19
+\eqnshift@=\dimen142
+\alignsep@=\dimen143
+\tagshift@=\dimen144
+\tagwidth@=\dimen145
+\totwidth@=\dimen146
+\lineht@=\dimen147
+\@envbody=\toks20
+\multlinegap=\skip50
+\multlinetaggap=\skip51
+\mathdisplay@stack=\toks21
+LaTeX Info: Redefining \[ on input line 2938.
+LaTeX Info: Redefining \] on input line 2939.
+) (amsthm.sty
+Package: amsthm 2020/05/29 v2.20.6
+\thm@style=\toks22
+\thm@bodyfont=\toks23
+\thm@headfont=\toks24
+\thm@notefont=\toks25
+\thm@headpunct=\toks26
+\thm@preskip=\skip52
+\thm@postskip=\skip53
+\thm@headsep=\skip54
+\dth@everypar=\toks27
+) (bm.sty
+Package: bm 2021/04/25 v1.2e Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup6
+\symboldletters=\mathgroup7
+\symboldsymbols=\mathgroup8
+Package bm Info: No bold for \OMX/cmex/m/n, using \pmb.
+Package bm Info: No bold for \U/msa/m/n, using \pmb.
+Package bm Info: No bold for \U/msb/m/n, using \pmb.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
+)
+(mathtools.sty
+Package: mathtools 2022/02/07 v1.28a mathematical typesetting tools
+ (keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks28
+) (calc.sty
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count268
+\calc@Bcount=\count269
+\calc@Adimen=\dimen148
+\calc@Bdimen=\dimen149
+\calc@Askip=\skip55
+\calc@Bskip=\skip56
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count270
+\calc@Cskip=\skip57
+) (mhsetup.sty
+Package: mhsetup 2021/03/18 v1.4 programming setup (MH)
+)
+\g_MT_multlinerow_int=\count271
+\l_MT_multwidth_dim=\dimen150
+\origjot=\skip58
+\l_MT_shortvdotswithinadjustabove_dim=\dimen151
+\l_MT_shortvdotswithinadjustbelow_dim=\dimen152
+\l_MT_above_intertext_sep=\dimen153
+\l_MT_below_intertext_sep=\dimen154
+\l_MT_above_shortintertext_sep=\dimen155
+\l_MT_below_shortintertext_sep=\dimen156
+\xmathstrut@box=\box52
+\xmathstrut@dim=\dimen157
+) (algorithm.sty
+Invalid UTF-8 byte or sequence at line 11 replaced by U+FFFD.
+Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
+nment
+ (float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count272
+\float@exts=\toks29
+\float@box=\box53
+\@float@everytoks=\toks30
+\@floatcapt=\box54
+) (ifthen.sty
+Package: ifthen 2020/11/24 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\@float@every@algorithm=\toks31
+\c@algorithm=\count273
+) (algpseudocode.sty
+Package: algpseudocode 
+ (algorithmicx.sty
+Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
+
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+\c@ALG@line=\count274
+\c@ALG@rem=\count275
+\c@ALG@nested=\count276
+\ALG@tlm=\skip59
+\ALG@thistlm=\skip60
+\c@ALG@Lnr=\count277
+\c@ALG@blocknr=\count278
+\c@ALG@storecount=\count279
+\c@ALG@tmpcounter=\count280
+\ALG@tmplength=\skip61
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+ (graphics.sty
+Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
+ (trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+) (graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: xetex.def on input line 107.
+ (xetex.def
+File: xetex.def 2021/03/18 v5.0k Graphics/color driver for xetex
+))
+\Gin@req@height=\dimen158
+\Gin@req@width=\dimen159
+)
+(natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip62
+\bibsep=\skip63
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count281
+) (multicol.sty
+Package: multicol 2021/10/28 v1.9b multicolumn formatting (FMi)
+\c@tracingmulticols=\count282
+\mult@box=\box55
+\multicol@leftmargin=\dimen160
+\c@unbalance=\count283
+\c@collectmore=\count284
+\doublecol@number=\count285
+\multicoltolerance=\count286
+\multicolpretolerance=\count287
+\full@width=\dimen161
+\page@free=\dimen162
+\premulticols=\dimen163
+\postmulticols=\dimen164
+\multicolsep=\skip64
+\multicolbaselineskip=\skip65
+\partial@page=\box56
+\last@line=\box57
+\maxbalancingoverflow=\dimen165
+\mult@rightbox=\box58
+\mult@grightbox=\box59
+\mult@firstbox=\box60
+\mult@gfirstbox=\box61
+\@tempa=\box62
+\@tempa=\box63
+\@tempa=\box64
+\@tempa=\box65
+\@tempa=\box66
+\@tempa=\box67
+\@tempa=\box68
+\@tempa=\box69
+\@tempa=\box70
+\@tempa=\box71
+\@tempa=\box72
+\@tempa=\box73
+\@tempa=\box74
+\@tempa=\box75
+\@tempa=\box76
+\@tempa=\box77
+\@tempa=\box78
+\@tempa=\box79
+\@tempa=\box80
+\@tempa=\box81
+\@tempa=\box82
+\@tempa=\box83
+\@tempa=\box84
+\@tempa=\box85
+\@tempa=\box86
+\@tempa=\box87
+\@tempa=\box88
+\@tempa=\box89
+\@tempa=\box90
+\@tempa=\box91
+\@tempa=\box92
+\@tempa=\box93
+\@tempa=\box94
+\@tempa=\box95
+\@tempa=\box96
+\@tempa=\box97
+\c@minrows=\count288
+\c@columnbadness=\count289
+\c@finalcolumnbadness=\count290
+\last@try=\dimen166
+\multicolovershoot=\dimen167
+\multicolundershoot=\dimen168
+\mult@nat@firstbox=\box98
+\colbreak@box=\box99
+\mc@col@check@num=\count291
+) (booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen169
+\lightrulewidth=\dimen170
+\cmidrulewidth=\dimen171
+\belowrulesep=\dimen172
+\belowbottomsep=\dimen173
+\aboverulesep=\dimen174
+\abovetopsep=\dimen175
+\cmidrulesep=\dimen176
+\cmidrulekern=\dimen177
+\defaultaddspace=\dimen178
+\@cmidla=\count292
+\@cmidlb=\count293
+\@aboverulesep=\dimen179
+\@belowrulesep=\dimen180
+\@thisruleclass=\count294
+\@lastruleclass=\count295
+\@thisrulewidth=\dimen181
+) (multirow.sty
+Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
+\multirow@colwidth=\skip66
+\multirow@cntb=\count296
+\multirow@dima=\skip67
+\bigstrutjot=\dimen182
+) (caption.sty
+Package: caption 2022/03/01 v3.6b Customizing captions (AR)
+
+(caption3.sty
+Package: caption3 2022/03/17 v2.3b caption3 kernel (AR)
+\caption@tempdima=\dimen183
+\captionmargin=\dimen184
+\caption@leftmargin=\dimen185
+\caption@rightmargin=\dimen186
+\caption@width=\dimen187
+\caption@indent=\dimen188
+\caption@parindent=\dimen189
+\caption@hangindent=\dimen190
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count297
+\c@continuedfloat=\count298
+Package caption Info: float package is loaded.
+) (subcaption.sty
+Package: subcaption 2022/01/07 v1.5 Sub-captions (AR)
+\c@subfigure=\count299
+\c@subtable=\count300
+) (xcolor.sty
+Package: xcolor 2021/10/31 v2.13 LaTeX color extensions (UK)
+ (color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: xetex.def on input line 227.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1368.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1370.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1371.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1372.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1373.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1374.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1375.
+) (titlesec.sty
+Package: titlesec 2021/07/05 v2.14 Sectioning titles
+\ttl@box=\box100
+\beforetitleunit=\skip68
+\aftertitleunit=\skip69
+\ttl@plus=\dimen191
+\ttl@minus=\dimen192
+\ttl@toksa=\toks32
+\titlewidth=\dimen193
+\titlewidthlast=\dimen194
+\titlewidthfirst=\dimen195
+)
+(hyperref.sty
+Package: hyperref 2022-02-21 v7.00n Hypertext links for LaTeX
+ (ltxcmds.sty
+Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
+) (iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
+) (pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+ (infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode not found.
+)
+(kvsetkeys.sty
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+) (kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+) (hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(letltxmacro.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+) (auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+) (kvoptions.sty
+Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
+)
+\@linkdim=\dimen196
+\Hy@linkcounter=\count301
+\Hy@pagecounter=\count302
+ (pd1enc.def
+File: pd1enc.def 2022-02-21 v7.00n Hyperref: PDFDocEncoding definition (HO)
+) (intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+(etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+)
+\Hy@SavedSpaceFactor=\count303
+ (puenc.def
+File: puenc.def 2022-02-21 v7.00n Hyperref: PDF Unicode definition (HO)
+)
+Package hyperref Info: Hyper figures OFF on input line 4137.
+Package hyperref Info: Link nesting OFF on input line 4142.
+Package hyperref Info: Hyper index ON on input line 4145.
+Package hyperref Info: Plain pages OFF on input line 4152.
+Package hyperref Info: Backreferencing OFF on input line 4157.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4390.
+\c@Hy@tempcnt=\count304
+ (url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4749.
+\XeTeXLinkMargin=\dimen197
+ (bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count305
+\Field@Width=\dimen198
+\Fld@charsize=\dimen199
+Package hyperref Info: Hyper figures OFF on input line 6027.
+Package hyperref Info: Link nesting OFF on input line 6032.
+Package hyperref Info: Hyper index ON on input line 6035.
+Package hyperref Info: backreferencing OFF on input line 6042.
+Package hyperref Info: Link coloring OFF on input line 6047.
+Package hyperref Info: Link coloring with OCG OFF on input line 6052.
+Package hyperref Info: PDF/A mode OFF on input line 6057.
+LaTeX Info: Redefining \ref on input line 6097.
+LaTeX Info: Redefining \pageref on input line 6101.
+
+(atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+\Hy@abspage=\count306
+\c@Item=\count307
+\c@Hfootnote=\count308
+)
+Package hyperref Info: Driver (autodetected): hxetex.
+ (hxetex.def
+File: hxetex.def 2022-02-21 v7.00n Hyperref driver for XeTeX
+ (stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\pdfm@box=\box101
+\c@Hy@AnnotLevel=\count309
+\HyField@AnnotCount=\count310
+\Fld@listcount=\count311
+\c@bookmark@seq@number=\count312
+ (rerunfilecheck.sty
+Package: rerunfilecheck 2019/12/05 v1.9 Rerun checks for auxiliary files (HO)
+
+(atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
+kage
+with kernel methods
+) (uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+86.
+)
+\Hy@SectionHShift=\skip70
+) (enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip71
+\enit@outerparindent=\dimen256
+\enit@toks=\toks33
+\enit@inbox=\box102
+\enit@count@id=\count313
+\enitdp@description=\count314
+)
+\c@theorem=\count315
+\c@lemma=\count316
+\c@proposition=\count317
+\c@corollary=\count318
+\c@definition=\count319
+\c@remark=\count320
+ (l3backend-xetex.def
+File: l3backend-xetex.def 2022-02-07 L3 backend support: XeTeX
+\c__kernel_sys_dvipdfmx_version_int=\count321
+\l__color_backend_stack_int=\count322
+\g__color_backend_stack_int=\count323
+\g__graphics_track_int=\count324
+\l__pdf_internal_box=\box103
+\g__pdf_backend_object_int=\count325
+\g__pdf_backend_annotation_int=\count326
+\g__pdf_backend_link_int=\count327
+)
+(main.aux (./FrontMatter/titlePage.aux) (./FrontMatter/certificate.aux)
+(./FrontMatter/declaration.aux) (./FrontMatter/acknowledgements.aux)
+(./FrontMatter/abstract.aux) (./Chapters/chapter1.aux) (./Chapters/chapter2.aux
+) (./Chapters/chapter3.aux) (./Chapters/chapter4.aux) (./Chapters/chapter5.aux)
+)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 100.
+LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 1
+00.
+ (ts1cmr.fd
+File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 100.
+LaTeX Font Info:    ... okay on input line 100.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: hyperref package is loaded.
+Package caption Info: End \AtBeginDocument code.
+Package hyperref Info: Link coloring OFF on input line 100.
+ (nameref.sty
+Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
+ (refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+)
+\c@section@level=\count328
+)
+LaTeX Info: Redefining \ref on input line 100.
+LaTeX Info: Redefining \pageref on input line 100.
+LaTeX Info: Redefining \nameref on input line 100.
+ (main.out)
+(main.out)
+\@outlinefile=\write3
+\openout3 = `main.out'.
+
+\openout2 = `./FrontMatter/titlePage.aux'.
+
+ (./FrontMatter/titlePage.tex) [1
+
+
+]
+\openout2 = `./FrontMatter/certificate.aux'.
+
+ (./FrontMatter/certificate.tex
+LaTeX Font Info:    Trying to load font information for U+msa on input line 23.
+
+
+(umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 23.
+
+ (umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)) [2
+
+
+
+]
+\openout2 = `./FrontMatter/declaration.aux'.
+
+ (./FrontMatter/declaration.tex) [3
+
+
+
+]
+\openout2 = `./FrontMatter/acknowledgements.aux'.
+
+
+(./FrontMatter/acknowledgements.tex) [4
+
+
+
+]
+\openout2 = `./FrontMatter/abstract.aux'.
+
+ (./FrontMatter/abstract.tex)
+Overfull \hbox (0.74301pt too wide) in paragraph at lines 31--111
+\TU/lmr/bx/n/10.95 Keywords\TU/lmr/m/n/10.95 : Unsupervised Person Re-Identific
+ation, Vehicle Re-Identification, Diffusion Mod-
+ []
+
+[5
+
+
+
+] (main.toc)
+\tf@toc=\write4
+\openout4 = `main.toc'.
+
+ [6
+
+
+
+] (main.lof)
+\tf@lof=\write5
+\openout5 = `main.lof'.
+
+ (main.lot)
+\tf@lot=\write6
+\openout6 = `main.lot'.
+
+ [7
+
+]
+\openout2 = `./Chapters/chapter1.aux'.
+
+ (./Chapters/chapter1.tex
+Chapter 1.
+
+Overfull \hbox (17.20416pt too wide) in paragraph at lines 9--10
+[]\TU/lmr/m/n/12 Historically, most Re-ID research has concentrated on supervis
+ed learning paradigms [[],
+ []
+
+[1
+
+
+
+]
+Overfull \hbox (6.24663pt too wide) in paragraph at lines 23--23
+|[]\TU/lmr/bx/n/17.28 Unsupervised Re-Identification: Framework and
+ []
+
+[2]
+Overfull \hbox (45.23674pt too wide) in paragraph at lines 64--76
+ [][] 
+ []
+
+
+Overfull \hbox (1.30061pt too wide) in paragraph at lines 78--79
+\TU/lmr/m/n/12 our comprehensive investigation uncovered deeper opportunities f
+or enhancement: iden-
+ []
+
+[3] [4]
+Overfull \hbox (9.8766pt too wide) in paragraph at lines 117--118
+[]\TU/lmr/bx/n/12 Diagnostic Mathematical Investigation\TU/lmr/m/n/12 : Identif
+ying structural bottlenecks across
+ []
+
+
+Overfull \hbox (0.3473pt too wide) in paragraph at lines 120--121
+[]\TU/lmr/bx/n/12 State-of-the-Art Benchmark Results\TU/lmr/m/n/12 : Achieving 
+\TU/lmr/bx/n/12 85.6% mAP \TU/lmr/m/n/12 / \TU/lmr/bx/n/12 94.2% Rank-
+ []
+
+) [5]
+\openout2 = `./Chapters/chapter2.aux'.
+
+ (./Chapters/chapter2.tex
+Chapter 2.
+
+Overfull \hbox (26.2137pt too wide) in paragraph at lines 11--11
+|[]\TU/lmr/bx/n/17.28 Unsupervised Person and Vehicle Re-Identification| 
+ []
+
+
+Overfull \hbox (47.298pt too wide) in paragraph at lines 21--21
+|[]\TU/lmr/bx/n/14.4 Fully Unsupervised Clustering and Pseudo-Labeling Paradigm
+s| 
+ []
+
+[6
+
+
+
+
+]
+Overfull \hbox (10.54062pt too wide) in paragraph at lines 45--46
+[]\TU/lmr/bx/n/12 Viewpoint Regularization\TU/lmr/m/n/12 : Spatial-temporal and
+ orientation-invariant features [[],
+ []
+
+[7]
+Overfull \hbox (5.14148pt too wide) in paragraph at lines 74--75
+[]\TU/lmr/bx/n/12 Out-of-Bounds Sampling\TU/lmr/m/n/12 : Excessive translation 
+drift pushes grids outside $\OT1/cmr/m/n/12 [\OMS/cmsy/m/n/12 ^^@\OT1/cmr/m/n/1
+2 1\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 1][]$\TU/lmr/m/n/12 ,
+ []
+
+
+Overfull \hbox (17.73482pt too wide) in paragraph at lines 99--99
+|[]\TU/lmr/bx/n/14.4 Continuous Score-Based Generative Modeling (Score SDE)| 
+ []
+
+[8] [9]
+Overfull \hbox (9.1065pt too wide) in paragraph at lines 194--194
+|[]\TU/lmr/bx/n/17.28 Literature Benchmarking and Chapter Summary| 
+ []
+
+[10]) [11]
+\openout2 = `./Chapters/chapter3.aux'.
+
+ (./Chapters/chapter3.tex
+Chapter 3.
+
+Overfull \hbox (0.24196pt too wide) in paragraph at lines 5--6
+\TU/lmr/m/n/12 identity-discriminative features without ground-truth identity a
+nnotations. While part-
+ []
+
+
+Overfull \hbox (6.02856pt too wide) in paragraph at lines 11--12
+[]\TU/lmr/bx/n/12 Framework Architecture and ResNet-50 Dual-Stream Setup \TU/lm
+r/m/n/12 (Section []3.1[]):
+ []
+
+[12
+
+
+
+
+]
+File: ../figs//overview.png Graphic file (type bmp)
+<../figs//overview.png>
+ [13] [14] [15] [16] [17] [18] [19]
+Overfull \hbox (9.41881pt too wide) in paragraph at lines 300--300
+|[]\TU/lmr/bx/n/14.4 Additional Optimization Dimensions: Translation Clamp-
+ []
+
+[20]
+Overfull \hbox (41.68541pt too wide) in paragraph at lines 306--307
+[]\TU/lmr/bx/n/12 Test-Time Inference Fusion\TU/lmr/m/n/12 : In evaluation mode
+, the model executed \TU/lmtt/m/n/12 if self.training
+ []
+
+[21]
+Overfull \hbox (14.89288pt too wide) in paragraph at lines 340--341
+[]\TU/lmr/m/n/12 Because $[]\OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^A\OT1/cmr/m/n/1
+2 ) \OMS/cmsy/m/n/12 2 \OT1/cmr/m/n/12 (\OMS/cmsy/m/n/12 ^^@\OT1/cmr/m/n/12 1\O
+ML/cmm/m/it/12 ; \OT1/cmr/m/n/12 1)$\TU/lmr/m/n/12 , $\OML/cmm/m/it/12 ^^R[] \O
+MS/cmsy/m/n/12 2 \OT1/cmr/m/n/12 [0\OML/cmm/m/it/12 :\OT1/cmr/m/n/12 85\OML/cmm
+/m/it/12 ; \OT1/cmr/m/n/12 1\OML/cmm/m/it/12 :\OT1/cmr/m/n/12 15]$\TU/lmr/m/n/1
+2 , $\OML/cmm/m/it/12 ^^R[] \OMS/cmsy/m/n/12 2 \OT1/cmr/m/n/12 [0\OML/cmm/m/it/
+12 :\OT1/cmr/m/n/12 2333\OML/cmm/m/it/12 ; \OT1/cmr/m/n/12 0\OML/cmm/m/it/12 :\
+OT1/cmr/m/n/12 4333]$\TU/lmr/m/n/12 , and $\OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 ^
+^R[]\OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 ; \OMS/cmsy/m/n/12 j\OML/cmm/m/it/12 ^^R
+[]\OMS/cmsy/m/n/12 j ^^T
+ []
+
+
+Overfull \hbox (6.9711pt too wide) in paragraph at lines 344--345
+[] []\TU/lmr/bx/n/12 Lightweight MLP Localization Network.[] \TU/lmr/m/n/12 Rat
+her than heavy convolutional blocks,
+ []
+
+[22]
+Overfull \hbox (39.03084pt too wide) in paragraph at lines 362--363
+\TU/lmr/m/n/12 onto $\U/msb/m/n/12 S[]$ \TU/lmr/m/n/12 via $\OML/cmm/m/it/12 L[
+]$ \TU/lmr/m/n/12 normalization ($[] \OT1/cmr/m/n/12 = \OT1/cmr/bx/n/12 f[]\OML
+/cmm/m/it/12 =\OMS/cmsy/m/n/12 k\OT1/cmr/bx/n/12 f[]\OMS/cmsy/m/n/12 k[]$\TU/lm
+r/m/n/12 ), bounding distances to $[] \OT1/cmr/m/n/12 = [] \OMS/cmsy/m/n/12 2
+ []
+
+[23]
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+put line 390.
+) [24]
+\openout2 = `./Chapters/chapter4.aux'.
+
+ (./Chapters/chapter4.tex
+Chapter 4.
+
+Overfull \hbox (6.7713pt too wide) in paragraph at lines 12--13
+\TU/lmr/m/n/12 The optimized PISL framework is evaluated on two widely adopted 
+benchmarks: Market-
+ []
+
+
+Overfull \hbox (19.62862pt too wide) in paragraph at lines 12--13
+\TU/lmr/m/n/12 1501 for pedestrian re-identification and VeRi-776 for multi-cam
+era vehicle re-identification.
+ []
+
+[25
+
+
+
+
+]
+Overfull \hbox (1.01259pt too wide) in paragraph at lines 62--64
+\TU/lmr/m/n/12 which constructs contextual graph geodesics to suppress false-po
+sitive background
+ []
+
+[26]
+Overfull \hbox (4.64827pt too wide) in paragraph at lines 114--114
+|[]\TU/lmr/bx/n/17.28 Diagnostic Reinterpretation of Training Dynam-
+ []
+
+[27]
+Overfull \hbox (10.50958pt too wide) in paragraph at lines 122--123
+[]\TU/lmr/bx/n/12 Singular Grid Determinants\TU/lmr/m/n/12 : The baseline initi
+alization $\OT1/cmr/bx/n/12 A \OT1/cmr/m/n/12 = []$ \TU/lmr/m/n/12 had $[]\OT1/
+cmr/m/n/12 (\OT1/cmr/bx/n/12 A\OT1/cmr/m/n/12 ) =
+ []
+
+[28]
+Overfull \hbox (13.06363pt too wide) in paragraph at lines 191--191
+|[]\TU/lmr/bx/n/17.28 Controlled Progressive Ablations and Leave-One-
+ []
+
+
+Overfull \hbox (13.61646pt too wide) in paragraph at lines 194--194
+|[]\TU/lmr/bx/n/14.4 Controlled Progressive Ablation Matrix (Runs A0 through
+ []
+
+[29]
+Overfull \hbox (1.3273pt too wide) in paragraph at lines 228--229
+\TU/lmr/bx/n/12 gain): \TU/lmr/m/n/12 The accelerated 5-step analytic DDIM reve
+rse trajectory preserves sample-
+ []
+
+[30]
+Overfull \hbox (15.08537pt too wide) in paragraph at lines 275--275
+|[]\TU/lmr/bx/n/17.28 Efficiency and Computational Complexity Bench-
+ []
+
+[31]
+File: ../examples/visualizations//heatmaps/heatmap_0_pid_1271.png Graphic file 
+(type bmp)
+<../examples/visualizations//heatmaps/heatmap_0_pid_1271.png>
+File: ../examples/visualizations//veri/heatmaps/heatmap_2_pid_65.png Graphic fi
+le (type bmp)
+<../examples/visualizations//veri/heatmaps/heatmap_2_pid_65.png>
+ [32]
+File: ../examples/visualizations//ranking/query_1044_pid_569.png Graphic file (
+type bmp)
+<../examples/visualizations//ranking/query_1044_pid_569.png>
+File: ../examples/visualizations//veri/ranking/query_1030_pid_74.png Graphic fi
+le (type bmp)
+<../examples/visualizations//veri/ranking/query_1030_pid_74.png>
+File: ../examples/visualizations//tsne/tsne_plot.png Graphic file (type bmp)
+<../examples/visualizations//tsne/tsne_plot.png>
+File: ../examples/visualizations//veri/tsne/tsne_plot.png Graphic file (type bm
+p)
+<../examples/visualizations//veri/tsne/tsne_plot.png>
+) [33]
+\openout2 = `./Chapters/chapter5.aux'.
+
+ (./Chapters/chapter5.tex
+Chapter 5.
+
+Overfull \hbox (9.41164pt too wide) in paragraph at lines 10--10
+|[]\TU/lmr/bx/n/14.4 Empirical Telemetry and Dispersion Analysis Across Ran-
+ []
+
+
+Overfull \hbox (40.57013pt too wide) in paragraph at lines 21--31
+ [][] 
+ []
+
+[34
+
+
+
+
+]
+Overfull \hbox (0.16423pt too wide) in paragraph at lines 35--35
+|[]\TU/lmr/bx/n/14.4 Mechanics of $\OML/cmm/m/it/14.4 k$\TU/lmr/bx/n/14.4 -Reci
+procal Mutual Nearest Neighbor Re-
+ []
+
+[35] [36] [37]) [38] (main.bbl [39
+
+
+
+]) [40] (main.aux
+(./FrontMatter/titlePage.aux) (./FrontMatter/certificate.aux)
+(./FrontMatter/declaration.aux) (./FrontMatter/acknowledgements.aux)
+(./FrontMatter/abstract.aux) (./Chapters/chapter1.aux) (./Chapters/chapter2.aux
+) (./Chapters/chapter3.aux) (./Chapters/chapter4.aux) (./Chapters/chapter5.aux)
+)
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: DB236B45CBCDF65F58E126DDAC15AD0C;9583.
+ )
+Output written on main.xdv (47 pages, 1092368 bytes).

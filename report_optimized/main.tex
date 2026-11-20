@@ -1,0 +1,150 @@
+\documentclass[12pt]{report} 
+
+% Core mathematical and algorithmic packages
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Graphics, layout and table packages
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{font=small,labelfont=bf,skip=4pt}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{7pt plus 1pt minus 1pt}{3.5pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{5pt plus 1pt minus 1pt}{2.5pt plus 1pt minus 1pt}
+\titlespacing*{\subsubsection}{0pt}{4pt plus 1pt minus 1pt}{2pt plus 1pt minus 1pt}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\setlist{itemsep=1.0pt,topsep=1.5pt,parsep=0pt,partopsep=0pt}
+
+% Float parameters for clean layout
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.8}
+\setlength{\floatsep}{5pt plus 2pt minus 1pt}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{5pt plus 2pt minus 1pt}
+\setlength{\abovedisplayskip}{3.5pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{3.5pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{1.5pt plus 1pt}
+\setlength{\belowdisplayshortskip}{1.5pt plus 1pt}
+
+\makeatletter
+\def\@makechapterhead#1{%
+  \vspace*{6\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 6\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 8\p@
+  }}
+\def\@makeschapterhead#1{%
+  \vspace*{6\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 8\p@
+  }}
+\makeatother
+
+% Page Geometry
+\setlength{\topmargin}{-0.15in}
+\setlength{\oddsidemargin}{0.30in}
+\setlength{\evensidemargin}{-0.08in}
+\setlength{\textheight}{8.75in}
+\setlength{\textwidth}{6.10in}
+
+% Theorem Environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{remark}{Remark}[chapter]
+
+% Metadata Macros for Indian Institute of Technology Kharagpur
+\def\mytitle{Mathematical and Algorithmic Optimization of Prior-Informed Score and Diffusion Learning for Unsupervised Person and Vehicle Re-Identification}
+\def\myname{Koushik Teja Viluvala}
+\def\mydegree{Master of Technology}
+\def\mysupervisor{Supervisor Name}
+\def\myrollno{Roll Number}
+\def\mydep{Department of Computer Science and Engineering}
+\def\myinst{Indian Institute of Technology Kharagpur}
+\def\mydegreedate{November 2026}
+
+% Graphics Search Paths
+\graphicspath{ {Images/} {../figs/} {../examples/visualizations/} }
+
+% Compact bibliography item separation
+\setlength{\bibsep}{2.5pt}
+
+\begin{document}
+ \baselineskip=15pt plus0.5pt
+ \setcounter{secnumdepth}{3}
+ \setcounter{tocdepth}{1}
+ \pagenumbering{roman}
+ 
+ % Front Matter
+ \include{./FrontMatter/titlePage}
+ \include{./FrontMatter/certificate}
+ \include{./FrontMatter/declaration}
+ \include{./FrontMatter/acknowledgements}
+ \include{./FrontMatter/abstract}
+ \begingroup
+ \small
+ \let\oldaddvspace\addvspace
+ \renewcommand{\addvspace}[1]{\oldaddvspace{0.0em}}
+ \renewcommand{\baselinestretch}{0.84}\selectfont
+ \tableofcontents
+ \endgroup
+ \clearpage
+ \begingroup
+ \makeatletter
+ \renewcommand{\clearpage}{\relax}
+ \renewcommand{\cleardoublepage}{\relax}
+ \makeatother
+ \listoffigures
+ \vspace{1.5\baselineskip}
+ \listoftables
+ \endgroup
+ 
+ % Main Material
+ \clearpage
+ \pagenumbering{arabic}
+ 
+ \include{./Chapters/chapter1}
+ \include{./Chapters/chapter2}
+ \include{./Chapters/chapter3}
+ \include{./Chapters/chapter4}
+ \include{./Chapters/chapter5}
+ 
+ % Bibliography
+ \addcontentsline{toc}{chapter}{Bibliography}
+ \begingroup
+ \footnotesize
+ \setlength{\bibsep}{0.0pt}
+ \renewcommand{\baselinestretch}{0.92}\selectfont
+ \bibliographystyle{unsrtnat}
+ \bibliography{references}
+ \endgroup
+ 
+\end{document}
