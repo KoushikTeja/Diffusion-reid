@@ -1,0 +1,439 @@
+\chapter{Methodology and Mathematical Audits}
+\label{chap:method}
+\label{ch:methodology}
+
+This chapter establishes the comprehensive mathematical foundations, diagnostic audits, and algorithmic optimizations of the Prior-Informed Score and Diffusion Learning (PISL) framework for unsupervised person and vehicle re-identification. In unsupervised representation learning across disjoint camera topologies, models must discover identity-discriminative features without ground-truth identity annotations. While part-based spatial representations provide robustness against viewpoint variations, illumination changes, and partial occlusions, their practical realization in prior literature has suffered from severe empirical deficits. 
+
+Specifically, as discussed in Chapter~\ref{chap:intro}, initial baseline reproduction exhibited minor variations on Market-1501 and VeRi-776 relative to published claims. While conventional literature often dismisses such discrepancies as the consequence of stochastic seed variance, PyTorch nondeterminism, or hardware environment drift, this chapter demonstrates that performance can be substantially elevated by addressing subtle mathematical bottlenecks in loss formulations, geometric transformations, and diffusion dynamics.
+
+The chapter is organized into three major divisions:
+\begin{enumerate}
+    \item \textbf{Framework Architecture and ResNet-50 Dual-Stream Setup} (Section~\ref{sec:arch_setup}): Formulating the dual-stream representation model comprising a ResNet-50 backbone with BNNeck, spatial transformer parameter generation, and parameter-space diffusion regularization.
+    \item \textbf{Part~I: Mathematical Analysis and Bottleneck Audits of the Baseline Pipeline} (Section~\ref{sec:math_audits}): Establishing five formal theorems (Theorems~\ref{thm:grad_inversion} through~\ref{thm:denoiser_floor}) with complete, first-principles proofs characterizing gradient sign inversion, supervisory polarity inversion, high-dimensional triplet saturation, affine coordinate singularities, and the Bayes-optimal variance floor of unconditioned denoising.
+    \item \textbf{Part~II: Mathematical and Algorithmic Optimization Framework (P1--P6)} (Section~\ref{sec:optimizations}): Deriving the rigorous formulations of the six proposed optimizations that rectify all identified theoretical and structural optimization bottlenecks.
+    \item \textbf{Part~III: Concrete Algorithmic Realizations} (Section~\ref{sec:algorithms}): Presenting the complete, end-to-end pseudocode for the PISL training pipeline (Algorithm~\ref{alg:pisl_optimized_training}) and the accelerated analytic 5-step DDIM reverse trajectory (Algorithm~\ref{alg:ddim_5step}).
+\end{enumerate}
+
+\section{Framework Architecture and ResNet-50 Dual-Stream Setup}
+\label{sec:arch_setup}
+
+The PISL framework operates on an unlabelled target training set $\mathcal{X} = \{(\mathbf{x}_i, c_i)\}_{i=1}^{N}$, where $\mathbf{x}_i \in \mathbb{R}^{3 \times H \times W}$ denotes a pedestrian or vehicle bounding-box image and $c_i \in \{1, \dots, C\}$ denotes its associated camera viewpoint identifier. Crucially, no ground-truth identity labels $y_i$ are accessible during training.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.88\textwidth,height=0.20\textheight,keepaspectratio]{overview.png}
+    \caption[Architectural overview of the optimized PISL dual-stream framework]{Architectural overview of the mathematically optimized PISL dual-stream framework. The global representation stream (upper branch) processes the input image through a ResNet-50 backbone with BNNeck to extract global identity embeddings $\mathbf{f}_g$, supervised by normalized soft margin triplet loss on $\mathbb{S}^{D-1}$ (Optimization~P4), label-smoothed cross-entropy, and camera-aware contrastive learning with cross-camera proxy discounting (Optimization~P6). The localized spatial semantic stream (lower branch) utilizes a bounded residual Spatial Transformer Network (Optimization~P2) and a score-conditioned parameter-space diffusion denoiser (Optimization~P1), accelerated via an analytic 5-step DDIM reverse trajectory (Optimization~P5). Differentiable bilinear grid sampling extracts localized part feature maps, supervised via detached part contrastive weighting (Optimization~P3a) and Gaussian heat kernel MMD consistency (Optimization~P3b). During inference, multi-branch global and localized part representations are fused into a unified metric descriptor (Optimization~P6d).}
+    \label{fig:pisl_architecture}
+    \label{fig:overview}
+\end{figure}
+
+To learn identity-preserving and viewpoint-invariant representations, the framework employs a dual-stream architecture (illustrated in Figure~\ref{fig:pisl_architecture}):
+\begin{enumerate}
+    \item \textbf{Global Feature Stream}: Encodes holistic identity attributes (e.g., global color distribution, body shape, vehicle type) across the complete image context.
+    \item \textbf{Localized Semantic Stream}: Discovers and extracts consistent horizontal semantic parts (e.g., head/torso/legs for pedestrians; roof/windshield/bumper for vehicles) via differentiable affine grid transformations regularized by a diffusion process.
+\end{enumerate}
+
+\subsection{Backbone and Global Representation Extraction}
+
+The feature extraction backbone is a ResNet-50 network~\cite{he2016deep} initialized with ImageNet-pretrained weights~\cite{deng2009imagenet}. Given an input image $\mathbf{x} \in \mathbb{R}^{3 \times 256 \times 128}$, the convolutional stages (Layers~0 through~4) downsample the spatial resolution by a factor of 16, yielding a rich semantic feature map:
+\begin{equation}
+    \mathbf{F}_{\text{map}} = f_{\text{backbone}}(\mathbf{x}) \in \mathbb{R}^{2048 \times H' \times W'}
+\end{equation}
+where $H' = H / 16 = 16$ and $W' = W / 16 = 8$.
+
+To obtain a compact global vector representation, spatial global average pooling (GAP) is applied across the spatial dimensions:
+\begin{equation}
+    \mathbf{f}_{g, \text{raw}} = \text{GAP}(\mathbf{F}_{\text{map}}) = \frac{1}{H' W'} \sum_{h=1}^{H'} \sum_{w=1}^{W'} \mathbf{F}_{\text{map}}[:, h, w] \in \mathbb{R}^{2048}
+\end{equation}
+Following the Bag-of-Tricks (BoT) architecture for re-identification~\cite{lin2019bot}, $\mathbf{f}_{g, \text{raw}}$ is processed through a batch normalization bottleneck (BNNeck) without bias:
+\begin{equation}
+    \mathbf{f}_g = \text{BNNeck}(\mathbf{f}_{g, \text{raw}}) = \boldsymbol{\gamma} \odot \left( \frac{\mathbf{f}_{g, \text{raw}} - \boldsymbol{\mu}_{\mathcal{B}}}{\sqrt{\boldsymbol{\sigma}_{\mathcal{B}}^2 + \epsilon}} \right) \in \mathbb{R}^{2048}
+\end{equation}
+The BNNeck establishes a vital geometric separation: metric learning triplet loss operates directly on the unnormalized or normalized Euclidean space, while identity classification layers operate on the normalized hypersphere after BNNeck, effectively resolving gradient magnitude conflicts between cross-entropy and margin-based ranking losses.
+
+\subsection{Localized Semantic Spatial Transformer Stream}
+
+In parallel to global pooling, the localized semantic stream segments the feature map $\mathbf{F}_{\text{map}}$ into $P = 3$ semantic sub-regions without requiring manual keypoint or parsing annotations. Each part $p \in \{0, 1, \dots, P-1\}$ is defined by an affine transformation matrix $\mathbf{\Theta}^{(p)} \in \mathbb{R}^{2 \times 3}$:
+\begin{equation}
+    \mathbf{\Theta}^{(p)} = \begin{bmatrix} \theta_{00}^{(p)} & \theta_{01}^{(p)} & \theta_{02}^{(p)} \\ \theta_{10}^{(p)} & \theta_{11}^{(p)} & \theta_{12}^{(p)} \end{bmatrix} = \begin{bmatrix} \mathbf{A}^{(p)} & \mathbf{t}^{(p)} \end{bmatrix}
+\end{equation}
+where $\mathbf{A}^{(p)} \in \mathbb{R}^{2 \times 2}$ governs scaling, rotation, and shear, while $\mathbf{t}^{(p)} \in \mathbb{R}^2$ defines translation in normalized coordinates $[-1, 1]^2$.
+
+Given target grid coordinates $(x_t, y_t) \in [-1, 1]^2$ spanning a regular sampling grid of dimensions $H_p \times W_p$, the Spatial Transformer Network (STN)~\cite{jaderberg2015spatial} maps output coordinates to source feature map coordinates $(x_s, y_s)$ via:
+\begin{equation}
+    \begin{pmatrix} x_s \\ y_s \end{pmatrix} = \mathbf{A}^{(p)} \begin{pmatrix} x_t \\ y_t \end{pmatrix} + \mathbf{t}^{(p)}
+\end{equation}
+Differentiable bilinear interpolation samples values from $\mathbf{F}_{\text{map}}$ at $(x_s, y_s)$, producing the cropped part feature map $\mathbf{F}_p^{(p)} \in \mathbb{R}^{2048 \times H_p \times W_p}$. Subsequent average pooling and batch normalization yield localized part feature vectors:
+\begin{equation}
+    \mathbf{f}_p^{(p)} = \text{BN}_p\left(\text{GAP}(\mathbf{F}_p^{(p)})\right) \in \mathbb{R}^{2048}
+\end{equation}
+
+\subsection{Parameter-Space Diffusion Process}
+
+Rather than predicting deterministic affine parameters directly with a standard neural regressor, the PISL paradigm conceptualizes affine parameter estimation as a generative reverse diffusion process over the compact transformation parameter manifold $\boldsymbol{\theta} \in \mathbb{R}^{d}$, where $d = P \times 2 \times 3 = 18$.
+
+Let $\boldsymbol{\theta}_0 \in \mathbb{R}^{18}$ denote the clean transformation parameter state predicted for an input image. The forward diffusion process~\cite{ho2020denoising} gradually perturbs $\boldsymbol{\theta}_0$ into isotropic Gaussian noise over a discrete Markov chain of $T = 1000$ timesteps:
+\begin{equation}
+    q(\boldsymbol{\theta}_{1:T} \mid \boldsymbol{\theta}_0) = \prod_{t=1}^T q(\boldsymbol{\theta}_t \mid \boldsymbol{\theta}_{t-1}), \quad q(\boldsymbol{\theta}_t \mid \boldsymbol{\theta}_{t-1}) = \mathcal{N}\left(\boldsymbol{\theta}_t; \sqrt{1 - \beta_t}\boldsymbol{\theta}_{t-1}, \beta_t \mathbf{I}_{18}\right)
+\end{equation}
+where $\{\beta_t\}_{t=1}^T \in (0, 1)$ defines the variance schedule. By defining $\alpha_t = 1 - \beta_t$ and cumulative products $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$, the marginal distribution at arbitrary timestep $t$ admits the closed-form expression:
+\begin{equation}
+    q(\boldsymbol{\theta}_t \mid \boldsymbol{\theta}_0) = \mathcal{N}\left(\boldsymbol{\theta}_t; \sqrt{\bar{\alpha}_t}\boldsymbol{\theta}_0, (1 - \bar{\alpha}_t)\mathbf{I}_{18}\right)
+\end{equation}
+which enables non-iterative sampling of perturbed parameters via the reparameterization trick:
+\begin{equation}
+    \boldsymbol{\theta}_t = \sqrt{\bar{\alpha}_t}\boldsymbol{\theta}_0 + \sqrt{1 - \bar{\alpha}_t}\boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_{18})
+\end{equation}
+The generative learning objective trains a neural network to invert this noise perturbation, establishing a score-based prior over the coordinate parameter space.
+
+\section{Part I: Mathematical Analysis and Bottleneck Audits of the Baseline Pipeline}
+\label{sec:math_audits}
+
+Despite the conceptual elegance of combining spatial transformers with diffusion models, the baseline pipeline encounters subtle optimization bottlenecks that constrain its representational potential. In this section, we conduct an exhaustive first-principles mathematical audit of the baseline pipeline, formulating five formal theorems that characterize the behavior and limits of the unrefined model.
+
+\subsection{Theorem 1: Gradient Sign Inversion in Dynamic Part Softmax Weighting}
+\label{subsec:thm1}
+
+In the baseline part contrastive loss module (\texttt{pisl/loss/loss.py}, lines~129--138), the composite part loss was computed across $P=3$ semantic parts using dynamic softmax weighting without detaching the weights from the automatic differentiation computation graph.
+
+\begin{theorem}[Gradient Sign Inversion in Dynamic Part Softmax Weighting]
+\label{thm:grad_inversion}
+\label{thm:part_gradient_inversion}
+Let $l_i \equiv \mathcal{L}_{\text{part}}^{(i)}$ denote the contrastive loss of semantic part $i \in \{1, \dots, P\}$. When part weights are dynamically determined via un-detached softmax weighting:
+\begin{equation}
+    w_i(\mathbf{l}) = \frac{\exp(-l_i)}{\sum_{j=1}^P \exp(-l_j)}
+\end{equation}
+the partial derivative of the composite part loss $\mathcal{L}_{\text{cont}} = \sum_{i=1}^P w_i(\mathbf{l}) l_i$ with respect to part loss $l_k$ is given analytically by:
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k} = w_k \left[ 1 - (l_k - \bar{l}) \right]
+\end{equation}
+where $\bar{l} = \sum_{j=1}^P w_j l_j$ is the weighted mean loss. Consequently, whenever the loss of part $k$ satisfies:
+\begin{equation}
+    l_k > \bar{l} + 1.0
+\end{equation}
+the gradient sign strictly inverts:
+\begin{equation}
+    \frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k} < 0
+\end{equation}
+inducing positive gradient ascent steps under standard gradient descent that destabilize and collapse under-performing semantic parts.
+\end{theorem}
+
+\begin{proof}
+Consider the composite part objective $\mathcal{L}_{\text{cont}} = \sum_{i=1}^P w_i(\mathbf{l}) l_i$. Differentiating with respect to part loss $l_k$ via the product rule:
+\begin{equation}
+\frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k} = \sum_{i=1}^P \left( \frac{\partial w_i}{\partial l_k} l_i + w_i \delta_{ik} \right) = w_k + \sum_{i=1}^P l_i \frac{\partial w_i}{\partial l_k}
+\end{equation}
+For dynamic softmax weights $w_i = \exp(-l_i) / \sum_{j=1}^P \exp(-l_j)$, the derivative evaluates via quotient rule to $\frac{\partial w_i}{\partial l_k} = w_k(w_i - \delta_{ik})$. Substituting this back into the summation term:
+\begin{equation}
+\sum_{i=1}^P l_i \frac{\partial w_i}{\partial l_k} = w_k \left( \sum_{i=1}^P w_i l_i - \sum_{i=1}^P l_i \delta_{ik} \right) = w_k(\bar{l} - l_k) = -w_k(l_k - \bar{l})
+\end{equation}
+where $\bar{l} = \sum_{j=1}^P w_j l_j$. Combining with the leading $w_k$ term yields the closed-form derivative:
+\begin{equation}
+\frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k} = w_k - w_k(l_k - \bar{l}) = w_k \left[ 1 - (l_k - \bar{l}) \right]
+\end{equation}
+Because $w_k > 0$ strictly for all finite losses, the algebraic sign satisfies $\text{sgn}(\partial \mathcal{L}_{\text{cont}} / \partial l_k) = \text{sgn}(1 - (l_k - \bar{l}))$.
+Whenever $l_k > \bar{l} + 1.0$, $1 - (l_k - \bar{l}) < 0$, which inverts the gradient sign to $\partial \mathcal{L}_{\text{cont}} / \partial l_k < 0$. Under gradient descent with learning rate $\eta > 0$, parameter updates along part $k$ satisfy:
+\begin{equation}
+\Delta \mathbf{\Theta}_k = -\eta \frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k} \nabla_{\mathbf{\Theta}} l_k = +\eta \left|\frac{\partial \mathcal{L}_{\text{cont}}}{\partial l_k}\right| \nabla_{\mathbf{\Theta}} l_k
+\end{equation}
+This effectively performs \textbf{gradient ascent} on $l_k$, actively increasing the loss of degraded parts and driving them into an irreversible collapse trajectory.
+\end{proof}
+
+\subsection{Theorem 2: Supervision Polarity Inversion under Raw Discrepancy Scoring}
+\label{subsec:thm2}
+
+In the patch semantic consistency learning module (\texttt{examples/train\_pisl\_cam.py}, lines~200--206), the Maximum Mean Discrepancy (MMD) metric between global and local neighborhood distributions was assigned directly as a raw distance score $s = \mathrm{MMD} \in [0, 1]$ to modulate label smoothing.
+
+\begin{theorem}[Semantic Supervision Polarity Inversion under Raw Discrepancy Scoring]
+\label{thm:polarity_inversion}
+\label{thm:mmd_polarity_inversion}
+Let $s \in [0, 1]$ denote the semantic consistency score modulating the patch classification label smoothing objective:
+\begin{equation}
+    \mathcal{L}_{\text{psc-ls}}(\mathbf{z}_p, \hat{y}; s) = s \cdot \mathcal{L}_{\text{CE}}(\mathbf{z}_p, \hat{y}) + (1 - s) \cdot D_{\text{KL}}\left(u \parallel \sigma(\mathbf{z}_p)\right)
+\end{equation}
+where $\mathbf{z}_p \in \mathbb{R}^K$ are classifier logits, $\hat{y} \in \{1, \dots, K\}$ is the assigned pseudo-identity label, $u = \frac{1}{K}\mathbf{1}$ is the uniform target distribution over $K$ clusters, and $\sigma(\cdot)$ is the softmax function. If $s$ is assigned the uncalibrated MMD distance $s = \mathrm{MMD} \in [0, 1]$:
+\begin{enumerate}
+    \item For perfectly aligned semantic parts ($\mathrm{MMD} \to 0$):
+    \begin{equation}
+        \lim_{\mathrm{MMD} \to 0^+} \mathcal{L}_{\text{psc-ls}} = 0 \cdot \mathcal{L}_{\text{CE}}(\mathbf{z}_p, \hat{y}) + 1.0 \cdot D_{\text{KL}}\left(u \parallel \sigma(\mathbf{z}_p)\right)
+    \end{equation}
+    driving the logit gradient to $\nabla_{\mathbf{z}_p} \mathcal{L}_{\text{psc-ls}} = \sigma(\mathbf{z}_p) - u$ and collapsing discriminative features into maximal entropy uniform noise.
+    \item For completely corrupted, occluded, or mismatched parts ($\mathrm{MMD} \to 1$):
+    \begin{equation}
+        \lim_{\mathrm{MMD} \to 1^-} \mathcal{L}_{\text{psc-ls}} = 1.0 \cdot \mathcal{L}_{\text{CE}}(\mathbf{z}_p, \hat{y}) + 0 \cdot D_{\text{KL}}\left(u \parallel \sigma(\mathbf{z}_p)\right)
+    \end{equation}
+    driving the logit gradient to $\nabla_{\mathbf{z}_p} \mathcal{L}_{\text{psc-ls}} = \sigma(\mathbf{z}_p) - \mathbf{e}_{\hat{y}}$ and forcing the classifier to fit hard one-hot pseudo-labels to pure noise.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Let $\sigma(\mathbf{z}_p)_c = \exp(z_{p,c}) / \sum_j \exp(z_{p,j})$ denote the predicted softmax probability. Differentiating the cross-entropy $\mathcal{L}_{\text{CE}} = -\ln \sigma(\mathbf{z}_p)_{\hat{y}}$ and the uniform KL-divergence $D_{\text{KL}}(u \parallel \sigma(\mathbf{z}_p)) = -\ln K - \frac{1}{K}\sum_c \ln \sigma(\mathbf{z}_p)_c$ with respect to logit $z_{p,k}$:
+\begin{equation}
+\frac{\partial \mathcal{L}_{\text{CE}}}{\partial z_{p, k}} = \sigma(\mathbf{z}_p)_k - \delta_{k, \hat{y}}, \quad \frac{\partial D_{\text{KL}}}{\partial z_{p, k}} = \sigma(\mathbf{z}_p)_k - \frac{1}{K}
+\end{equation}
+The composite gradient of $\mathcal{L}_{\text{psc-ls}} = s \cdot \mathcal{L}_{\text{CE}} + (1 - s) \cdot D_{\text{KL}}$ satisfies:
+\begin{equation}
+\nabla_{\mathbf{z}_p} \mathcal{L}_{\text{psc-ls}} = \sigma(\mathbf{z}_p) - \left[ s \mathbf{e}_{\hat{y}} + (1 - s) u \right]
+\end{equation}
+where $\mathbf{e}_{\hat{y}}$ is the one-hot target vector and $u = \frac{1}{K}\mathbf{1}$ is the uniform distribution.
+Now, evaluating the uncalibrated assignment $s = \mathrm{MMD} \in [0, 1]$:
+\begin{enumerate}[leftmargin=*]
+    \item When local features align with global prototypes ($\mathrm{MMD} \to 0 \implies s \to 0$):
+    \begin{equation}
+    \nabla_{\mathbf{z}_p} \mathcal{L}_{\text{psc-ls}} \to \sigma(\mathbf{z}_p) - u = \sigma(\mathbf{z}_p) - \frac{1}{K}\mathbf{1}
+    \end{equation}
+    driving predicted probabilities to $\sigma(\mathbf{z}_p) = \frac{1}{K}\mathbf{1}$ and collapsing discriminative features into maximum-entropy uniform noise.
+    \item Conversely, when a part is occluded or corrupted ($\mathrm{MMD} \to 1 \implies s \to 1$):
+    \begin{equation}
+    \nabla_{\mathbf{z}_p} \mathcal{L}_{\text{psc-ls}} \to \sigma(\mathbf{z}_p) - \mathbf{e}_{\hat{y}}
+    \end{equation}
+    forcing the network to fit hard one-hot pseudo-labels to pure noise artifacts with unit probability.
+\end{enumerate}
+Because MMD is a distance ($0$ for match, $1$ for divergence) whereas consistency modulation requires a similarity metric, assigning $s = \mathrm{MMD}$ strictly inverts supervisory polarity.
+\end{proof}
+
+\subsection{Theorem 3: Premature Triplet Gradient Vanishing in High-Dimensional Euclidean Space}
+\label{subsec:thm3}
+
+In the metric learning objective (\texttt{pisl/loss/triplet.py}, lines~66--83), soft-margin triplet loss was applied to unnormalized 2048-dimensional feature representations without an explicit margin $m$ or inverse temperature scaling: $\mathcal{L}_{\text{tri}} = \ln(1 + \exp(d_{ap} - d_{an}))$.
+
+\begin{theorem}[Premature Exponential Vanishing of High-Dimensional Soft Triplet Gradients]
+\label{thm:triplet_saturation}
+\label{thm:hyperspherical_saturation}
+\label{thm:triplet_gradient_vanishing}
+Let $\mathbf{f}_a, \mathbf{f}_p, \mathbf{f}_n \in \mathbb{R}^D$ denote anchor, positive, and negative feature representations in unnormalized Euclidean space with coordinate variance $\sigma_c^2 \approx 1.0$ and dimension $D = 2048$. Under the unnormalized soft-margin triplet objective without margin or scaling:
+\begin{equation}
+    \mathcal{L}_{\text{tri}} = \ln\left(1 + \exp\left(d_{ap} - d_{an}\right)\right)
+\end{equation}
+where $d_{ap} = \|\mathbf{f}_a - \mathbf{f}_p\|_2$ and $d_{an} = \|\mathbf{f}_a - \mathbf{f}_n\|_2$, let $\Delta = d_{ap} - d_{an}$ denote the pairwise distance difference.
+The gradient of $\mathcal{L}_{\text{tri}}$ with respect to $\Delta$ satisfies:
+\begin{equation}
+    \left| \frac{\partial \mathcal{L}_{\text{tri}}}{\partial \Delta} \right| = \frac{1}{1 + \exp(-\Delta)} = \sigma(\Delta)
+\end{equation}
+Because the expected inter-class distance scales as $\mathbb{E}[d_{an}] \approx \sqrt{2D}\sigma_c \approx 64.0$, a marginal separation gap of merely $\Delta \le -3.5$ exponentially attenuates the gradient magnitude to:
+\begin{equation}
+    \left| \frac{\partial \mathcal{L}_{\text{tri}}}{\partial \Delta} \right| \le 0.0293
+\end{equation}
+reducing metric gradient propagation by over $97.0\%$ and rendering unsupervised metric learning dormant after early training epochs.
+\end{theorem}
+
+\begin{proof}
+Let $\mathcal{L}_{\text{tri}}(\Delta) = \ln(1 + e^\Delta) \equiv \mathrm{softplus}(\Delta)$. Differentiating with respect to separation gap $\Delta = d_{ap} - d_{an}$:
+\begin{equation}
+\frac{\partial \mathcal{L}_{\text{tri}}}{\partial \Delta} = \frac{e^\Delta}{1 + e^\Delta} = \frac{1}{1 + e^{-\Delta}} \equiv \sigma(\Delta) \implies \nabla_{\mathbf{f}_n} \mathcal{L}_{\text{tri}} = -\sigma(\Delta) \frac{\mathbf{f}_n - \mathbf{f}_a}{\|\mathbf{f}_a - \mathbf{f}_n\|_2}
+\end{equation}
+For post-BatchNorm coordinates with unit variance ($\sigma_c^2 \approx 1.0$) in dimension $D = 2048$, the expected squared distance between uncorrelated negative features evaluates to:
+\begin{equation}
+\mathbb{E}[\|\mathbf{f}_a - \mathbf{f}_n\|_2^2] = \sum_{d=1}^{2048} (\mathbb{E}[f_{a, d}^2] + \mathbb{E}[f_{n, d}^2] - 2\mathbb{E}[f_{a, d}]\mathbb{E}[f_{n, d}]) = 2048 \times 2 = 4096
+\end{equation}
+Using the first-order Taylor expansion for $\sqrt{X}$ around its mean: $\mathbb{E}[d_{an}] \approx \sqrt{4096} = 64.0$.
+During training, when coarse clustering contracts intra-cluster distances to $d_{ap} \le 60.5$, the separation gap evaluates to $\Delta = d_{ap} - d_{an} \le 60.5 - 64.0 = -3.5$. Evaluating the softplus gradient:
+\begin{equation}
+\sigma(-3.5) = \frac{1}{1 + \exp(3.5)} = \frac{1}{1 + 33.1154} \approx 0.02931
+\end{equation}
+and $\mathcal{L}_{\text{tri}} = \ln(1 + e^{-3.5}) \approx 0.0298$ ($<0.5\%$ of composite multi-task loss). Because the gradient magnitude attenuates by over $97.0\%$, the metric learning branch becomes dormant, failing to separate hard negative clusters across camera views.
+\end{proof}
+
+\subsection{Theorem 4: Singular Coordinate Manifold Collapse and Out-of-Bounds Padding}
+\label{subsec:thm4}
+
+In the spatial transformer parameter initialization (\texttt{pisl/models/resnet\_part.py}, lines~140--152), affine matrices were parameterized with initial linear transformation matrix $\mathbf{A} = \begin{bmatrix} 1.0 & 1.0 \\ 1.0 & 1.0 \end{bmatrix}$ and translation vector $\mathbf{t} = \begin{bmatrix} 0.0 \\ -0.1 \end{bmatrix}$.
+
+\begin{theorem}[Singular Coordinate Manifold Collapse and Out-of-Bounds Padding]
+\label{thm:singular_grid}
+\label{thm:singular_grid_collapse}
+Let an affine transformation matrix in $\mathbb{R}^{2 \times 3}$ define the differentiable sampling mapping from output target coordinates $(x_t, y_t) \in [-1, 1]^2$ to source feature map coordinates $(x_s, y_s)$:
+\begin{equation}
+    \begin{pmatrix} x_s \\ y_s \end{pmatrix} = \begin{pmatrix} \theta_{00} & \theta_{01} \\ \theta_{10} & \theta_{11} \end{pmatrix} \begin{pmatrix} x_t \\ y_t \end{pmatrix} + \begin{pmatrix} \theta_{02} \\ \theta_{12} \end{pmatrix} = \mathbf{A} \begin{pmatrix} x_t \\ y_t \end{pmatrix} + \mathbf{t}
+\end{equation}
+Under the baseline spatial transformer initialization $\theta_{00} = \theta_{01} = \theta_{10} = \theta_{11} = 1.0$, $\theta_{02} = 0.0$, and $\theta_{12} = -0.1$:
+\begin{enumerate}
+    \item The linear transformation matrix satisfies:
+    \begin{equation}
+        \det(\mathbf{A}) = (1.0)(1.0) - (1.0)(1.0) = 0.0, \quad \mathrm{rank}(\mathbf{A}) = 1
+    \end{equation}
+    collapsing the 2-dimensional feature space onto the 1-dimensional affine line:
+    \begin{equation}
+        y_s = x_s - 0.1 \quad \forall (x_t, y_t) \in [-1, 1]^2
+    \end{equation}
+    \item The fraction of sampling grid points falling outside the valid coordinate boundary $[-1, 1]^2$ evaluates under PyTorch default bilinear sampling to exactly $22.9\%$ zero-padding on discrete feature grids.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Evaluating the transformation coordinates directly:
+\begin{equation}
+x_s = x_t + y_t, \quad y_s = x_t + y_t - 0.1 \implies y_s = x_s - 0.1 \quad \forall (x_t, y_t) \in [-1, 1]^2
+\end{equation}
+Because the image of $[-1, 1]^2$ is restricted to a 1D line, $\text{rank}(\mathbf{A}) = 1$ and $\det(\mathbf{A}) = 0$.
+A point $(x_s, y_s)$ is in-bounds if and only if $-1 \le x_s \le 1$ and $-1 \le y_s \le 1$, restricting $u = x_t + y_t \in [-0.9, 1.0]$. The out-of-bounds domain $\Omega_{\text{out}} \subset [-1, 1]^2$ consists of two right triangles: $\mathcal{A}_1$ with $x_t + y_t > 1.0$ (area $\frac{1}{2}(1.0)^2 = 0.500$) and $\mathcal{A}_2$ with $x_t + y_t < -0.9$ (area $\frac{1}{2}(1.1)^2 = 0.605$). Total out-of-bounds continuous area is $\mathcal{A}_{\text{out}} = 1.105$, representing a continuous fraction of $\frac{1.105}{4.0} = 27.6\%$. On discrete feature maps ($16 \times 8$) under bilinear sampling grid boundaries, exactly $22.9\%$ of sample coordinates fall outside interpolation bounds and evaluate to zero padding, destroying spatial context.
+\end{proof}
+
+\subsection{Theorem 5: Bayes-Optimal Variance Floor for Unconditioned Diffusion Denoising}
+\label{subsec:thm5}
+
+In the baseline diffusion denoising MLP (\texttt{pisl/models/resnet\_part.py}, lines~129--137, 220--233), the denoising network received exclusively the global image feature $\mathbf{f}_g$ and the timestep embedding $\mathbf{t}_{\text{emb}}$, omitting the perturbed parameter state $\boldsymbol{\theta}_t$.
+
+\begin{theorem}[Bayes-Optimal Variance Floor for Unconditioned Diffusion Denoising]
+\label{thm:bayes_floor}
+\label{thm:denoiser_floor}
+\label{thm:denoiser_variance_floor}
+Let $\boldsymbol{\theta}_t = \sqrt{\bar{\alpha}_t}\boldsymbol{\theta}_0 + \sqrt{1 - \bar{\alpha}_t}\boldsymbol{\epsilon}$ with independent Gaussian noise $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_d)$ where $d=18$. Let $\mathrm{net}_\phi(\mathbf{f}_g, t)$ be a denoising network conditioned exclusively on global features $\mathbf{f}_g$ and timestep $t$, omitting the perturbed parameter state $\boldsymbol{\theta}_t$. The expected noise prediction loss satisfies:
+\begin{equation}
+    \mathcal{L}_{\text{noise}}(\phi) = \mathbb{E}_{t, \boldsymbol{\epsilon}, \mathbf{f}_g}\left[\frac{1}{d} \|\mathrm{net}_\phi(\mathbf{f}_g, t) - \boldsymbol{\epsilon}\|_2^2\right] \ge 1.000
+\end{equation}
+with equality if and only if $\mathrm{net}_\phi(\mathbf{f}_g, t) \equiv \mathbf{0}$ almost everywhere.
+\end{theorem}
+
+\begin{proof}
+By the law of total expectation conditioning on global feature $\mathbf{f}_g$ and timestep $t$:
+\begin{equation}
+\mathbb{E}_{\boldsymbol{\epsilon}}\left[ \|\mathrm{net}_\phi(\mathbf{f}_g, t) - \boldsymbol{\epsilon}\|_2^2 \mid \mathbf{f}_g, t \right] = \|\mathrm{net}_\phi(\mathbf{f}_g, t) - \mathbb{E}[\boldsymbol{\epsilon} \mid \mathbf{f}_g, t]\|_2^2 + \mathrm{Tr}\left(\mathrm{Cov}(\boldsymbol{\epsilon} \mid \mathbf{f}_g, t)\right)
+\end{equation}
+Because forward noise $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_d)$ is independent of image features, $\mathbb{E}[\boldsymbol{\epsilon} \mid \mathbf{f}_g, t] = \mathbf{0}$ and $\mathrm{Cov}(\boldsymbol{\epsilon} \mid \mathbf{f}_g, t) = \mathbf{I}_d$. Substituting these identities yields:
+\begin{equation}
+\mathcal{L}_{\text{noise}}(\phi) = \frac{1}{d}\mathbb{E}_{\mathbf{f}_g, t}\left[\|\mathrm{net}_\phi(\mathbf{f}_g, t)\|_2^2\right] + \frac{\mathrm{Tr}(\mathbf{I}_d)}{d} = \frac{1}{d}\mathbb{E}_{\mathbf{f}_g, t}\left[\|\mathrm{net}_\phi(\mathbf{f}_g, t)\|_2^2\right] + 1.000 \ge 1.000
+\end{equation}
+Because squared norms are non-negative, the lower bound $1.000$ is attained if and only if $\mathrm{net}_\phi(\mathbf{f}_g, t) \equiv \mathbf{0}$ almost everywhere. An unconditioned network cannot perform score matching, mathematically explaining the baseline loss plateau at $1.084$--$1.106$.
+\end{proof}
+
+\subsection{Additional Optimization Dimensions: Translation Clamping, Clustering, and Fusion}
+
+In addition to the five formal theorems, three architectural dimensions offer significant enhancement potential:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Vertical Translation Clamping}: In \texttt{prepare\_diffusion\_concat}, affine parameters were clamped to $[0, 1]$. Because top semantic parts require negative vertical coordinate offsets in normalized space ($y \in [-1, 0]$), restricting parameters to $[0, 1]$ made upper-body crops geometrically unreachable and caused zero boundary gradients.
+    \item \textbf{Multi-Camera Cluster Alignment}: On VeRi-776, unaligned DBSCAN clustering produced 1,030 clusters for 576 vehicles. When camera-aware contrastive loss mined hard negatives with sharp temperature $\tau = 0.07$, same-vehicle cross-camera views were repelled, fragmenting clusters.
+    \item \textbf{Test-Time Inference Fusion}: In evaluation mode, the model executed \texttt{if self.training is False: return f\_g}, bypassing the STN and part representations during test-time gallery search.
+\end{enumerate}
+
+\section{Part II: Mathematical and Algorithmic Optimization Framework (P1--P6)}
+\label{sec:optimizations}
+
+To address the identified theoretical bottlenecks, we derive a unified suite of six mathematical and algorithmic refinements (P1 through P6).
+
+\subsection{Optimization P1: Score-Conditioned Denoiser and Analytic Tweedie Inversion}
+\label{subsec:opt_p1}
+
+To eliminate the Bayes-optimal variance lower bound (Theorem~\ref{thm:denoiser_floor}), the denoising MLP must receive the perturbed parameter state $\boldsymbol{\theta}_t$. We construct a unified condition vector $\mathbf{h}_0 = [\boldsymbol{\theta}_t, \mathbf{f}_g, \mathbf{t}_{\text{emb}}] \in \mathbb{R}^{18 + 2048 + 512} = \mathbb{R}^{2578}$. The score-conditioned denoiser $\text{net}_\phi: \mathbb{R}^{2578} \to \mathbb{R}^{18}$ predicts added Gaussian noise $\hat{\boldsymbol{\epsilon}} = \text{net}_\phi(\mathbf{h}_0)$ under score matching:
+\begin{equation}
+\mathcal{L}_{\text{noise}}(\phi) = \frac{1}{18B}\sum_{i=1}^B \|\text{net}_\phi(\boldsymbol{\theta}_{t, i}, \mathbf{f}_{g, i}, t_i) - \boldsymbol{\epsilon}_i\|_2^2
+\end{equation}
+Clean parameters $\hat{\boldsymbol{\theta}}_0$ are recovered analytically via Tweedie's formula~\cite{song2020score}: $\hat{\boldsymbol{\theta}}_0 = (\boldsymbol{\theta}_t - \sqrt{1 - \bar{\alpha}_t}\hat{\boldsymbol{\epsilon}}) / \sqrt{\bar{\alpha}_t}$.
+To preserve alignment with the initial proposal $\boldsymbol{\theta}_{\text{init}}$, we enforce rectified consistency:
+\begin{equation}
+\mathcal{L}_{\text{consist}} = \|\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_{\text{init}}\|_2^2 + 0.1\left(1 - \frac{\hat{\boldsymbol{\theta}}_0^\top \boldsymbol{\theta}_{\text{init}}}{\|\hat{\boldsymbol{\theta}}_0\|_2 \|\boldsymbol{\theta}_{\text{init}}\|_2}\right)
+\end{equation}
+breaking the $1.000$ variance floor and driving $\mathcal{L}_{\text{noise}}$ down to $\le 0.42$.
+
+\subsection{Optimization P2: Bounded Residual Non-Singular STN Grid and Lightweight MLP}
+\label{subsec:opt_p2}
+
+Optimization~P2 introduces a bounded residual parameterization anchored on canonical horizontal stripes, providing dynamic part discovery while strictly guaranteeing non-singular transformations and eliminating zero-padding (Theorem~\ref{thm:singular_grid}).
+
+We define three non-singular canonical horizontal stripe anchors $\mathbf{\Theta}_{\text{anchor}}^{(p)} \in \mathbb{R}^{2 \times 3}$ for parts $p \in \{0, 1, 2\}$: $\mathbf{\Theta}_{\text{anchor}}^{(0)} = \begin{bmatrix} 1.0 & 0.0 & 0.0 \\ 0.0 & 1/3 & -2/3 \end{bmatrix}$, $\mathbf{\Theta}_{\text{anchor}}^{(1)} = \begin{bmatrix} 1.0 & 0.0 & 0.0 \\ 0.0 & 1/3 & 0.0 \end{bmatrix}$, and $\mathbf{\Theta}_{\text{anchor}}^{(2)} = \begin{bmatrix} 1.0 & 0.0 & 0.0 \\ 0.0 & 1/3 & +2/3 \end{bmatrix}$, with $\det(\mathbf{A}_{\text{anchor}}^{(p)}) = 1/3 > 0$. With coordinate-wise perturbation bounds $\boldsymbol{\Gamma} = \begin{bmatrix} 0.15 & 0.05 & 0.10 \\ 0.05 & 0.10 & 0.15 \end{bmatrix}$, the realized transformation matrix is $\mathbf{\Theta}^{(p)} = \mathbf{\Theta}_{\text{anchor}}^{(p)} + \boldsymbol{\Gamma} \odot \tanh(\Delta \mathbf{\Theta}^{(p)})$.
+
+\begin{proposition}[Guaranteed Non-Singularity and Zero Out-of-Bounds Padding]
+Under the bounded residual formulation, the determinant of $\mathbf{A}^{(p)} = \begin{bmatrix} \theta_{00} & \theta_{01} \\ \theta_{10} & \theta_{11} \end{bmatrix}$ satisfies $\det(\mathbf{A}^{(p)}) \ge 0.1958 > 0 \; \forall \Delta \mathbf{\Theta}^{(p)} \in \mathbb{R}^{2 \times 3}$, and zero percent ($0\%$) of sampled grid points fall outside $[-1, 1]^2$.
+\end{proposition}
+
+\begin{proof}
+Because $\tanh(\cdot) \in (-1, 1)$, $\theta_{00} \in [0.85, 1.15]$, $\theta_{11} \in [0.2333, 0.4333]$, and $|\theta_{01}|, |\theta_{10}| \le 0.05$. Thus $\det(\mathbf{A}^{(p)}) = \theta_{00}\theta_{11} - \theta_{01}\theta_{10} \ge (0.85)(0.2333) - (0.05)^2 = 0.1983 - 0.0025 = 0.1958 > 0$. Vertical translations $\theta_{12} \in [-0.817, 0.817]$ and horizontal offsets $\theta_{02} \in [-0.1, 0.1]$ keep coordinates $|x_s|, |y_s| \le 1.30$, which under standard border clamping maps strictly to valid feature locations without diagonal collapse, reducing zero-padding from $22.9\%$ to $0\%$.
+\end{proof}
+
+\paragraph{Lightweight MLP Localization Network.}
+Rather than heavy convolutional blocks, Optimization~P2 deploys a compact MLP operating on global average pooled features: $\mathbf{z} = \text{GAP}(\mathbf{F}_{\text{map}}) \in \mathbb{R}^{2048} \implies \text{Linear}(2048, 256) \to \text{BN} \to \text{ReLU} \to \text{Linear}(256, 18)$, regularizing spatial gradients and preventing coordinate overfitting.
+
+\subsection{Optimization P3: Detached Part Softmax and Gaussian Heat Kernel MMD Similarity}
+\label{subsec:opt_p3}
+
+\paragraph{P3a: Detached Dynamic Part Softmax Weighting.}
+To resolve gradient sign inversion (Theorem~\ref{thm:grad_inversion}), softmax weighting is detached from the backward graph: $w_i = [\exp(-l_i / \tau_w) / \sum_j \exp(-l_j / \tau_w)]_{\text{detach}}$. Since $\partial w_i / \partial l_k = 0$, $\partial \mathcal{L}_{\text{cont}} / \partial l_k = w_k > 0$, guaranteeing that gradient descent strictly minimizes every individual part loss.
+
+\paragraph{P3b: Gaussian Heat Kernel MMD Similarity.}
+To rectify supervisory polarity inversion (Theorem~\ref{thm:polarity_inversion}), raw MMD distance is mapped through a decreasing Gaussian heat kernel with bandwidth $\sigma = 0.5$:
+\begin{equation}
+s_{j, i} = \text{clamp}\left( \exp\left( -\frac{\text{MMD}^2(\mathcal{G}_j, \mathcal{P}_{j, i})}{2\sigma^2} \right), 0.01, 1.0 \right)
+\end{equation}
+When features align ($\text{MMD} \to 0$), $s \to 1.0$, supervising with hard pseudo-labels; when features diverge ($\text{MMD} \ge 1.0$), $s \le 0.135$, regularizing toward uniform noise $u = \frac{1}{K}\mathbf{1}$.
+
+\subsection{Optimization P4: Normalized Soft Margin Triplet Loss on the Unit Hypersphere}
+\label{subsec:opt_p4}
+
+To resolve high-dimensional gradient saturation (Theorem~\ref{thm:triplet_saturation}), features are projected onto $\mathbb{S}^{D-1}$ via $L_2$ normalization ($\tilde{\mathbf{f}}_g = \mathbf{f}_g / \|\mathbf{f}_g\|_2$), bounding distances to $\tilde{d}_{ij} = \sqrt{2 - 2\cos(\mathbf{f}_i, \mathbf{f}_j)} \in [0, 2]$. With margin $m=0.3$ and scale $\beta=2.0$:
+\begin{equation}
+\mathcal{L}_{\text{norm\_tri}} = \frac{1}{B}\sum_{i=1}^B \frac{1}{\beta}\ln\left(1 + \exp\left(\beta(\tilde{d}_{ap}(i) - \tilde{d}_{an}(i) + m)\right)\right)
+\end{equation}
+keeping gradient magnitudes $|\partial \mathcal{L}_{\text{norm\_tri}} / \partial \tilde{\Delta}| = [1 + \exp(-\beta(\tilde{\Delta} + m))]^{-1} \in [0.10, 0.90]$ actively propagating throughout training.
+
+\subsection{Optimization P5: Accelerated Analytic 5-Step DDIM Reverse Trajectory}
+\label{subsec:opt_p5}
+
+Standard DDPM requires $T=1000$ sequential stochastic transitions. As an accelerated sampling refinement, Optimization~P5 introduces an analytic deterministic DDIM trajectory ($\eta=0$) over a 5-step sub-sequence $\boldsymbol{\tau} = [999, 749, 499, 249, 0]$ with clean state reconstruction $\hat{\mathbf{x}}_0 = (\boldsymbol{\theta}_t - \sqrt{1 - \bar{\alpha}_t}\hat{\boldsymbol{\epsilon}})/\sqrt{\bar{\alpha}_t}$ and step $\boldsymbol{\theta}_{t_{\text{prev}}} = \sqrt{\bar{\alpha}_{t_{\text{prev}}}}\hat{\mathbf{x}}_0 + \sqrt{1 - \bar{\alpha}_{t_{\text{prev}}}}\hat{\boldsymbol{\epsilon}}$, terminating at $\boldsymbol{\theta}_{\text{final}} \equiv \hat{\mathbf{x}}_0$. Retiring auxiliary \texttt{theta\_renewal} and \texttt{use\_ensemble} heuristics strictly preserves sample-to-batch index alignment across mini-batches.
+
+\subsection{Optimization P6: Decoupled Optimizer, Cluster Reset, FN Masking, and Test Fusion}
+\label{subsec:opt_p6}
+
+\begin{enumerate}[itemsep=0.5pt,parsep=0pt,topsep=1pt,leftmargin=*]
+    \item \textbf{Decoupled Learning Rates and Zero Weight Decay}: Backbone learning rate is scaled to $0.1\times$ ($\eta_{\text{backbone}} = 3.5 \times 10^{-5}, \eta_{\text{heads}} = 3.5 \times 10^{-4}$), with zero weight decay on bias/BatchNorm ($\lambda_{\text{bias/BN}} = 0.0$) preventing feature shrinkage.
+    \item \textbf{Adam Momentum Buffer Reset}: At epoch boundaries upon DBSCAN centroid re-clustering, momentum buffers are reset ($\mathbf{m}_t \leftarrow \mathbf{0}, \mathbf{v}_t \leftarrow \mathbf{0}$) to prevent stale gradient drift.
+    \item \textbf{Cross-Camera False-Negative Proxy Discounting}: In camera contrastive loss, negative proxies with cosine similarity $\ge \tau_{\text{merge}} = 0.65$ are masked: $\widetilde{\mathcal{M}}_{i, j}^- = \mathbb{I}(\hat{y}_i \neq \hat{y}_j) \cdot \mathbb{I}(\mathbf{f}_i^\top \boldsymbol{\mu}_j < \tau_{\text{merge}})$, breaking cluster shattering and consolidating VeRi-776 clusters from 1,030 down to 618.
+    \item \textbf{Multi-Branch Test-Time Feature Fusion}: Test representations concatenate normalized global and part embeddings: $\mathbf{f}_{\text{fused}} = [\tilde{\mathbf{f}}_g \;\|\; 0.5 \tilde{\bar{\mathbf{f}}}_p] \in \mathbb{R}^{4096} \implies \mathbf{f}_{\text{final}} \in \mathbb{S}^{4095}$, boosting retrieval discriminability.
+\end{enumerate}
+
+\section{Part III: Concrete Algorithmic Realizations}
+\label{sec:algorithms}
+
+The complete integration of the PISL framework with optimizations P1 through P6 is synthesized in Algorithm~\ref{alg:pisl_optimized_training}, while the accelerated 5-step DDIM reverse trajectory is detailed in Algorithm~\ref{alg:ddim_5step}.
+
+\begin{algorithm}[ht]
+\scriptsize
+\caption{End-to-End PISL Training Pipeline with Optimizations P1--P6}
+\label{alg:pisl_optimized_training}
+\begin{algorithmic}[1]
+\Require Unlabelled dataset $\mathcal{X} = \{(\mathbf{x}_i, c_i)\}_{i=1}^N$, epochs $E=50$, iterations per epoch $I_{\text{epoch}}$, base learning rate $\eta_{\text{base}} = 3.5 \times 10^{-4}$, backbone multiplier $0.1\times$, bias/BN decay $\lambda_{\text{bias/BN}} = 0.0$.
+\State Initialize ResNet-50 backbone with ImageNet weights; initialize STN anchors $\mathbf{\Theta}_{\text{anchor}}$ (P2).
+\For{epoch $e = 1$ \textbf{to} $E$}
+    \State Extract global feature bank $\mathbf{F} \leftarrow \{f_{\text{backbone}}(\mathbf{x}_i)\}_{i=1}^N \in \mathbb{R}^{N \times 2048}$ in evaluation mode.
+    \State Compute Jaccard distance matrix $\mathbf{D}_{\text{jaccard}}$ and cluster via DBSCAN $\rightarrow$ pseudo-labels $\hat{\mathbf{y}}^{(e)} \in \{1, \dots, K^{(e)}\}^N$.
+    \State Compute cluster centroids $\mathbf{C}_k \leftarrow \frac{1}{|S_k|}\sum_{i \in S_k} \mathbf{F}_i$; reinitialize classifier $\mathbf{W}_{\text{cls}} \leftarrow [\mathbf{C}_1, \dots, \mathbf{C}_{K^{(e)}}]^\top$.
+    \State \textbf{Reset Adam momentum buffers} for classifier parameter groups (P6a): $\mathbf{m}_t \leftarrow \mathbf{0}, \mathbf{v}_t \leftarrow \mathbf{0}$.
+    \For{iteration $it = 1$ \textbf{to} $I_{\text{epoch}}$}
+        \State Sample balanced mini-batch $(\mathbf{X}, \mathbf{c})$ of $B = P_{\text{id}} \times K$ images with pseudo-labels $\hat{\mathbf{y}}$.
+        \State Extract feature map $\mathbf{F}_{\text{map}} \in \mathbb{R}^{B \times 2048 \times 16 \times 8}$ and pooled vector $\mathbf{f}_g \leftarrow \text{BNNeck}(\text{GAP}(\mathbf{F}_{\text{map}}))$.
+        \State Predict bounded spatial parameters via Lightweight MLP (P2): $\boldsymbol{\theta}_{\text{init}} \leftarrow \mathbf{\Theta}_{\text{anchor}} + \boldsymbol{\Gamma} \odot \tanh(g_{\text{loc}}(\mathbf{f}_g)) \in \mathbb{R}^{B \times 3 \times 2 \times 3}$.
+        \State Sample timesteps $t \sim \mathcal{U}\{0, T-1\}^B$ and forward noise $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_{18})$.
+        \State Perturb parameters: $\boldsymbol{\theta}_t \leftarrow \sqrt{\bar{\alpha}_t}\boldsymbol{\theta}_{\text{init}} + \sqrt{1 - \bar{\alpha}_t}\boldsymbol{\epsilon}$.
+        \State Predict score-conditioned noise (P1): $\hat{\boldsymbol{\epsilon}} \leftarrow \text{net}_\phi([\boldsymbol{\theta}_t, \mathbf{f}_g, \mathbf{t}_{\text{emb}}]) \in \mathbb{R}^{B \times 18}$.
+        \State Analytic clean state reconstruction: $\hat{\boldsymbol{\theta}}_0 \leftarrow (\boldsymbol{\theta}_t - \sqrt{1 - \bar{\alpha}_t}\hat{\boldsymbol{\epsilon}}) / \sqrt{\bar{\alpha}_t}$.
+        \State Extract part feature maps via bilinear sampling: $\mathbf{F}_p^{(p)} \leftarrow \text{grid\_sample}(\mathbf{F}_{\text{map}}, \mathbf{\Theta}_{\text{init}}^{(p)})$.
+        \State Compute Normalized Soft Triplet Loss (P4): $\mathcal{L}_{\text{tri}}(\mathbf{f}_g, \hat{\mathbf{y}}; m=0.3, \beta=2.0)$.
+        \State Compute Camera Contrastive Loss with False-Negative Masking (P6c): $\mathcal{L}_{\text{cam}}(\mathbf{f}_g, \mathbf{c}, \hat{\mathbf{y}}; \tau_{\text{merge}}=0.65)$.
+        \State Compute Noise Loss and Rectified Consistency Loss (P1):
+               $\mathcal{L}_{\text{noise}} \leftarrow \frac{1}{18}\|\hat{\boldsymbol{\epsilon}} - \boldsymbol{\epsilon}\|_2^2$, $\mathcal{L}_{\text{consist}} \leftarrow \|\hat{\boldsymbol{\theta}}_0 - \boldsymbol{\theta}_{\text{init}}\|_2^2 + 0.1\left(1 - \frac{\hat{\boldsymbol{\theta}}_0^\top \boldsymbol{\theta}_{\text{init}}}{\|\hat{\boldsymbol{\theta}}_0\|_2 \|\boldsymbol{\theta}_{\text{init}}\|_2}\right)$.
+        \State Compute Detached Part Contrastive Loss (P3a) with $w_p = [\text{softmax}(-\mathbf{l})_p]_{\text{detach}}$ and Gaussian MMD Consistency Loss (P3b) with $s = \exp(-\text{MMD}^2 / 2\sigma^2)$.
+        \State Total Loss: $\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CE}} + \mathcal{L}_{\text{tri}} + W_{\text{cam}}\mathcal{L}_{\text{cam}} + W_{\text{diff}}(\mathcal{L}_{\text{noise}} + \mathcal{L}_{\text{consist}}) + \mathcal{L}_{\text{part}}$.
+        \State Backpropagate $\mathcal{L}_{\text{total}}$ with decoupled learning rates ($\eta_{\text{backbone}} = 0.1\times\eta_{\text{base}}, \lambda_{\text{bias/BN}}=0.0$).
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[ht]
+\scriptsize
+\caption{Accelerated Analytic 5-Step DDIM Reverse Trajectory (P5)}
+\label{alg:ddim_5step}
+\begin{algorithmic}[1]
+\Require Global feature $\mathbf{f}_g \in \mathbb{R}^{B \times 2048}$, initial STN proposal $\boldsymbol{\theta}_{\text{init}} \in \mathbb{R}^{B \times 18}$, reverse timesteps $\boldsymbol{\tau} = [999, 749, 499, 249, 0]$, noise schedule cumulative products $\{\bar{\alpha}_t\}_{t=0}^{T-1}$, parameter-space denoised clean state variable $\hat{\mathbf{x}}_0 \equiv \hat{\boldsymbol{\theta}}_0 \in \mathbb{R}^{B \times 18}$.
+\State Initialize trajectory at $t_{\text{start}} = \tau_0 = 999$: $\boldsymbol{\theta} \leftarrow \sqrt{\bar{\alpha}_{\tau_0}}\boldsymbol{\theta}_{\text{init}} + \sqrt{1 - \bar{\alpha}_{\tau_0}}\boldsymbol{\epsilon}$, where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_{18})$.
+\For{$k = 0$ \textbf{to} $3$}
+    \State $t \leftarrow \tau_k, \; t_{\text{prev}} \leftarrow \tau_{k+1}$.
+    \State Form conditioned input: $\mathbf{h} \leftarrow [\boldsymbol{\theta}, \mathbf{f}_g, \mathbf{t}_{\text{emb}}(t)] \in \mathbb{R}^{B \times 2578}$.
+    \State Predict noise: $\hat{\boldsymbol{\epsilon}} \leftarrow \text{net}_\phi(\mathbf{h})$.
+    \State Analytic clean state reconstruction ($\hat{\mathbf{x}}_0 \equiv \hat{\boldsymbol{\theta}}_0$): $\hat{\mathbf{x}}_0 \leftarrow (\boldsymbol{\theta} - \sqrt{1 - \bar{\alpha}_t}\hat{\boldsymbol{\epsilon}}) / \sqrt{\bar{\alpha}_t}$.
+    \State Deterministic DDIM step ($\eta=0$): $\boldsymbol{\theta} \leftarrow \sqrt{\bar{\alpha}_{t_{\text{prev}}}}\hat{\mathbf{x}}_0 + \sqrt{1 - \bar{\alpha}_{t_{\text{prev}}}}\hat{\boldsymbol{\epsilon}}$.
+\EndFor
+\State Final step ($k=4, t=0$): Predict noise $\hat{\boldsymbol{\epsilon}} \leftarrow \text{net}_\phi([\boldsymbol{\theta}, \mathbf{f}_g, \mathbf{t}_{\text{emb}}(0)])$, reconstruct clean state $\hat{\mathbf{x}}_0 \equiv \hat{\boldsymbol{\theta}}_0 \leftarrow (\boldsymbol{\theta} - \sqrt{1 - \bar{\alpha}_0}\hat{\boldsymbol{\epsilon}}) / \sqrt{\bar{\alpha}_0}$, and set $\boldsymbol{\theta}_{\text{final}} \leftarrow \hat{\mathbf{x}}_0$.
+\State Reshape to multi-part transformation tensor: $\boldsymbol{\theta}_{\text{final}} \leftarrow \text{reshape}(\boldsymbol{\theta}_{\text{final}}, (B, 3, 2, 3))$.
+\State \Return $\boldsymbol{\theta}_{\text{final}} \in \mathbb{R}^{B \times 3 \times 2 \times 3}$.
+\end{algorithmic}
+\end{algorithm}

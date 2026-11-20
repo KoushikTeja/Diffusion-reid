@@ -1,0 +1,1126 @@
+[
+  {
+    "file": "FrontMatter/abstract.tex",
+    "line_no": 9,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ],
+      [
+        "SENSITIVE_DEFECT_DEFECTS",
+        "defects"
+      ],
+      [
+        "SENSITIVE_SEVERE",
+        "severely"
+      ]
+    ],
+    "line": "Unsupervised person and vehicle re-identification (Re-ID) across distributed, non-overlapping camera surveillance networks is severely hindered by dramatic cross-camera illumination and viewpoint shifts coupled with clustering pseudo-label noise. The Person Intrinsic Semantic Learning (PISL) framework was proposed to discover view-invariant local parts through a Spatial Transformer Network (STN) coupled with a parameter-space Denoising Diffusion Probabilistic Model (DDPM). In this thesis, an exhaustive mathematical and algorithmic audit of the PISL pipeline reveals that author-reported baseline reproduction deficits---specifically a $-6.9\\%$ mAP shortfall on Market-1501 and a $-9.4\\%$ Rank-1 shortfall on VeRi-776---are strictly governed by eight fundamental mathematical defects and architectural pathologies rather than stochastic seed variations or backbone capacity limitations."
+  },
+  {
+    "file": "FrontMatter/abstract.tex",
+    "line_no": 11,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "First, we establish first-principles theoretical proofs of these failure modes:"
+  },
+  {
+    "file": "FrontMatter/abstract.tex",
+    "line_no": 15,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "(iv)~\\textbf{Theorem 4 (Singular Affine Collapse)}: singular initialization ($\\det(\\mathbf{A}) = 0$, $\\text{rank}=1$) collapses 2D receptive fields onto a 1-dimensional diagonal line with $22.9\\%$ discrete zero-padding; and"
+  },
+  {
+    "file": "FrontMatter/abstract.tex",
+    "line_no": 18,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "To rectify these pathologies, we derive and implement six targeted mathematical and algorithmic optimizations (\\textbf{P1}--\\textbf{P6}):"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 9,
+    "matched_rules": [
+      [
+        "SENSITIVE_SEVERE",
+        "severely"
+      ]
+    ],
+    "line": "Historically, the majority of research in Re-ID has concentrated on supervised learning paradigms~\\cite{he2016deep,hermans2017triplet,lin2019bot}. In supervised settings, deep convolutional neural networks and vision transformers are trained on large-scale datasets annotated with identity labels across multiple camera viewpoints. Although supervised techniques achieve high retrieval accuracy, their real-world utility is severely constrained by the prohibitive cost, labor, and privacy hurdles of dataset annotation. Manually associating identities across hours of footage from tens or hundreds of disparate camera viewpoints requires quadratic human comparison effort and is practically infeasible for large-scale urban camera networks. For instance, annotating a medium-sized benchmark such as Market-1501~\\cite{zheng2015scalable} involves cross-camera labeling of over 32,000 images, while vehicle datasets such as VeRi-776~\\cite{liu2016deepveri} require annotating tens of thousands of vehicle tracks across 20 distinct city intersections."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 33,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ],
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "While conceptually straightforward, this iterative framework faces severe representational instability. Global feature representations conflate identity-defining characteristics with camera-specific domain styles (e.g., background color, camera angle, and ambient lighting). Consequently, standard clustering algorithms generate noisy pseudo-labels, causing two catastrophic failure modes:"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 35,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "Shattering"
+      ]
+    ],
+    "line": "\\item \\textbf{Over-Segmentation (Cluster Shattering)}: Samples of the same physical identity captured by different camera views are partitioned into disjoint clusters because the cross-camera visual discrepancy exceeds the inter-identity feature margin."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 57,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "When cross-camera domain shifts dominate feature variance, the representation space becomes camera-correlated. Under standard density thresholds, the clustering operator $\\Psi$ suffers from severe cross-camera cluster shattering:"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 69,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsing"
+      ]
+    ],
+    "line": "Rather than partitioning feature maps with fixed, rigid horizontal stripes (as in PCB~\\cite{sun2018beyond}), PISL employs a Spatial Transformer Network (STN)~\\cite{jaderberg2015spatial} to dynamically localize $P$ semantic body or vehicle parts (e.g., head, torso, legs, or vehicle hood, roof, rear). To prevent the STN from collapsing into trivial or redundant spatial regions in the absence of full identity supervision, PISL introduces a parameter-space Denoising Diffusion Probabilistic Model (DDPM)~\\cite{ho2020denoising}. The core intuition is that a diffusion model can capture the underlying distribution of valid affine transformation parameters, regularizing the STN to sample patches with intrinsic semantic consistency."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 83,
+    "matched_rules": [
+      [
+        "SENSITIVE_MASSIVE_DEFICIT",
+        "massive deficit"
+      ]
+    ],
+    "line": "\\item On \\textbf{Market-1501}, the baseline reproduction achieved only \\textbf{77.7\\% mAP} and \\textbf{91.0\\% Rank-1}, suffering a massive deficit of \\textbf{$-6.9\\%$ mAP} and \\textbf{$-2.5\\%$ Rank-1} relative to the published TIP 2024 results (84.6\\% mAP / 93.5\\% Rank-1)."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 84,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ]
+    ],
+    "line": "\\item On \\textbf{VeRi-776}, the baseline reproduction achieved \\textbf{41.7\\% mAP} and \\textbf{87.1\\% Rank-1}, falling short by \\textbf{$-1.4\\%$ mAP} and a catastrophic \\textbf{$-9.4\\%$ Rank-1} compared to the reported 96.5\\% Rank-1."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 105,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "While conventional literature often dismisses such discrepancies as the consequence of stochastic seed variance, PyTorch nondeterminism, or hardware environment drift, our comprehensive investigation uncovered a much deeper reality: the observed deficits are governed by \\textbf{eight structural mathematical and architectural pathologies} embedded within the core formulation and codebase."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 107,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathologies"
+      ]
+    ],
+    "line": "\\section{Formalization of the Eight Structural Pathologies}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 110,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "flaws"
+      ]
+    ],
+    "line": "Through line-by-line static mathematical auditing and dynamic telemetry analysis across hundreds of training epochs, we identified eight structural flaws in the baseline pipeline."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 112,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 1: Inverted Gradient in Part Contrastive Loss}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 119,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "where $\\bar{l} = \\sum_{j} w_j l_j$. Whenever a degraded or misaligned semantic part exhibits a loss satisfying $l_k > \\bar{l} + 1.0$, the gradient sign strictly inverts: $\\frac{\\partial \\mathcal{L}_{\\text{cont}}}{\\partial l_k} < 0$. Under gradient descent, the optimizer applies positive updates that actively increase the loss of the failing part, driving under-performing parts into permanent representational collapse."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 121,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 2: Supervision Polarity Inversion in Semantic Consistency Metric}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 125,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ],
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "\\subsection{Pathology 3: Singular Affine Matrix and 1D Coordinate Collapse}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 127,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapses"
+      ]
+    ],
+    "line": "In the spatial transformer parameter initialization (\\texttt{pisl/models/resnet\\_part.py}, lines 140--152), affine matrices were parameterized with initial linear transformation matrix $\\mathbf{A} = \\begin{bmatrix} 1.0 & 1.0 \\\\ 1.0 & 1.0 \\end{bmatrix}$ and translation vector $\\mathbf{t} = \\begin{bmatrix} 0.0 \\\\ -0.1 \\end{bmatrix}$. Because $\\det(\\mathbf{A}) = 1.0 \\times 1.0 - 1.0 \\times 1.0 = 0$, the matrix has rank 1. As proven in \\textbf{Theorem~\\ref{thm:singular_grid}}, this mapping collapses the 2D feature map onto a 1D diagonal line $y_s = x_s - 0.1$, causing exactly \\textbf{22.9\\%} of sampled grid points to fall outside normalized coordinate boundaries and evaluate to zero-padding, destroying spatial context."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 129,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 4: Non-Negative Coordinate Translation Clamping}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 133,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 5: Degenerate Noise Prediction Objective and Bayes-Optimal Floor}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 142,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 6: High-Dimensional Soft Triplet Gradient Vanishing}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 144,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsed"
+      ]
+    ],
+    "line": "In the metric learning objective (\\texttt{pisl/loss/triplet.py}, lines 66--83), soft-margin triplet loss was applied to unnormalized 2048-dimensional feature vectors without a margin parameter: $\\mathcal{L}_{\\text{tri}} = \\ln(1 + \\exp(d_{ap} - d_{an}))$. As established in \\textbf{Theorem~\\ref{sec:lit_hyperspherical_saturation}} and \\textbf{Theorem~\\ref{thm:triplet_saturation}}, in high-dimensional Euclidean space ($\\mathbb{E}[d_{an}] \\approx 64.0$), when the negative distance exceeds the positive distance by merely $\\Delta = d_{ap} - d_{an} \\le -3.5$, the softplus gradient exponentially vanishes to $|\\nabla| \\le 0.029$. Consequently, the triplet loss collapsed to $0.034$ within 5 epochs, rendering metric learning functionally dead for the remaining 45 epochs."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 146,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\subsection{Pathology 7: Multi-Camera Over-Segmentation and Destructive Repulsion}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 148,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "On the VeRi-776 vehicle benchmark, standard unaligned DBSCAN clustered 576 physical vehicles into \\textbf{1,030 clusters} across 20 cameras. In the camera-aware contrastive module, different-camera proxies corresponding to the same physical vehicle were identified as hard negatives and repelled with extreme temperature ($\\tau = 0.07$). This trapped the model in an irreversible cluster-shattering cycle, explaining the $-9.4\\%$ Rank-1 deficit."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 150,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ],
+      [
+        "SENSITIVE_BYPASS",
+        "Bypass"
+      ]
+    ],
+    "line": "\\subsection{Pathology 8: Complete Test-Time Inference Bypass of Part Semantics}"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 162,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "To systematically resolve these eight structural pathologies and establish a rigorous, publication-grade foundation for unsupervised object re-identification, this research is structured around \\textbf{six core research pillars}:"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 166,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "\\item \\textbf{Pillar 2: First-Principles Mathematical Audits and Proofs}: Deriving and proving five fundamental theorems (Theorems~\\ref{thm:grad_inversion} through~\\ref{thm:denoiser_floor}) that formally establish the theoretical failure modes of dynamic un-detached softmax weighting, raw discrepancy scoring, high-dimensional softplus gradient saturation, affine coordinate singularities, and unconditioned diffusion denoising."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 187,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "Failure Mode"
+      ]
+    ],
+    "line": "\\item \\textbf{Theoretical Failure Mode Proofs}: We formulate and prove five theoretical theorems:"
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 192,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "\\item \\textbf{Theorem~\\ref{thm:singular_grid}}: Proving singular coordinate manifold collapse and $22.9\\%$ discrete zero-padding under default affine initialization."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 195,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "\\item \\textbf{Publication-Grade Optimization Suite (P1--P6)}: We derive, implement, and validate six targeted optimizations that eliminate all eight pathologies, restoring true score matching, non-singular spatial geometry, stable metric gradients, and multi-branch test-time part feature extraction."
+  },
+  {
+    "file": "Chapters/chapter1.tex",
+    "line_no": 212,
+    "matched_rules": [
+      [
+        "SENSITIVE_EXCUSES",
+        "excuses"
+      ]
+    ],
+    "line": "\\item \\textbf{Chapter~\\ref{chap:conclusion}} delivers empirical discussions refuting stochastic seed excuses, provides near-optimality ceiling analyses against oracle and supervised bounds, outlines limitations, and delineates frontier future research directions."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 26,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "bypass"
+      ]
+    ],
+    "line": "To bypass reliance on any labeled source data, the field has converged toward \\textit{purely unsupervised} Re-ID, where models are trained exclusively on unannotated target images $\\mathcal{X} = \\{\\mathbf{x}_i\\}_{i=1}^N$. Modern fully unsupervised methods predominantly adopt an iterative self-training paradigm alternating between feature clustering and contrastive model optimization:"
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 43,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "However, as uncovered in this dissertation, when camera numbers grow large---such as the 20 cameras in VeRi-776~\\cite{liu2016deepveri}---unaligned DBSCAN produces severe over-segmentation ($K = 1,030$ clusters for 576 ground-truth vehicles). Under standard hard-negative mining, distinct sub-clusters belonging to the same physical vehicle observed under different viewpoints are treated as mutual negatives and repelled with extreme temperature, creating an irreversible cluster-shattering cycle."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 84,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "Despite their flexibility, unconstrained STNs trained under unsupervised objectives are notorious for coordinate collapse and geometric instability:"
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 86,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapses"
+      ]
+    ],
+    "line": "\\item \\textbf{Singular Grid Transformations}: Without strict regularization, the linear transformation matrix $\\mathbf{A} = \\begin{bmatrix} \\theta_{11} & \\theta_{12} \\\\ \\theta_{21} & \\theta_{22} \\end{bmatrix}$ can degenerate into a singular matrix with $\\det(\\mathbf{A}) = 0$. In this regime, the 2D spatial receptive field collapses onto a 1-dimensional line, as analyzed in Theorem~\\ref{thm:singular_grid}."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 161,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "flaws"
+      ]
+    ],
+    "line": "However, as revealed in our investigation, the baseline implementation of PISL suffered from five critical flaws in its diffusion formulation:"
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 163,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\item Omitting $\\boldsymbol{\\theta}_t$ from the denoiser conditioning, making score matching impossible (Pathology 5, Theorem~\\ref{thm:denoiser_floor})."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 167,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathology"
+      ]
+    ],
+    "line": "\\item Clamping vertical translation parameters to $[0, 1]$, prohibiting upper-body semantic crops (Pathology 4)."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 195,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ]
+    ],
+    "line": "We now introduce \\textbf{Theorem~\\ref{sec:lit_hyperspherical_saturation}}, proving that under these conditions, metric learning gradients suffer from catastrophic exponential vanishing."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 243,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathology"
+      ]
+    ],
+    "line": "To resolve this gradient vanishing pathology, Optimization~P4 projects all feature representations onto the unit hypersphere $\\mathbb{S}^{D-1}$ via $L_2$ normalization prior to computing Euclidean distances:"
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 283,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "Flawed"
+      ]
+    ],
+    "line": "PISL (Reproduction Baseline) & Ours & 77.7 & 91.0 & 41.7 & 87.1 & Flawed Baseline ($\\det=0, \\mathcal{L}_{\\text{noise}} \\ge 1$) \\\\"
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 291,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "flaws"
+      ],
+      [
+        "SENSITIVE_CRIPPLED",
+        "crippled"
+      ]
+    ],
+    "line": "The literature demonstrates a clear evolutionary trajectory: from purely global representations (SpCL), to camera-aware proxies (CAP), to localized part refinement (PPLR), and ultimately to generative parameter-space diffusion (PISL). While the published PISL framework represented a significant conceptual leap, our mathematical audit reveals that its baseline implementation was crippled by fundamental flaws in gradient flow, coordinate topology, diffusion conditioning, and metric scaling."
+  },
+  {
+    "file": "Chapters/chapter2.tex",
+    "line_no": 293,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "By deriving and applying first-principles corrections (Theorems 1 through 5, Optimizations P1 through P6), this dissertation resolves all structural failure modes, establishes new state-of-the-art benchmarks on both Market-1501 and VeRi-776, and provides a rigorous, publication-grade foundation for generative part discovery in unsupervised re-identification."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 7,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "Specifically, as established in Chapter~\\ref{chap:intro}, the baseline implementation of PISL exhibited a $-6.9\\%$ mAP deficit on Market-1501 and a $-9.4\\%$ Rank-1 deficit on VeRi-776 relative to published claims. While prior investigations attributed these shortfalls to stochastic seed variance and hardware execution drift, this chapter demonstrates that the deficits stem directly from fundamental mathematical pathologies in the loss formulations, geometric transformations, and diffusion dynamics."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 12,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "Flaw"
+      ]
+    ],
+    "line": "\\item \\textbf{Part~I: Mathematical Flaw Audits of the Baseline Pipeline} (Section~\\ref{sec:math_audits}): Establishing five formal theorems (Theorems~\\ref{thm:grad_inversion} through~\\ref{thm:denoiser_floor}) with complete, first-principles proofs that explain the mathematical mechanisms causing gradient sign inversion, supervisory polarity inversion, high-dimensional triplet saturation, affine coordinate singularities, and the Bayes-optimal variance floor of unconditioned denoising."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 13,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "\\item \\textbf{Part~II: Mathematical and Algorithmic Optimization Framework (P1--P6)} (Section~\\ref{sec:optimizations}): Deriving the rigorous formulations of the six proposed optimizations that rectify all identified theoretical and structural failure modes."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 89,
+    "matched_rules": [
+      [
+        "SENSITIVE_FLAW_FLAWS_FLAWED",
+        "Flaw"
+      ]
+    ],
+    "line": "\\section{Part I: Mathematical Flaw Audits of the Baseline Pipeline}"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 92,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ],
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "Despite the conceptual elegance of combining spatial transformers with diffusion models, the baseline implementation in the reproduction codebase exhibits catastrophic performance collapse. In this section, we conduct an exhaustive first-principles mathematical audit of the baseline pipeline, identifying five critical theorems that explain the structural failure of the unoptimized model."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 118,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "inducing positive gradient ascent steps under standard gradient descent that destabilize and collapse under-performing semantic parts."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 172,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "This effectively performs \\textbf{gradient ascent} on $l_k$. The optimization actively increases the loss of degraded parts, driving them into an irreversible collapse trajectory."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 193,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsing"
+      ]
+    ],
+    "line": "driving the logit gradient to $\\nabla_{\\mathbf{z}_p} \\mathcal{L}_{\\text{psc-ls}} = \\sigma(\\mathbf{z}_p) - u$ and collapsing discriminative features into maximal entropy uniform noise."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 242,
+    "matched_rules": [
+      [
+        "SENSITIVE_SEVERE",
+        "severely"
+      ]
+    ],
+    "line": "\\item Conversely, when a patch is severely occluded, corrupted, or misaligned, the distributions diverge completely, giving $\\mathrm{MMD} \\to 1$. Substituting $s = 1$:"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 246,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ]
+    ],
+    "line": "The stationary point forces $\\sigma(\\mathbf{z}_p)_{\\hat{y}} = 1.0$. The model is forced to fit hard one-hot pseudo-labels to pure noise artifacts with unit probability, causing catastrophic overfitting on corrupted sub-regions."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 314,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "\\subsection{Theorem 4: Singular Coordinate Manifold Collapse and Out-of-Bounds Padding}"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 319,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "\\begin{theorem}[Singular Coordinate Manifold Collapse and Out-of-Bounds Padding]"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 332,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsing"
+      ]
+    ],
+    "line": "collapsing the 2-dimensional feature space onto the 1-dimensional affine line:"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 352,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsing"
+      ]
+    ],
+    "line": "The image of $[-1, 1]^2$ under $\\mathbf{A}$ is a 1-dimensional subspace. The spatial transformer fails to extract 2D surface patches, instead collapsing the receptive field onto a degenerate diagonal line."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 405,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "Pathologies"
+      ],
+      [
+        "SENSITIVE_SHATTERING",
+        "Shattering"
+      ],
+      [
+        "SENSITIVE_BYPASS",
+        "Bypass"
+      ]
+    ],
+    "line": "\\subsection{Additional Pathologies: Coordinate Clamping, Cluster Shattering, and Test Bypass}"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 407,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ],
+      [
+        "SENSITIVE_SEVERE",
+        "severely"
+      ]
+    ],
+    "line": "In addition to the five proven theorems, three structural and architectural pathologies severely impaired the baseline system:"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 411,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "Shattering"
+      ]
+    ],
+    "line": "\\item \\textbf{Multi-Camera Cluster Shattering and False-Negative Repulsion}: On VeRi-776, unaligned DBSCAN clustering produced 1,030 clusters for 576 true vehicles. When camera-aware contrastive loss (\\texttt{pisl/loss/loss.py}, lines~70--76) mined hard negatives with sharp temperature $\\tau = 0.07$, different-camera instances of the same vehicle were treated as hard negatives and repelled, trapping the vehicle representations in a fragmented multi-cluster cycle that caused the $-9.4\\%$ Rank-1 deficit."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 412,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "Bypass"
+      ]
+    ],
+    "line": "\\item \\textbf{Complete Test-Time Inference Bypass}: In evaluation mode (\\texttt{pisl/models/resnet\\_part.py}, lines~408--410), the model executed:"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 416,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "bypassed"
+      ]
+    ],
+    "line": "During gallery evaluation, the entire Spatial Transformer Network, all part feature representations, and the diffusion model were bypassed. The test evaluation operated as a standard ResNet-50 baseline, completely wasting all learned part semantics."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 422,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ],
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "To resolve all five mathematical failure modes and three structural pathologies, we derive a unified suite of six mathematical and algorithmic optimizations (denoted P1 through P6)."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 448,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "To eliminate the singular coordinate collapse and out-of-bounds zero-padding proven in Theorem~\\ref{thm:singular_grid}, Optimization~P2 replaces unconstrained affine prediction with a bounded residual formulation anchored on canonical horizontal stripes."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 495,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "Under standard border clamping on feature map dimensions, grid sampling maps strictly to valid feature locations without diagonal line collapse, reducing zero-padding from $22.9\\%$ to $0\\%$."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 556,
+    "matched_rules": [
+      [
+        "SENSITIVE_DEFECT_DEFECTS",
+        "defect"
+      ]
+    ],
+    "line": "Standard Denoising Diffusion Probabilistic Models (DDPM) require $T = 1000$ sequential stochastic transitions during reverse sampling, creating an impractical computational bottleneck when performing offline gallery feature extraction across training epochs. Furthermore, the baseline code suffered from an iterative DDIM formula defect (re-scaling noisy states rather than conditioning on $\\hat{\\mathbf{x}}_0$) and contained a batch-scrambling `theta_renewal` routine that detached coordinate proposals from corresponding images."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 572,
+    "matched_rules": [
+      [
+        "SENSITIVE_BUG_BUGS_BUGGY",
+        "buggy"
+      ]
+    ],
+    "line": "Additionally, Optimization~P5 completely purges the buggy `theta_renewal` and `use_ensemble` routines, preserving exact sample index alignment across mini-batches and eliminating feature extraction latency during epoch-level clustering."
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 589,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "\\item \\textbf{Cross-Camera False-Negative Proxy Discounting}: To prevent the multi-camera cluster shattering on VeRi-776, we introduce a false-negative masking filter in the camera-aware contrastive loss. Negative proxies exhibiting high cosine similarity ($\\ge \\tau_{\\text{merge}} = 0.65$) to the query feature are masked from the negative denominator:"
+  },
+  {
+    "file": "Chapters/chapter3.tex",
+    "line_no": 594,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "bypass"
+      ]
+    ],
+    "line": "\\item \\textbf{Multi-Branch Test-Time Feature Fusion}: To resolve the test-time inference bypass, we fuse the normalized global feature $\\mathbf{f}_g$ with the mean-pooled localized part feature $\\bar{\\mathbf{f}}_p = \\frac{1}{P}\\sum_{p=0}^{P-1}\\mathbf{f}_p^{(p)}$:"
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 5,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure modes"
+      ]
+    ],
+    "line": "This chapter presents the comprehensive experimental evaluation of the mathematically optimized Prior-Informed Score and Diffusion Learning (PISL) framework. We begin by detailing the benchmark datasets, evaluation protocols, and implementation parameters. We then provide a rigorous diagnostic reinterpretation of the training dynamics, demystifying the baseline failure modes through the lens of the formal theorems established in Chapter~\\ref{ch:methodology}. Subsequently, we report the master quantitative benchmark comparisons against both the published paper and the reproduced baseline, followed by controlled progressive ablations (A0 through A8), a leave-one-out sensitivity analysis, a diagnostic validation checklist, and an efficiency benchmark. Finally, qualitative visual results\u2014including spatial attention heatmaps, retrieval ranking lists, and t-SNE feature cluster embeddings\u2014are presented to visually corroborate the mathematical optimizations."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 135,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "\\subsection{Demystifying the Triplet Loss Collapse (High-Dimensional Gradient Dying)}"
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 137,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "The baseline report noted with approval that the soft margin triplet loss $\\mathcal{L}_{\\text{tri}}$ rapidly converged from 0.82 at epoch 1 to 0.034 by epoch 5, interpreting this as ``rapid metric learning where positive pairs collapse together and negative pairs are cleanly separated.''"
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 139,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "As proven in Theorem~\\ref{thm:triplet_gradient_vanishing}, this collapse is an artifact of exponential gradient saturation in high-dimensional Euclidean space ($D=2048$). Unnormalized 2048-dimensional features have expected pairwise distances scaling as $\\mathbb{E}[d] \\approx \\sqrt{2D}\\sigma_c \\approx 64.0$. Under the un-margined softplus loss $\\mathcal{L}_{\\text{tri}} = \\ln(1 + e^\\Delta)$ with $\\Delta = d_{ap} - d_{an}$:"
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 151,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "In reality, unaligned DBSCAN split multi-camera vehicle trajectories into separate camera-specific sub-clusters. In `CameraContrast`, same-vehicle representations across differing camera viewpoints were selected as hard negatives and repelled with extreme temperature ($\\tau = 0.07$). This created an irreversible cluster-shattering cycle: the more the model trained, the more aggressively it repelled different views of the same vehicle into disparate clusters, directly accounting for the reproduced $-9.4\\%$ Rank-1 deficit."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 159,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapses"
+      ]
+    ],
+    "line": "As proven in Theorem~\\ref{thm:singular_grid_collapse}, $\\det(\\mathbf{A}) = 0$ collapses the 2D feature patch onto the 1D line $y_s = x_s - 0.1$, causing $22.9\\%$ of the sampling grid to fall outside $[-1, 1]$ into zero-padding. Under Optimization P2, canonical horizontal stripe anchors with bounded residual parameterization guarantee $\\min \\det(\\mathbf{A}) \\ge 0.196 > 0$, eliminating out-of-bounds padding entirely ($0.0\\%$)."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 189,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ]
+    ],
+    "line": "\\textbf{Analysis of VeRi-776 Results:} On VeRi-776, the baseline reproduction exhibited a catastrophic $-9.4\\%$ Rank-1 deficit (87.1\\% vs.\\ 96.5\\%). Mathematical optimization elevates Rank-1 by **$+9.0\\%$** to **96.1%**, essentially matching the paper's peak Rank-1. Furthermore, base mAP surges by **$+10.7\\%$** to **52.4%**, obliterating the paper's reported 43.1\\% by **$+9.3\\%$ mAP**. With $k$-reciprocal re-ranking, the optimized model achieves **54.1\\% mAP** and **96.6\\% Rank-1**, setting a new high-water mark for unsupervised vehicle re-identification."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 260,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "bypass"
+      ]
+    ],
+    "line": "\\item \\textbf{A6 $\\to$ A7 (+1.3\\% Market mAP, +1.6\\% VeRi mAP, +0.9\\% VeRi Rank-1):} Test-time feature fusion concats normalized global features with pooled part embeddings ($\\mathbb{R}^{4096}$), finally resolving the inference bypass and leveraging localized part semantics during gallery retrieval."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 270,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapses"
+      ]
+    ],
+    "line": "\\item \\textbf{A7 w/o P2 (Bounded Residual STN):} VeRi mAP drops by **$-2.1\\%$** (to 50.3\\%), and Rank-1 drops by **$-2.4\\%$**. Re-introducing the singular initialization collapses coordinate grids and introduces zero-padding."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 275,
+    "matched_rules": [
+      [
+        "SENSITIVE_FAILURE_MODE",
+        "failure mode"
+      ]
+    ],
+    "line": "The LOO sensitivity analysis proves that the performance gains are not concentrated in a single lucky modification; rather, every proposal addresses a distinct, orthogonal failure mode."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 295,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "Bypassed"
+      ]
+    ],
+    "line": "Test Embedding Dimension ($D$)                       & $\\ge 4096$ & 2048 (Bypassed) & \\textbf{4096 (Fused)} & \\textbf{Validated} \\\\"
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 366,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapsed"
+      ]
+    ],
+    "line": "On Market-1501 (Figure~\\ref{fig:heatmaps_market}), the bounded residual parameterization cleanly anchors the three semantic parts to anatomical stripes: upper chest/headwear, torso/backpacks, and lower legs/footwear. Unlike the baseline's collapsed 1D diagonal sampling, the receptive fields remain bounded, non-singular, and free from background clutter. On VeRi-776 (Figure~\\ref{fig:heatmaps_veri}), the localized patches track distinctive vehicle markings\u2014such as roof racks, distinctive hood contours, and taillight geometries\u2014even under steep oblique camera angles."
+  },
+  {
+    "file": "Chapters/chapter4.tex",
+    "line_no": 402,
+    "matched_rules": [
+      [
+        "SENSITIVE_CATASTROPHIC",
+        "catastrophic"
+      ]
+    ],
+    "line": "As evident in Figure~\\ref{fig:ranking_veri}, the baseline's catastrophic multi-camera vehicle failure is completely resolved. Even when a query vehicle is viewed from the front, the optimized model reliably retrieves rear and profile views from other cameras at ranks 1, 2, and 3, directly corroborating the efficacy of cross-camera proxy discounting (Optimization P6c) and test-time feature fusion (Optimization P6b)."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 5,
+    "matched_rules": [
+      [
+        "SENSITIVE_EXCUSES",
+        "excuses"
+      ],
+      [
+        "SENSITIVE_FORENSIC",
+        "forensic"
+      ]
+    ],
+    "line": "This concluding chapter synthesizes the theoretical, algorithmic, and empirical contributions of this thesis. First, we provide a forensic empirical analysis that definitively refutes the prevailing excuses of random seeds and hardware discrepancies, and dissects the graph-theoretic mechanics of $k$-reciprocal mutual nearest neighbor re-ranking. Second, we establish the near-optimality ceiling of the optimized representations through comparison with supervised upper bounds, conduct an Oracle Clustering test, and analyze parameter-space versus pixel-space diffusion regularisation. Third, we delineate the inherent limitations of the current framework. Fourth, we outline strategic frontier directions for future investigation, including Vision Transformers, Vision-Language Models, and explicit 3D geometric representations. Finally, we conclude with a summary of the principal findings and milestone achievements of this research."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 7,
+    "matched_rules": [
+      [
+        "SENSITIVE_EXCUSES",
+        "Excuses"
+      ]
+    ],
+    "line": "\\section{Empirical Analysis and Refutation of Random Seed and Hardware Excuses}"
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 10,
+    "matched_rules": [
+      [
+        "SENSITIVE_EXCUSES",
+        "Excuses"
+      ],
+      [
+        "SENSITIVE_FORENSIC",
+        "Forensic"
+      ]
+    ],
+    "line": "\\subsection{Forensic Telemetry and Refutation of Stochastic Variance Excuses}"
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 14,
+    "matched_rules": [
+      [
+        "SENSITIVE_FORENSIC",
+        "forensic"
+      ]
+    ],
+    "line": "A rigorous forensic audit of the experimental telemetry completely refutes this stochastic hypothesis. Table~\\ref{tab:seed_dispersion} presents the cross-seed dispersion across multiple training runs (`evqtgbab`, `524dd7to`, `bypowynl`, `ew2jm9a1`, `n08qijib`) initialized with distinct random seeds ($\\text{seed} \\in \\{1, 2, 42\\}$) under identical baseline hyperparameters."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 34,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ],
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "Consequently, the baseline performance collapse was not caused by bad random seeds or hardware drift. It was the deterministic consequence of the eight mathematical and structural pathologies proven in Chapter~\\ref{ch:methodology}:"
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 36,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ]
+    ],
+    "line": "\\item \\textbf{Theorem~\\ref{thm:part_gradient_inversion} (Inverted Part Gradients):} The un-detached part contrastive softmax weighting caused $\\frac{\\partial \\mathcal{L}_{\\text{cont}}}{\\partial l_k} < 0$ whenever $l_k > \\bar{l} + 1.0$, converting gradient descent into gradient ascent and actively driving failing parts into collapse."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 39,
+    "matched_rules": [
+      [
+        "SENSITIVE_COLLAPSE",
+        "Collapse"
+      ]
+    ],
+    "line": "\\item \\textbf{Theorem~\\ref{thm:singular_grid_collapse} (Singular Coordinate Manifold Collapse):} The initial affine matrix $\\mathbf{A} = \\begin{bmatrix} 1 & 1 \\\\ 1 & 1 \\end{bmatrix}$ had $\\det(\\mathbf{A}) = 0$, collapsing 2D patches into 1D lines with $22.9\\%$ out-of-bounds zero-padding."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 41,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "fractured"
+      ]
+    ],
+    "line": "\\item \\textbf{Multi-Camera Cluster Fragmentation:} Treating cross-camera vehicle views as hard negatives fractured VeRi-776 into 1,030 clusters, driving the $-9.4\\%$ Rank-1 deficit."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 42,
+    "matched_rules": [
+      [
+        "SENSITIVE_BYPASS",
+        "Bypass"
+      ]
+    ],
+    "line": "\\item \\textbf{Inference Bypass:} Discarding part representations during evaluation prevented learned semantic parts from contributing to retrieval."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 44,
+    "matched_rules": [
+      [
+        "SENSITIVE_BUG_BUGS_BUGGY",
+        "bugs"
+      ]
+    ],
+    "line": "Once these mathematical bugs were resolved through Optimizations P1--P6, performance immediately surpassed the published results across all metrics (Table~\\ref{tab:master_quantitative_results})."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 164,
+    "matched_rules": [
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ]
+    ],
+    "line": "\\item \\textbf{Text-Prompted Pseudo-Label Alignment:} Leveraging text attribute prompts generated by vision-language models to supervise and constrain DBSCAN clustering, preventing same-vehicle sub-clusters from shattering across cameras."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 192,
+    "matched_rules": [
+      [
+        "SENSITIVE_BUG_BUGS_BUGGY",
+        "bugs"
+      ],
+      [
+        "SENSITIVE_COLLAPSE",
+        "collapse"
+      ],
+      [
+        "SENSITIVE_SHATTERING",
+        "shattering"
+      ],
+      [
+        "SENSITIVE_BYPASS",
+        "bypassing"
+      ]
+    ],
+    "line": "Through systematic investigation, we established that the performance deficits observed in reproduction studies were not stochastic anomalies, but the direct consequence of eight structural mathematical bugs: inverted part contrastive gradients (Theorem~\\ref{thm:part_gradient_inversion}), polarity-inverted MMD consistency supervision (Theorem~\\ref{thm:mmd_polarity_inversion}), exponential triplet gradient vanishing (Theorem~\\ref{thm:triplet_gradient_vanishing}), singular affine coordinate collapse (Theorem~\\ref{thm:singular_grid_collapse}), unconditioned denoiser trapping at the unit Gaussian variance floor (Theorem~\\ref{thm:denoiser_variance_floor}), coordinate clamping, multi-camera cluster shattering, and test-time feature bypassing."
+  },
+  {
+    "file": "Chapters/chapter5.tex",
+    "line_no": 194,
+    "matched_rules": [
+      [
+        "SENSITIVE_PATHOLOGY_PATHOLOGIES",
+        "pathologies"
+      ]
+    ],
+    "line": "To resolve these pathologies, we formulated and implemented six rigorous mathematical and algorithmic optimizations (**P1 through P6**):"
+  }
+]

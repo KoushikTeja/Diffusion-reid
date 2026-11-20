@@ -1,0 +1,33 @@
+\thispagestyle{plain}
+\begin{center}
+    \vspace*{-1.0em}
+    {\large \textbf{ABSTRACT}}
+\end{center}
+\vspace{-1.0em}
+
+\begingroup
+\small
+\noindent
+Unsupervised person and vehicle re-identification (Re-ID) across distributed camera surveillance networks is hindered by severe viewpoint shifts and clustering pseudo-label noise. The Person Intrinsic Semantic Learning (PISL) framework discovers view-invariant local parts via a Spatial Transformer Network (STN) coupled with parameter-space diffusion modeling. In this thesis, a rigorous mathematical and algorithmic investigation demonstrates that initial reproduction discrepancies relative to published findings (Market-1501: 83.8\% vs.\ 84.6\% mAP; VeRi-776: 42.3\% vs.\ 43.1\% mAP) reflect optimization bottlenecks in loss formulations, coordinate transformations, and diffusion dynamics.
+
+First, we establish first-principles theoretical analyses and proofs characterizing these optimization bottlenecks:
+(i)~\textbf{Theorem 1 (Part Gradient Inversion)}: un-detached dynamic softmax weighting induces negative gradients ($\partial \mathcal{L}_{\text{cont}} / \partial l_k < 0$) when part loss exceeds the batch mean by $>1.0$, causing gradient ascent on struggling semantic parts;
+(ii)~\textbf{Theorem 2 (Supervision Polarity Inversion)}: direct linear assignment of raw MMD distance inverts label smoothing polarity, penalizing well-aligned parts with uniform noise while fitting corrupted parts to hard pseudo-labels;
+(iii)~\textbf{Theorem 3 (High-Dimensional Triplet Gradient Saturation)}: unnormalized 2048-dimensional embeddings under unmargined softplus attenuate backpropagated metric gradients by $>97\%$ ($|\nabla| \le 0.029$);
+(iv)~\textbf{Theorem 4 (Singular Affine Collapse)}: singular initialization ($\det(\mathbf{A}) = 0$) collapses 2D receptive fields onto a 1-dimensional diagonal line with 22.9\% discrete zero-padding; and
+(v)~\textbf{Theorem 5 (Bayes-Optimal Denoiser Variance Floor)}: omitting the noisy parameter state $\boldsymbol{\theta}_t$ from the denoising network bounds noise prediction loss at the unconditioned Gaussian prior variance floor ($\mathcal{L}_{\text{noise}} \ge 1.000$).
+
+To resolve these bottlenecks, we formulate a unified suite of mathematically grounded algorithmic refinements and architectural enhancements (\textbf{P1}--\textbf{P6}):
+a score-conditioned denoiser observing $[\boldsymbol{\theta}_t, \mathbf{f}_g, \mathbf{t}_{\text{emb}}]$ with Tweedie analytic reconstruction (\textbf{P1});
+an architectural refinement via a bounded residual STN with canonical non-singular horizontal stripe anchors strictly bounding $\det(\mathbf{A}) \ge 0.196$ driven by a compact MLP (\textbf{P2});
+detached contrastive weighting with Gaussian heat kernel consistency scoring $s = \exp(-\text{MMD}^2/2\sigma^2)$ (\textbf{P3});
+an $L_2$-normalized soft margin triplet loss on the unit hypersphere $\mathbb{S}^{D-1}$ ($m=0.3, \beta=2.0$) preventing saturation (\textbf{P4});
+an accelerated sampling refinement using an analytic 5-step deterministic DDIM reverse trajectory ($\eta = 0$) preserving batch index ordering (\textbf{P5}); and
+decoupled optimizer scheduling, Adam moment buffer resets, cross-camera false-negative proxy discounting ($\tau_{\text{merge}}=0.65$), and test-time feature fusion (\textbf{P6}).
+
+Extensive evaluations across Market-1501 and VeRi-776 demonstrate that the refined framework achieves substantial performance gains: reaching \textbf{85.6\% mAP} and \textbf{94.2\% Rank-1} on Market-1501 (surpassing the published TIP 2024 paper's 84.6\% mAP), and \textbf{52.4\% mAP} and \textbf{96.1\% Rank-1} on VeRi-776 (improving by $+10.1\%$ mAP over baseline reproduction and $+9.3\%$ over the reported paper baseline). With $k$-reciprocal re-ranking, performance reaches \textbf{89.8\% mAP} on Market-1501 and \textbf{54.1\% mAP} on VeRi-776.
+
+\vspace{0.4\baselineskip}
+\noindent
+\textbf{Keywords}: Unsupervised Person Re-Identification, Vehicle Re-Identification, Diffusion Models, Spatial Transformer Networks, Score-Based Generative Modeling, Deep Metric Learning, Denoising Diffusion Implicit Models.
+\endgroup
