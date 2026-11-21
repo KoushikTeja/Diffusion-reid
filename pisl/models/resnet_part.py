@@ -317,28 +317,8 @@ class ResNetPart(nn.Module):
         f_g = self.bnneck(f_g_raw)
         
         if self.training is False:
-            f_g_norm = F.normalize(f_g, p=2, dim=1)
-            if not getattr(self, 'eval_fusion', True):
-                return f_g_norm
-
-            # P6: Test-time feature fusion of global + DDIM-refined parts
-            initial_theta = self.patch_proposal(f_g_raw)
-            theta = self.diffusion_patch.ddim_sample(f_g, num_steps=5, theta_init=initial_theta)
-            
-            f_p = []
-            for i in range(self.num_parts):
-                stripe = theta[:, i, :, :].float()
-                grid = F.affine_grid(stripe, x.size(), align_corners=False)
-                f_p_i = F.grid_sample(x, grid, align_corners=False)
-                f_p_i = self.gap(f_p_i).view(x.size(0), -1)
-                f_p_i = getattr(self, 'bnneck' + str(i))(f_p_i)
-                f_p.append(F.normalize(f_p_i, p=2, dim=1))
-                
-            f_p_mean = torch.stack(f_p, dim=1).mean(dim=1)
-            f_p_mean = F.normalize(f_p_mean, p=2, dim=1)
-            f_fused = torch.cat([f_g_norm, 0.5 * f_p_mean], dim=1)
-            f_fused = F.normalize(f_fused, p=2, dim=1)
-            return f_fused
+            f_g = F.normalize(f_g, p=2, dim=1)
+            return f_g
 
         logits_g = self.classifier(f_g)
         
