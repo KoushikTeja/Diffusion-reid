@@ -278,7 +278,6 @@ def main_worker(args):
         print(f"  => Restored best mAP: {best_mAP:.1%}")
 
     evaluator = Evaluator(model)
-    model.module.eval_fusion = not args.no_eval_fusion
 
     # P6: Decoupled parameter groups with differential learning rates
     # Backbone (pretrained): 0.1x LR (3.5e-5) to preserve features
