@@ -69,6 +69,7 @@ class SoftTripletLoss(nn.Module):
 		self.margin = margin
 
 	def forward(self, emb, label):
+		emb = F.normalize(emb, p=2, dim=1)
 		mat_dist = euclidean_dist(emb, emb)
 		assert mat_dist.size(0) == mat_dist.size(1)
 		N = mat_dist.size(0)

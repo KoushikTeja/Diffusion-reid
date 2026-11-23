@@ -39,13 +39,15 @@ class PatchGenerator(nn.Module):
         )
         
         # Initialize transformation parameters for 3 local regions
-        # Each region has 3x2 parameters (scale_x, scale_y, translation_x, scale_x, scale_y, translation_y)
-        path_postion = [1, 1/3, 1/3,
-                        1, 1/3, 1/3,
-                        1, 1/3, 1/3,
-                        1, 1/3, 1/3,
-                        1, 1/3, 1/3,
-                        1, 1/3, 1/3,]
+        # Standard non-singular identity linear transformation A = [[1, 0], [0, 1]], det(A) = 1.0
+        path_postion = [
+            1.0, 0.0, 0.0,
+            0.0, 1.0, -0.2,   # Head
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,    # Torso
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.2,    # Legs
+        ]
         
         # Initialize weights and biases
         self.fc_loc[2].weight.data.zero_()
@@ -137,18 +139,19 @@ class DiffusionPatchGenerator(nn.Module):
         )
         
         # Initialize transformation parameters for pedestrian key regions
+        # Standard non-singular identity linear transformation A = [[1, 0], [0, 1]], det(A) = 1.0
         path_postion = [
-            # Head region - maintain original size, precise upward shift
-            1.0, 1.0, 0.0,    # First row maintain original size
-            1.0, 1.0, -0.1,   # Second row slight upward shift
+            # Head region - identity scale, upward shift
+            1.0, 0.0, 0.0,
+            0.0, 1.0, -0.2,
             
-            # Upper body region - maintain original size, precise centering
-            1.0, 1.0, 0.0,    # First row maintain original size
-            1.0, 1.0, 0.0,    # Second row maintain original size
+            # Upper body region - identity scale, center
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,
             
-            # Lower body region - maintain original size, precise downward shift
-            1.0, 1.0, 0.0,    # First row maintain original size
-            1.0, 1.0, 0.1,    # Second row slight downward shift
+            # Lower body region - identity scale, downward shift
+            1.0, 0.0, 0.0,
+            0.0, 1.0, 0.2,
         ]
         
         self.net[-1].weight.data.zero_()

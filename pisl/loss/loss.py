@@ -125,8 +125,8 @@ class DiffusionThetaLoss(nn.Module):
             log_prob = sim_matrix - torch.log(exp_sim.sum(dim=1, keepdim=True))
             part_loss = -((log_prob * labels).sum(1) / (labels.sum(1) + 1e-6)).mean()
             
-            # Compute weight based on discriminability
-            part_weight = torch.exp(-part_loss)
+            # Compute weight based on discriminability (detached to eliminate negative gradient inversion)
+            part_weight = torch.exp(-part_loss.detach())
             part_losses.append(part_loss)
             part_weights.append(part_weight)
         

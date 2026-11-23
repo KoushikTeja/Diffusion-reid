@@ -203,7 +203,9 @@ def compute_semantic_consistency(features_g, features_p, k, search_option=0):
                 ) / (k * 2)
 
                 mmd_score = torch.clamp(mmd_score, min=0.0, max=1.0)
-                score[batch_start + j, i] = mmd_score
+                # Convert distance discrepancy to similarity consistency metric in [0.0, 1.0]
+                consistency = torch.clamp(1.0 - mmd_score, min=0.0, max=1.0)
+                score[batch_start + j, i] = consistency
 
     print("semantic consistency score time cost: {}".format(time.time() - end))
     return score
@@ -409,6 +411,19 @@ def main_worker(args):
             part_memory.cids = torch.Tensor(proxy_cids).long().cuda()
             part_memories.append(part_memory)
 
+        # Reset Adam momentum buffers for classifier weights to prevent stale momentum drift
+        model_m = model.module if hasattr(model, 'module') else model
+        classifier_params = [model_m.classifier.weight] + [
+            getattr(model_m, f'classifier{i}').weight for i in range(num_parts)
+        ]
+        for p in classifier_params:
+            if p in optimizer.state:
+                state = optimizer.state[p]
+                if 'exp_avg' in state:
+                    state['exp_avg'].zero_()
+                if 'exp_avg_sq' in state:
+                    state['exp_avg_sq'].zero_()
+
         t_memory = time.time() - t0
         print_step("Centroids + memory banks", t_memory,
                    f"proxies={len(proxy_pids)}  centroids={len(global_centroids)}")
@@ -523,6 +538,7 @@ if __name__ == '__main__':
     # cluster
     parser.add_argument('--k1', type=int, default=30)
     parser.add_argument('--k2', type=int, default=6)
-    parser.add_argument('--eps', type=float, default=0.5)
+    parser.add_argument('--eps', type=float, default=0.4,
+                        help="distance threshold for DBSCAN (0.4 for Market-1501, 0.6 for MSMT17, 0.7 for VeRi-776)")
 
     main()
