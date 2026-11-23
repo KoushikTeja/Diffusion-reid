@@ -9,12 +9,12 @@ class PSC_LS(nn.Module):
     """Label smoothing loss for patch semantic consistency"""
     def __init__(self):
         super(PSC_LS, self).__init__()
-        self.logsoftmax = nn.LogSoftmax(dim=1)
+        self.logsoftmax = nn.LogSoftmax(dim=1).cuda()
 
     def forward(self, logits, targets, consistency_scores):
         log_preds = self.logsoftmax(logits)  # B * C
         targets = torch.zeros_like(log_preds).scatter_(1, targets.unsqueeze(1), 1)
-        uniform_dist = torch.ones_like(log_preds) / log_preds.size(-1)
+        uniform_dist = (torch.ones_like(log_preds) / log_preds.size(-1)).cuda()
 
         ce_loss = (- targets * log_preds).sum(1)
         kld_loss = F.kl_div(log_preds, uniform_dist, reduction='none').sum(1)
@@ -47,13 +47,12 @@ class CameraContrast(nn.Module):
     """
     Camera-aware contrastive loss for cross-camera person re-identification
     """
-    def __init__(self, feat_dim, num_cams, num_hards=50, temp=0.07, tau_merge=None):
+    def __init__(self, feat_dim, num_cams, num_hards=50, temp=0.07):
         super(CameraContrast, self).__init__()
         self.feat_dim = feat_dim  # D
         self.num_cams = num_cams  # N
         self.num_hards = num_hards
         self.temp = temp
-        self.tau_merge = tau_merge
         self.logsoftmax = nn.LogSoftmax(dim=0)
         self.register_buffer('proxy', torch.zeros(num_cams, feat_dim))
         self.register_buffer('pids', torch.zeros(num_cams).long())
@@ -61,26 +60,21 @@ class CameraContrast(nn.Module):
 
     def forward(self, features, targets, cams):
         batch_size, feat_dim = features.shape
-        features = F.normalize(features, dim=1)  # B * D
+        features = F.normalize(features, dim=1).cuda()  # B * D
         similarities = features @ self.proxy.T  # B * N
         similarities /= self.temp
         temp_similarities = similarities.detach().clone()
         
-        loss = torch.tensor([0.], device=features.device)
+        loss = torch.tensor([0.]).cuda()
         for i in range(batch_size):
             pos_mask = (targets[i] == self.pids).float() * (cams[i] != self.cids).float()
             neg_mask = (targets[i] != self.pids).float()
-            # Discount false negatives (e.g., shattered multi-view vehicle clusters)
-            if self.tau_merge is not None and self.tau_merge > 0:
-                raw_cos = temp_similarities[i] * self.temp
-                neg_mask = neg_mask * (raw_cos < self.tau_merge).float()
-
             pos_idx = torch.nonzero(pos_mask > 0).squeeze(-1)
             if len(pos_idx) == 0:
                 continue
             hard_neg_idx = torch.sort(temp_similarities[i] + (-9999999.) * (1.-neg_mask), descending=True).indices[:self.num_hards]
             batch_similarities = similarities[i, torch.cat([pos_idx, hard_neg_idx])]
-            batch_targets = torch.zeros(len(batch_similarities), device=features.device)
+            batch_targets = torch.zeros(len(batch_similarities)).cuda()
             batch_targets[:len(pos_idx)] = 1.0 / len(pos_idx)
             loss += - (batch_targets * self.logsoftmax(batch_similarities)).sum()
 
@@ -131,14 +125,14 @@ class DiffusionThetaLoss(nn.Module):
             log_prob = sim_matrix - torch.log(exp_sim.sum(dim=1, keepdim=True))
             part_loss = -((log_prob * labels).sum(1) / (labels.sum(1) + 1e-6)).mean()
             
-            # Compute weight based on discriminability
-            part_weight = torch.exp(-part_loss)
+            # Compute weight based on discriminability (detached to eliminate negative gradient inversion)
+            part_weight = torch.exp(-part_loss.detach())
             part_losses.append(part_loss)
             part_weights.append(part_weight)
         
-        # Normalize weights and DETACH to prevent inverted gradient in part contrastive loss (Theorem 1)
+        # Normalize weights
         part_weights = torch.stack(part_weights)
-        part_weights = (part_weights / (part_weights.sum() + 1e-8)).detach()
+        part_weights = part_weights / part_weights.sum()
         
         # Compute weighted average contrastive loss
         contrastive_loss = sum(w * l for w, l in zip(part_weights, part_losses))

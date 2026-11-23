@@ -64,25 +64,21 @@ class TripletLoss(nn.Module):
 
 
 class SoftTripletLoss(nn.Module):
-	def __init__(self, margin=0.3, beta=2.0, normalize_feature=True):
+	def __init__(self, margin=0.0):
 		super(SoftTripletLoss, self).__init__()
 		self.margin = margin
-		self.beta = beta
-		self.normalize_feature = normalize_feature
 
 	def forward(self, emb, label):
-		if self.normalize_feature:
-			emb = F.normalize(emb, p=2, dim=1)
+		emb = F.normalize(emb, p=2, dim=1)
 		mat_dist = euclidean_dist(emb, emb)
 		assert mat_dist.size(0) == mat_dist.size(1)
 		N = mat_dist.size(0)
 		mat_sim = label.expand(N, N).eq(label.expand(N, N).t()).float()
 
-		dist_ap, dist_an = _batch_hard(mat_dist, mat_sim)
+		dist_ap, dist_an, ap_idx, an_idx = _batch_hard(mat_dist, mat_sim, indice=True)
 		assert dist_an.size(0) == dist_ap.size(0)
-		
-		# Temperature-scaled soft margin triplet loss preventing gradient vanishing
-		delta = self.beta * (dist_ap - dist_an + self.margin)
-		loss = F.softplus(delta).mean() / self.beta
+		triple_dist = torch.stack((dist_ap, dist_an), dim=1)
+		triple_dist = F.log_softmax(triple_dist, dim=1)
+		loss = (- self.margin * triple_dist[:, 0] - (1 - self.margin) * triple_dist[:, 1]).mean()
 
 		return loss

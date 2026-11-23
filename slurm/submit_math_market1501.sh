@@ -89,6 +89,7 @@ python examples/train_pisl_cam.py \
     --batch-size 64 \
     --workers 4 \
     --epochs 50 \
-    --eval-step 5
+    --eval-step 5 \
+    --eps 0.4
 
 echo "Job finished at: $(date)"
